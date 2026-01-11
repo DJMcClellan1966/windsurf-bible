@@ -1,8 +1,10 @@
 # Future Improvements - Consolidated TODO
 
-> **Last Updated:** January 11, 2026  
+> **Last Updated:** January 11, 2026 (Evening)  
 > This document consolidates all unimplemented recommendations from the various markdown files.
 > The markdown files have been reviewed and all **completed** features are already in the codebase.
+> 
+> **Recent Additions:** CI/CD pipeline, Azure OpenAI, Serilog logging, SQLite storage, usage metrics, feedback form, expanded tests (84+)
 
 ---
 
@@ -12,7 +14,7 @@ The following major features are **already implemented** and working:
 
 - ✅ Local AI with Phi-4 via Ollama
 - ✅ RAG with Bible verses (WEB + KJV translations)
-- ✅ 11 Biblical characters with unique personalities
+- ✅ 18 Biblical characters with unique personalities
 - ✅ Modern MAUI UI with chat, prayers, reflections
 - ✅ Multi-user system with PIN protection
 - ✅ Character Memory System (characters remember users)
@@ -27,6 +29,7 @@ The following major features are **already implemented** and working:
 - ✅ Content moderation
 - ✅ Offline AI models support (Ollama)
 - ✅ Groq cloud fallback for mobile
+- ✅ Azure OpenAI cloud integration
 - ✅ Keyboard shortcuts infrastructure
 - ✅ Daily devotionals backend
 - ✅ Verse bookmarks backend
@@ -34,6 +37,12 @@ The following major features are **already implemented** and working:
 - ✅ Secure API key storage (DPAPI)
 - ✅ Performance optimizations (caching, connection pooling)
 - ✅ Accessibility properties on key elements
+- ✅ Serilog structured logging
+- ✅ SQLite repositories for chat/prayer history
+- ✅ GitHub Actions CI/CD pipeline
+- ✅ Usage metrics service (local, anonymized)
+- ✅ In-app feedback form
+- ✅ Bible data compression/optimization
 
 ---
 
@@ -283,25 +292,37 @@ Current: 11 characters
 | `FEATURES.md` | ⚠️ Partial | Reading Plan/Background not built |
 | `IMPROVEMENTS_IMPLEMENTED.md` | ⚠️ Partial | Some UI pages missing |
 | `GROK_SUGGESTIONS.md` | ⚠️ Reference | Roadmap document |
+| `CONTRIBUTING.md` | ✅ Complete | Contributor guidelines |
+| `SECURITY.md` | ✅ Complete | Privacy & security policy |
+| `BRANCHING_STRATEGY.md` | ✅ Complete | Git workflow |
+| `CHANGELOG.md` | ✅ Complete | Version history |
 
 ---
 
 ## 🎯 Recommended Next Steps
 
 ### Quick Wins (1-2 hours each)
-1. Create `DevotionalPage.xaml` (backend ready)
-2. Create `BookmarksPage.xaml` (backend ready)
-3. Wire keyboard shortcuts to ViewModels
+1. ~~Create `DevotionalPage.xaml`~~ ✅ Done
+2. ~~Create `BookmarksPage.xaml`~~ ✅ Done
+3. ~~Wire keyboard shortcuts to ViewModels~~ ✅ Done
 
 ### Medium Effort (4-8 hours each)
-4. Implement dynamic font size scaling
-5. Populate Bible verse index on startup
-6. Add more Bible verses (expand from 18 to full Bible)
+4. ~~Implement dynamic font size scaling~~ ✅ Done
+5. ~~Populate Bible verse index on startup~~ ✅ Done
+6. ~~Add more Bible verses~~ ✅ Done (31,098 verses)
 
 ### Larger Features (1-2 days each)
 7. Bible Reading Plan system
 8. Biblical Background Information module
 9. Daily notification system
+
+### Infrastructure (Recently Completed)
+10. ~~GitHub Actions CI/CD~~ ✅ Done
+11. ~~Usage metrics service~~ ✅ Done
+12. ~~Feedback form~~ ✅ Done
+13. ~~Azure OpenAI integration~~ ✅ Done
+14. ~~Serilog logging~~ ✅ Done
+15. ~~SQLite persistence~~ ✅ Done
 
 ---
 
