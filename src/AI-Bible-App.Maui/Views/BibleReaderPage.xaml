@@ -18,7 +18,7 @@
                     TextColor="{DynamicResource Primary}"
                     FontSize="14"
                     HeightRequest="36"
-                    AutomationProperties.Name="Go back"/>
+                    SemanticProperties.Description="Go back"/>
             <Label Grid.Column="1"
                    Text="📖 Bible Reader"
                    FontSize="22"
@@ -28,7 +28,7 @@
                    TextColor="{DynamicResource Primary}"
                    AutomationProperties.IsInAccessibleTree="True"
                    SemanticProperties.HeadingLevel="Level1"
-                   AutomationProperties.Name="Bible Reader"/>
+                   SemanticProperties.Description="Bible Reader"/>
             <Button Grid.Column="2"
                     Text="🔖"
                     Command="{Binding ToggleBookmarksCommand}"
@@ -36,7 +36,7 @@
                     TextColor="{DynamicResource Gray600}"
                     FontSize="20"
                     HeightRequest="36"
-                    AutomationProperties.Name="View bookmarks"/>
+                    SemanticProperties.Description="View bookmarks"/>
         </Grid>
         
         <!-- Search Bar -->
@@ -61,7 +61,7 @@
                        ReturnCommand="{Binding SearchCommand}"
                        PlaceholderColor="{DynamicResource Gray500}"
                        FontSize="14"
-                       AutomationProperties.Name="Search Bible"/>
+                       SemanticProperties.Description="Search Bible"/>
                 <Button Grid.Column="2"
                         Text="Search"
                         Command="{Binding SearchCommand}"
@@ -71,7 +71,7 @@
                         HeightRequest="32"
                         CornerRadius="16"
                         Padding="15,0"
-                        AutomationProperties.Name="Search"/>
+                        SemanticProperties.Description="Search"/>
             </Grid>
         </Border>
         
@@ -89,7 +89,7 @@
                         SelectedItem="{Binding SelectedBook}"
                         Title="Select Book"
                         FontSize="14"
-                        AutomationProperties.Name="Select Bible book"/>
+                        SemanticProperties.Description="Select Bible book"/>
             </Border>
             
             <Border Grid.Column="1"
@@ -104,7 +104,7 @@
                         SelectedItem="{Binding SelectedChapter}"
                         Title="Chapter"
                         FontSize="14"
-                        AutomationProperties.Name="Select chapter"/>
+                        SemanticProperties.Description="Select chapter"/>
             </Border>
             
             <Button Grid.Column="2"
@@ -116,7 +116,7 @@
                     HeightRequest="40"
                     WidthRequest="50"
                     CornerRadius="8"
-                    AutomationProperties.Name="Go to chapter"/>
+                    SemanticProperties.Description="Go to chapter"/>
         </Grid>
         
         <!-- Search Results / Verse Display -->
@@ -259,7 +259,7 @@
                     FontSize="14"
                     HeightRequest="44"
                     CornerRadius="10"
-                    AutomationProperties.Name="Previous chapter"/>
+                    SemanticProperties.Description="Previous chapter"/>
             
             <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="5">
                 <Label Text="{Binding SelectedBook}"
@@ -274,7 +274,7 @@
                             FontSize="20"
                             HeightRequest="40"
                             WidthRequest="40"
-                            AutomationProperties.Name="Read chapter aloud"/>
+                            SemanticProperties.Description="Read chapter aloud"/>
                     <Button Text="📋"
                             Command="{Binding CopyChapterCommand}"
                             BackgroundColor="Transparent"
@@ -282,7 +282,7 @@
                             FontSize="20"
                             HeightRequest="40"
                             WidthRequest="40"
-                            AutomationProperties.Name="Copy chapter"/>
+                            SemanticProperties.Description="Copy chapter"/>
                     <Button Text="💬"
                             Command="{Binding DiscussWithCharacterCommand}"
                             BackgroundColor="Transparent"
@@ -290,7 +290,7 @@
                             FontSize="20"
                             HeightRequest="40"
                             WidthRequest="40"
-                            AutomationProperties.Name="Discuss with biblical character"/>
+                            SemanticProperties.Description="Discuss with biblical character"/>
                 </HorizontalStackLayout>
             </VerticalStackLayout>
             
@@ -302,7 +302,7 @@
                     FontSize="14"
                     HeightRequest="44"
                     CornerRadius="10"
-                    AutomationProperties.Name="Next chapter"/>
+                    SemanticProperties.Description="Next chapter"/>
         </Grid>
     </Grid>
 </ContentPage>

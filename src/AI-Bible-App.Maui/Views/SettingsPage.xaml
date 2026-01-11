@@ -16,7 +16,7 @@
                    FontAttributes="Bold"
                    HorizontalOptions="Center"
                    SemanticProperties.HeadingLevel="Level1"
-                   AutomationProperties.Name="Settings"/>
+                   SemanticProperties.Description="Settings"/>
             
             <!-- User Profile Section -->
             <Border Padding="20"
@@ -32,7 +32,7 @@
                            FontSize="18"
                            FontAttributes="Bold"
                            SemanticProperties.HeadingLevel="Level2"
-                           AutomationProperties.Name="User Profile section"/>
+                           SemanticProperties.Description="User Profile section"/>
                     
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
                         <Frame Grid.Column="0" 

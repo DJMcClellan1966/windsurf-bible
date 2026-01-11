@@ -22,11 +22,11 @@
                        FontAttributes="Bold"
                        TextColor="{DynamicResource TextColor}"
                        SemanticProperties.HeadingLevel="Level1"
-                       AutomationProperties.Name="Daily Devotional"/>
+                       SemanticProperties.Description="Daily Devotional"/>
                 <Label Text="{Binding TodaysDevotional.Date, StringFormat='{0:dddd, MMMM d, yyyy}'}"
                        FontSize="13"
                        TextColor="{DynamicResource Gray600}"
-                       AutomationProperties.Name="Date"/>
+                       SemanticProperties.Description="Date"/>
             </VerticalStackLayout>
             
             <Button Grid.Column="1"

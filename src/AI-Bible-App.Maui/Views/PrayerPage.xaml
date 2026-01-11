@@ -19,7 +19,7 @@
                    HorizontalOptions="Center"
                    TextColor="{DynamicResource Primary}"
                    SemanticProperties.HeadingLevel="Level1"
-                   AutomationProperties.Name="Prayer Generator"/>
+                   SemanticProperties.Description="Prayer Generator"/>
             
             <Label Text="Share your prayer request and receive a personalized prayer"
                    FontSize="14"

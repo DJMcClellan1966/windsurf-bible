@@ -18,7 +18,7 @@
                     TextColor="{DynamicResource Primary}"
                     FontSize="14"
                     HeightRequest="36"
-                    AutomationProperties.Name="Go back"/>
+                    SemanticProperties.Description="Go back"/>
             <Label Grid.Column="1"
                    Text="📊 Your Journey"
                    FontSize="22"
@@ -34,7 +34,7 @@
                     TextColor="{DynamicResource Gray600}"
                     FontSize="20"
                     HeightRequest="36"
-                    AutomationProperties.Name="Export options"/>
+                    SemanticProperties.Description="Export options"/>
         </Grid>
         
         <!-- Summary Stats Cards -->
@@ -423,7 +423,7 @@
                     FontSize="14"
                     HeightRequest="44"
                     CornerRadius="10"
-                    AutomationProperties.Name="Export to PDF"/>
+                    SemanticProperties.Description="Export to PDF"/>
             <Button Grid.Column="1"
                     Text="📊 Export CSV"
                     Command="{Binding ExportCsvCommand}"
@@ -432,7 +432,7 @@
                     FontSize="14"
                     HeightRequest="44"
                     CornerRadius="10"
-                    AutomationProperties.Name="Export to CSV"/>
+                    SemanticProperties.Description="Export to CSV"/>
         </Grid>
         
         <!-- Loading Overlay -->

@@ -18,7 +18,6 @@
                    HorizontalOptions="Center"
                    TextColor="{DynamicResource Primary}"
                    AutomationProperties.IsInAccessibleTree="True"
-                   AutomationProperties.Name="Voices of Scripture"
                    SemanticProperties.HeadingLevel="Level1"
                    SemanticProperties.Description="Main page heading - Voices of Scripture app"/>
             <Label Text="Swipe to explore • Tap to chat"
@@ -63,7 +62,7 @@
                     CornerRadius="18"
                     FontSize="13"
                     Padding="15,0"
-                    AutomationProperties.Name="Card view"/>
+                    SemanticProperties.Description="Card view"/>
             <Button Text="📋 List"
                     x:Name="ListViewButton"
                     Clicked="OnListViewClicked"
@@ -73,7 +72,7 @@
                     CornerRadius="18"
                     FontSize="13"
                     Padding="15,0"
-                    AutomationProperties.Name="List view"/>
+                    SemanticProperties.Description="List view"/>
         </HorizontalStackLayout>
 
         <!-- Swipe Character Carousel (Card View) -->
@@ -83,7 +82,7 @@
                           Loop="True"
                           PeekAreaInsets="40"
                           CurrentItemChanged="OnCarouselItemChanged"
-                          AutomationProperties.Name="Character selector carousel">
+                          SemanticProperties.Description="Character selector carousel">
                 <CarouselView.ItemTemplate>
                     <DataTemplate x:DataType="models:BiblicalCharacter">
                         <Border Padding="20"
@@ -91,7 +90,7 @@
                                 BackgroundColor="{DynamicResource CardBackground}"
                                 Shadow="{Shadow Brush=Black, Offset='0,4', Radius=8, Opacity=0.4}"
                                 AutomationProperties.IsInAccessibleTree="True"
-                                AutomationProperties.Name="{Binding Name}">
+                                SemanticProperties.Description="{Binding Name}">
                             <Border.StrokeShape>
                                 <RoundRectangle CornerRadius="20"/>
                             </Border.StrokeShape>
@@ -204,7 +203,7 @@
                                 SelectionChanged="OnCharacterSelected">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:BiblicalCharacter">
-                            <SwipeView AutomationProperties.Name="{Binding Name}">
+                            <SwipeView SemanticProperties.Description="{Binding Name}">
                                 <SwipeView.LeftItems>
                                     <SwipeItems Mode="Execute">
                                         <SwipeItem Text="💬 Chat"
@@ -300,7 +299,7 @@
                     BackgroundColor="{DynamicResource Primary}"
                     TextColor="White"
                     CornerRadius="10"
-                    AutomationProperties.Name="Generate a Prayer"/>
+                    SemanticProperties.Description="Generate a Prayer"/>
             <Button Grid.Column="1"
                     Text="📖 Bible"
                     Clicked="OnBibleReaderClicked"
@@ -309,7 +308,7 @@
                     BackgroundColor="{DynamicResource Secondary}"
                     TextColor="White"
                     CornerRadius="10"
-                    AutomationProperties.Name="Open Bible Reader"/>
+                    SemanticProperties.Description="Open Bible Reader"/>
         </Grid>
         
         <!-- Bottom Navigation -->
@@ -321,7 +320,7 @@
                     TextColor="{DynamicResource Gray600}"
                     FontSize="24"
                     HeightRequest="50"
-                    AutomationProperties.Name="View History"/>
+                    SemanticProperties.Description="View History"/>
             <Button Grid.Column="1"
                     Text="➕"
                     Clicked="OnCreateCharacterClicked"
@@ -330,7 +329,7 @@
                     FontSize="28"
                     FontAttributes="Bold"
                     HeightRequest="50"
-                    AutomationProperties.Name="Create Custom Character"/>
+                    SemanticProperties.Description="Create Custom Character"/>
             <Button Grid.Column="2"
                     Text="⚙️"
                     Command="{Binding NavigateToSettingsCommand}"
@@ -338,7 +337,7 @@
                     TextColor="{DynamicResource Gray600}"
                     FontSize="24"
                     HeightRequest="50"
-                    AutomationProperties.Name="Settings"/>
+                    SemanticProperties.Description="Settings"/>
         </Grid>
         
         <!-- Loading Overlay -->

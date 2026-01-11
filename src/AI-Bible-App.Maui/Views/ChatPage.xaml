@@ -28,7 +28,6 @@
                             <Border Grid.Row="0"
                                     IsVisible="{Binding Role, Converter={StaticResource StringEqualConverter}, ConverterParameter='user'}"
                                     HorizontalOptions="End"
-                                    AutomationProperties.Name="Your message"
                                     AutomationProperties.IsInAccessibleTree="True"
                                     SemanticProperties.Description="{Binding Content}"
                                     MaximumWidthRequest="500"
@@ -252,8 +251,8 @@
                         CornerRadius="22"
                         BackgroundColor="{AppThemeBinding Light='#E8E8E8', Dark='#505050'}"
                         ToolTipProperties.Text="Generate a prayer"
-                        AutomationProperties.Name="Generate prayer from conversation"
-                        AutomationProperties.HelpText="Create a prayer based on the current conversation"
+                        SemanticProperties.Description="Generate prayer from conversation"
+                        SemanticProperties.Hint="Create a prayer based on the current conversation"
                         IsVisible="{Binding IsGeneratingPrayer, Converter={StaticResource InvertedBoolConverter}}"
                         IsEnabled="{Binding IsActionInProgress, Converter={StaticResource InvertedBoolConverter}}"
                         Command="{Binding GeneratePrayerFromMessageCommand}"
@@ -304,9 +303,8 @@
                        PlaceholderColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
                        FontSize="14"
                        VerticalOptions="Center"
-                       AutomationProperties.Name="Message input"
-                       AutomationProperties.HelpText="Type your message here and press Enter to send"
-                       SemanticProperties.Hint="Press Enter to send your message"/>
+                       SemanticProperties.Description="Message input"
+                       SemanticProperties.Hint="Type your message here and press Enter to send"/>
             </Border>
 
             <!-- Send Button (visible when not typing) -->
