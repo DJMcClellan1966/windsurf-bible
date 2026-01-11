@@ -21,4 +21,9 @@ public interface IAIService
     /// Generates a prayer based on the given topic
     /// </summary>
     Task<string> GeneratePrayerAsync(string topic, CancellationToken cancellationToken = default);
+    
+    /// <summary>
+    /// Generates a daily devotional with structured content
+    /// </summary>
+    Task<string> GenerateDevotionalAsync(DateTime date, CancellationToken cancellationToken = default);
 }

@@ -182,6 +182,58 @@ Write a short, sincere prayer about: {topic}
         return response.ToString().Trim();
     }
 
+    public async Task<string> GenerateDevotionalAsync(DateTime date, CancellationToken cancellationToken = default)
+    {
+        await InitializeAsync();
+
+        if (_context == null || _model == null)
+        {
+            return GetFallbackDevotional(date);
+        }
+
+        var prompt = $@"<|im_start|>system
+You are a devotional writer. Generate a daily devotional as valid JSON with these exact fields:
+{{""title"": ""title"", ""scripture"": ""verse"", ""scriptureReference"": ""reference"", ""content"": ""reflection"", ""prayer"": ""prayer"", ""category"": ""Faith/Hope/Love/Wisdom/Strength/Grace/Peace/Joy""}}
+<|im_end|>
+<|im_start|>user
+Create a devotional for {date:MMMM d, yyyy}. Return only JSON.
+<|im_end|>
+<|im_start|>assistant
+";
+
+        var executor = new InteractiveExecutor(_context);
+        var inferenceParams = new InferenceParams
+        {
+            MaxTokens = 500,
+            AntiPrompts = new[] { "<|im_end|>", "\n\n\n" },
+            SamplingPipeline = new DefaultSamplingPipeline
+            {
+                Temperature = 0.7f,
+                TopP = 0.9f
+            }
+        };
+
+        var response = new StringBuilder();
+        await foreach (var token in executor.InferAsync(prompt, inferenceParams, cancellationToken))
+        {
+            response.Append(token);
+        }
+
+        return response.ToString().Trim();
+    }
+
+    private static string GetFallbackDevotional(DateTime date)
+    {
+        return @"{
+  ""title"": ""Walking in Faith Today"",
+  ""scripture"": ""Trust in the LORD with all your heart and lean not on your own understanding; in all your ways submit to him, and he will make your paths straight."",
+  ""scriptureReference"": ""Proverbs 3:5-6"",
+  ""content"": ""Each day presents us with choices that require faith. When we trust in God's wisdom rather than relying solely on our own understanding, we open ourselves to His perfect guidance. Today, take a moment to surrender your plans and concerns to Him, knowing that He sees the bigger picture and will direct your steps."",
+  ""prayer"": ""Lord, help me to trust You completely today. Guide my steps and give me wisdom in every decision I make. I surrender my plans to You. Amen."",
+  ""category"": ""Faith""
+}";
+    }
+
     private string BuildPrompt(BiblicalCharacter character, List<ChatMessage> history, string userMessage)
     {
         var sb = new StringBuilder();

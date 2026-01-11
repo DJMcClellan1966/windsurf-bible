@@ -52,10 +52,8 @@ public class DevotionalRepository : IDevotionalRepository
         if (existing != null)
             return existing;
 
-        // Generate new devotional using AI
-        var prompt = $"Create an inspirational daily devotional for {date:MMMM d, yyyy}.\n\nInclude:\n1. A meaningful title (5-8 words)\n2. A relevant Bible verse with its reference\n3. A thoughtful reflection (150-200 words) on the verse and its application to daily life\n4. A short prayer (50-75 words)\n5. A category (Faith, Hope, Love, Wisdom, Strength, Grace, Peace, or Joy)\n\nFormat your response as JSON:\n{{\n  \"title\": \"...\",\n  \"scripture\": \"...\",\n  \"scriptureReference\": \"...\",\n  \"content\": \"...\",\n  \"prayer\": \"...\",\n  \"category\": \"...\"\n}}";
-
-        var response = await _aiService.GeneratePrayerAsync(prompt);
+        // Generate new devotional using dedicated AI method
+        var response = await _aiService.GenerateDevotionalAsync(date);
         
         // Parse the JSON response
         var devotional = ParseDevotionalResponse(response, date);

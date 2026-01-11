@@ -206,6 +206,47 @@ public class SmartAIService : IAIService
         }
     }
 
+    public async Task<string> GenerateDevotionalAsync(DateTime date, CancellationToken cancellationToken = default)
+    {
+        var useOffline = await ShouldUseOfflineModeAsync();
+
+        try
+        {
+            if (useOffline)
+            {
+                _logger.LogInformation("Generating devotional offline for date: {Date}", date);
+                
+                var systemPrompt = @"You are a devotional writer. Generate a daily devotional as valid JSON with these exact fields:
+{""title"": ""title"", ""scripture"": ""verse"", ""scriptureReference"": ""reference"", ""content"": ""reflection"", ""prayer"": ""prayer"", ""category"": ""Faith/Hope/Love/Wisdom/Strength/Grace/Peace/Joy""}";
+                var userMessage = $"Create a devotional for {date:MMMM d, yyyy}. Return only JSON.";
+                
+                return await _offlineService.GetCompletionAsync(systemPrompt, userMessage, cancellationToken);
+            }
+            else
+            {
+                return await _onlineService.GenerateDevotionalAsync(date, cancellationToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Devotional generation failed, attempting fallback");
+
+            // Fallback
+            if (useOffline && _connectivity.IsConnected)
+            {
+                return await _onlineService.GenerateDevotionalAsync(date, cancellationToken);
+            }
+            else if (!useOffline && await _offlineService.IsOfflineModeAvailableAsync())
+            {
+                var systemPrompt = @"You are a devotional writer. Generate a daily devotional as valid JSON.";
+                var userMessage = $"Create a devotional for {date:MMMM d, yyyy}. Return only JSON.";
+                return await _offlineService.GetCompletionAsync(systemPrompt, userMessage, cancellationToken);
+            }
+            
+            throw;
+        }
+    }
+
     private string BuildSystemPrompt(BiblicalCharacter character)
     {
         // Optimized prompt for local models - shorter but effective

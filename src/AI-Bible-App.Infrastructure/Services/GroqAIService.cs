@@ -146,6 +146,42 @@ IMPORTANT GUIDELINES:
         return result?.Choices?.FirstOrDefault()?.Message?.Content ?? "Prayer could not be generated";
     }
 
+    public async Task<string> GenerateDevotionalAsync(DateTime date, CancellationToken cancellationToken = default)
+    {
+        if (!IsAvailable)
+            throw new InvalidOperationException("Groq API key not configured");
+
+        var messages = new List<GroqMessage>
+        {
+            new() 
+            { 
+                Role = "system", 
+                Content = @"You are a devotional writer. Generate a complete devotional as valid JSON with these exact fields:
+{""title"": ""5-8 word title"", ""scripture"": ""full verse text"", ""scriptureReference"": ""Book Chapter:Verse"", ""content"": ""150-200 word reflection"", ""prayer"": ""50-75 word prayer"", ""category"": ""Faith/Hope/Love/Wisdom/Strength/Grace/Peace/Joy""}
+Output ONLY the JSON object, no markdown."
+            },
+            new() 
+            { 
+                Role = "user", 
+                Content = $"Create a daily devotional for {date:MMMM d, yyyy}. Return only valid JSON."
+            }
+        };
+
+        var request = new GroqRequest
+        {
+            Model = _modelName,
+            Messages = messages,
+            MaxTokens = 1024,
+            Temperature = 0.7
+        };
+
+        var response = await _httpClient.PostAsJsonAsync(BaseUrl, request, cancellationToken);
+        response.EnsureSuccessStatusCode();
+        
+        var result = await response.Content.ReadFromJsonAsync<GroqResponse>(cancellationToken: cancellationToken);
+        return result?.Choices?.FirstOrDefault()?.Message?.Content ?? "{}";
+    }
+
     // Request/Response DTOs
     private class GroqRequest
     {

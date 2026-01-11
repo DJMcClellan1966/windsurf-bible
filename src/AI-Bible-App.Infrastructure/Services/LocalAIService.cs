@@ -381,6 +381,67 @@ IMPORTANT GUIDELINES:
         }
     }
 
+    public async Task<string> GenerateDevotionalAsync(DateTime date, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var systemPrompt = @"You are a devotional writer creating daily spiritual content. Generate a complete devotional with all required sections.
+
+CRITICAL: Your response MUST be valid JSON with these exact fields:
+{
+  ""title"": ""A meaningful title (5-8 words)"",
+  ""scripture"": ""The full Bible verse text"",
+  ""scriptureReference"": ""Book Chapter:Verse"",
+  ""content"": ""A thoughtful reflection (150-200 words)"",
+  ""prayer"": ""A heartfelt prayer (50-75 words)"",
+  ""category"": ""One of: Faith, Hope, Love, Wisdom, Strength, Grace, Peace, Joy""
+}
+
+IMPORTANT:
+- Output ONLY the JSON object, no markdown code blocks
+- Make the content inspiring and practical for daily life
+- The prayer should be sincere and personal";
+
+            var userPrompt = $"Create a daily devotional for {date:MMMM d, yyyy}. Return only valid JSON.";
+
+            var messages = new List<Message>
+            {
+                new Message { Role = ChatRole.System, Content = systemPrompt },
+                new Message { Role = ChatRole.User, Content = userPrompt }
+            };
+
+            var request = new ChatRequest
+            {
+                Model = _modelName,
+                Messages = messages
+            };
+
+            _logger.LogDebug("Generating devotional for date: {Date}", date);
+
+            var responseText = string.Empty;
+            
+            await foreach (var response in GetClient().ChatAsync(request, cancellationToken))
+            {
+                if (response?.Message?.Content != null)
+                {
+                    responseText += response.Message.Content;
+                }
+            }
+            
+            if (string.IsNullOrEmpty(responseText))
+            {
+                throw new InvalidOperationException("Received null or empty response from Ollama");
+            }
+
+            return responseText;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating devotional from local AI model");
+            throw;
+        }
+    }
+
     /// <summary>
     /// Retrieve relevant Scripture context using RAG
     /// </summary>

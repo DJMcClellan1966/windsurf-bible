@@ -56,6 +56,20 @@ public class CachedResponseAIService : IAIService
         return Task.FromResult(prayer);
     }
 
+    public Task<string> GenerateDevotionalAsync(DateTime date, CancellationToken cancellationToken = default)
+    {
+        // Return a fallback devotional as JSON
+        var json = @"{
+  ""title"": ""Finding Strength in God's Promises"",
+  ""scripture"": ""I can do all things through Christ who strengthens me."",
+  ""scriptureReference"": ""Philippians 4:13"",
+  ""content"": ""Each day brings its own challenges and opportunities. When we feel weak or uncertain, we can draw upon the limitless strength that comes from our relationship with Christ. This verse reminds us that our ability to face life's difficulties doesn't depend on our own power, but on the power of God working in and through us. Today, whatever challenges you face, remember that you don't face them alone."",
+  ""prayer"": ""Lord, thank You for being my strength when I am weak. Help me to rely on Your power today, not my own. Guide my steps and give me courage to face whatever comes my way. In Jesus' name, Amen."",
+  ""category"": ""Strength""
+}";
+        return Task.FromResult(json);
+    }
+
     private string GetCachedResponse(string characterId, string userMessage)
     {
         var lowerMessage = userMessage.ToLowerInvariant();

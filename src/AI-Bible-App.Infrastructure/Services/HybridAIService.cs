@@ -318,4 +318,44 @@ public class HybridAIService : IAIService
         // Emergency cached
         return await _cachedService.GeneratePrayerAsync(topic, cancellationToken);
     }
+
+    public async Task<string> GenerateDevotionalAsync(DateTime date, CancellationToken cancellationToken = default)
+    {
+        var hasNetwork = _capabilityService.HasNetworkConnectivity();
+
+        // Try primary
+        try
+        {
+            return _recommendation.Primary switch
+            {
+                AIBackendType.LocalOllama => await _localService.GenerateDevotionalAsync(date, cancellationToken),
+                AIBackendType.OnDevice when _onDeviceService != null => await _onDeviceService.GenerateDevotionalAsync(date, cancellationToken),
+                AIBackendType.Cloud when hasNetwork && _cloudAvailable => await _cloudService.GenerateDevotionalAsync(date, cancellationToken),
+                _ => await _cachedService.GenerateDevotionalAsync(date, cancellationToken)
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Primary devotional generation failed");
+        }
+
+        // Try fallback
+        try
+        {
+            return _recommendation.Fallback switch
+            {
+                AIBackendType.LocalOllama => await _localService.GenerateDevotionalAsync(date, cancellationToken),
+                AIBackendType.OnDevice when _onDeviceService != null => await _onDeviceService.GenerateDevotionalAsync(date, cancellationToken),
+                AIBackendType.Cloud when hasNetwork && _cloudAvailable => await _cloudService.GenerateDevotionalAsync(date, cancellationToken),
+                _ => await _cachedService.GenerateDevotionalAsync(date, cancellationToken)
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Fallback devotional generation failed");
+        }
+
+        // Emergency cached
+        return await _cachedService.GenerateDevotionalAsync(date, cancellationToken);
+    }
 }
