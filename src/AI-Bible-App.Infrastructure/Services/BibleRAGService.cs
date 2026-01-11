@@ -7,6 +7,7 @@ using Microsoft.SemanticKernel.Connectors.Ollama;
 using OllamaSharp;
 using System.Diagnostics;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 #pragma warning disable SKEXP0001
@@ -32,6 +33,10 @@ public class BibleRAGService : IBibleRAGService
     private bool _isInitialized;
     private bool _embeddingsAvailable = true;
     private SearchStatistics _lastSearchStats = new();
+    
+    // Embedding persistence
+    private readonly string _embeddingCachePath;
+    private readonly SemaphoreSlim _persistLock = new(1, 1);
 
     public bool IsInitialized => _isInitialized;
     public SearchStatistics LastSearchStats => _lastSearchStats;
@@ -58,6 +63,10 @@ public class BibleRAGService : IBibleRAGService
         _embeddingModel = configuration["Ollama:EmbeddingModel"] ?? "nomic-embed-text";
         _vectorStore = new Dictionary<string, (BibleChunk, ReadOnlyMemory<float>)>();
         
+        // Set up embedding cache path
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        _embeddingCachePath = Path.Combine(appData, "AI-Bible-App", "embeddings_cache.json");
+        
         // Get chunking strategy from config
         var strategyStr = configuration["RAG:ChunkingStrategy"] ?? "SingleVerse";
         _chunkingStrategy = Enum.Parse<ChunkingStrategy>(strategyStr, ignoreCase: true);
@@ -78,11 +87,12 @@ public class BibleRAGService : IBibleRAGService
         }
 
         _logger.LogInformation(
-            "BibleRAGService created with embedding model: {Model} at {Url}, Chunking: {Strategy}, Embeddings: {Available}", 
+            "BibleRAGService created with embedding model: {Model} at {Url}, Chunking: {Strategy}, Embeddings: {Available}, CachePath: {CachePath}", 
             _embeddingModel, 
             _ollamaUrl,
             _chunkingStrategy,
-            _embeddingsAvailable ? "Available" : "Fallback Only");
+            _embeddingsAvailable ? "Available" : "Fallback Only",
+            _embeddingCachePath);
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
@@ -96,6 +106,7 @@ public class BibleRAGService : IBibleRAGService
         try
         {
             _logger.LogInformation("Initializing BibleRAGService...");
+            var stopwatch = Stopwatch.StartNew();
 
             // Load all Bible verses
             var verses = await _bibleRepository.LoadAllVersesAsync(cancellationToken);
@@ -106,12 +117,15 @@ public class BibleRAGService : IBibleRAGService
             _allChunks = chunks; // Store for keyword fallback
             _logger.LogInformation("Created {Count} chunks from verses", chunks.Count);
 
-            // Only generate embeddings if service is available
-            if (_embeddingsAvailable && _embeddingService != null)
+            // Try to load cached embeddings first
+            var loadedFromCache = await LoadEmbeddingsCacheAsync(chunks, cancellationToken);
+            
+            // Only generate embeddings if not loaded from cache and service is available
+            if (!loadedFromCache && _embeddingsAvailable && _embeddingService != null)
             {
                 try
                 {
-                    _logger.LogInformation("Generating embeddings for {Count} chunks...", chunks.Count);
+                    _logger.LogInformation("Generating embeddings for {Count} chunks (this may take a few minutes on first run)...", chunks.Count);
                     var embeddingTasks = chunks.Select(async chunk =>
                     {
                         try
@@ -138,6 +152,9 @@ public class BibleRAGService : IBibleRAGService
                     }
                     
                     _logger.LogInformation("Generated {Count} embeddings successfully", _vectorStore.Count);
+                    
+                    // Persist embeddings to disk for faster future startups
+                    await PersistEmbeddingsCacheAsync(cancellationToken);
                 }
                 catch (Exception ex)
                 {
@@ -145,16 +162,19 @@ public class BibleRAGService : IBibleRAGService
                     _embeddingsAvailable = false;
                 }
             }
-            else
+            else if (!loadedFromCache)
             {
                 _logger.LogInformation("Embeddings not available - using keyword search only");
             }
 
+            stopwatch.Stop();
             _isInitialized = true;
             _logger.LogInformation(
-                "BibleRAGService initialized: {Embeddings} embeddings, {Chunks} chunks available for keyword search", 
+                "BibleRAGService initialized in {Duration}ms: {Embeddings} embeddings, {Chunks} chunks available for keyword search, LoadedFromCache: {FromCache}", 
+                stopwatch.ElapsedMilliseconds,
                 _vectorStore.Count,
-                _allChunks?.Count ?? 0);
+                _allChunks?.Count ?? 0,
+                loadedFromCache);
         }
         catch (Exception ex)
         {
@@ -549,4 +569,200 @@ public class BibleRAGService : IBibleRAGService
 
         return dotProduct / (magnitude1 * magnitude2);
     }
+
+    #region Embedding Cache Persistence
+
+    /// <summary>
+    /// Load embeddings from disk cache if available and valid
+    /// </summary>
+    private async Task<bool> LoadEmbeddingsCacheAsync(List<BibleChunk> chunks, CancellationToken cancellationToken)
+    {
+        await _persistLock.WaitAsync(cancellationToken);
+        try
+        {
+            if (!File.Exists(_embeddingCachePath))
+            {
+                _logger.LogInformation("No embedding cache found at {Path}", _embeddingCachePath);
+                return false;
+            }
+
+            var json = await File.ReadAllTextAsync(_embeddingCachePath, cancellationToken);
+            var cacheData = JsonSerializer.Deserialize<EmbeddingCacheData>(json);
+
+            if (cacheData == null || cacheData.Entries == null || cacheData.Entries.Count == 0)
+            {
+                _logger.LogWarning("Embedding cache is empty or invalid");
+                return false;
+            }
+
+            // Validate cache metadata
+            if (cacheData.EmbeddingModel != _embeddingModel || 
+                cacheData.ChunkingStrategy != _chunkingStrategy.ToString())
+            {
+                _logger.LogWarning("Embedding cache was created with different settings (model: {CachedModel} vs {CurrentModel}, strategy: {CachedStrategy} vs {CurrentStrategy}). Regenerating...",
+                    cacheData.EmbeddingModel, _embeddingModel, cacheData.ChunkingStrategy, _chunkingStrategy);
+                return false;
+            }
+
+            // Check if chunks match (same count and chunking strategy)
+            if (cacheData.ChunkCount != chunks.Count)
+            {
+                _logger.LogWarning("Embedding cache has different chunk count ({Cached} vs {Current}). Regenerating...",
+                    cacheData.ChunkCount, chunks.Count);
+                return false;
+            }
+
+            // Build chunk lookup for fast matching
+            var chunkLookup = chunks.ToDictionary(c => c.Id, c => c);
+
+            var loadedCount = 0;
+            foreach (var entry in cacheData.Entries)
+            {
+                if (entry.ChunkId != null && chunkLookup.TryGetValue(entry.ChunkId, out var chunk) && entry.Embedding != null)
+                {
+                    var embedding = new ReadOnlyMemory<float>(entry.Embedding);
+                    _vectorStore[chunk.Id] = (chunk, embedding);
+                    loadedCount++;
+                }
+            }
+
+            _logger.LogInformation("Loaded {Count} embeddings from cache (created: {Created})", 
+                loadedCount, cacheData.CreatedAt);
+            return loadedCount > 0;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to load embedding cache. Will regenerate embeddings.");
+            return false;
+        }
+        finally
+        {
+            _persistLock.Release();
+        }
+    }
+
+    /// <summary>
+    /// Persist embeddings to disk for faster future startups
+    /// </summary>
+    private async Task PersistEmbeddingsCacheAsync(CancellationToken cancellationToken)
+    {
+        await _persistLock.WaitAsync(cancellationToken);
+        try
+        {
+            var dir = Path.GetDirectoryName(_embeddingCachePath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            var entries = _vectorStore.Select(kvp => new EmbeddingCacheEntry
+            {
+                ChunkId = kvp.Key,
+                Embedding = kvp.Value.Embedding.ToArray()
+            }).ToList();
+
+            var cacheData = new EmbeddingCacheData
+            {
+                CreatedAt = DateTime.UtcNow,
+                EmbeddingModel = _embeddingModel,
+                ChunkingStrategy = _chunkingStrategy.ToString(),
+                ChunkCount = _allChunks?.Count ?? 0,
+                Entries = entries
+            };
+
+            var json = JsonSerializer.Serialize(cacheData, new JsonSerializerOptions 
+            { 
+                WriteIndented = false 
+            });
+            
+            await File.WriteAllTextAsync(_embeddingCachePath, json, cancellationToken);
+            
+            var fileSize = new FileInfo(_embeddingCachePath).Length / 1024.0 / 1024.0;
+            _logger.LogInformation("Persisted {Count} embeddings to cache ({Size:F2} MB)", entries.Count, fileSize);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to persist embedding cache");
+        }
+        finally
+        {
+            _persistLock.Release();
+        }
+    }
+
+    /// <summary>
+    /// Clear the embedding cache (useful for testing or model updates)
+    /// </summary>
+    public void ClearEmbeddingCache()
+    {
+        try
+        {
+            if (File.Exists(_embeddingCachePath))
+            {
+                File.Delete(_embeddingCachePath);
+                _logger.LogInformation("Embedding cache cleared");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to clear embedding cache");
+        }
+    }
+
+    /// <summary>
+    /// Get embedding cache statistics
+    /// </summary>
+    public EmbeddingCacheStats GetEmbeddingCacheStats()
+    {
+        var stats = new EmbeddingCacheStats
+        {
+            CacheExists = File.Exists(_embeddingCachePath),
+            CachePath = _embeddingCachePath,
+            EmbeddingsInMemory = _vectorStore.Count
+        };
+
+        if (stats.CacheExists)
+        {
+            var fileInfo = new FileInfo(_embeddingCachePath);
+            stats.CacheSizeBytes = fileInfo.Length;
+            stats.CacheLastModified = fileInfo.LastWriteTimeUtc;
+        }
+
+        return stats;
+    }
+
+    #endregion
+
+    #region Cache Data Classes
+
+    private class EmbeddingCacheData
+    {
+        public DateTime CreatedAt { get; set; }
+        public string? EmbeddingModel { get; set; }
+        public string? ChunkingStrategy { get; set; }
+        public int ChunkCount { get; set; }
+        public List<EmbeddingCacheEntry>? Entries { get; set; }
+    }
+
+    private class EmbeddingCacheEntry
+    {
+        public string? ChunkId { get; set; }
+        public float[]? Embedding { get; set; }
+    }
+
+    #endregion
+}
+
+/// <summary>
+/// Statistics about the embedding cache
+/// </summary>
+public class EmbeddingCacheStats
+{
+    public bool CacheExists { get; set; }
+    public string? CachePath { get; set; }
+    public long CacheSizeBytes { get; set; }
+    public DateTime? CacheLastModified { get; set; }
+    public int EmbeddingsInMemory { get; set; }
+    
+    public double CacheSizeMB => CacheSizeBytes / 1024.0 / 1024.0;
 }

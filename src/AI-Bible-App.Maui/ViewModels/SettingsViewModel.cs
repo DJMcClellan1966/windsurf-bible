@@ -15,6 +15,7 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly INavigationService _navigationService;
     private readonly ICloudSyncService _cloudSyncService;
     private readonly IFontScaleService? _fontScaleService;
+    private readonly AI_Bible_App.Core.Interfaces.INotificationService? _notificationService;
 
     [ObservableProperty]
     private int totalSessions;
@@ -72,6 +73,16 @@ public partial class SettingsViewModel : BaseViewModel
     [ObservableProperty]
     private string syncStatusText = "Not synced";
 
+    // Daily Reminder Properties
+    [ObservableProperty]
+    private bool isDailyReminderEnabled;
+
+    [ObservableProperty]
+    private TimeSpan reminderTime = new TimeSpan(8, 0, 0);
+
+    [ObservableProperty]
+    private string reminderTimeDescription = "You'll receive a daily reminder at 8:00 AM";
+
     public List<string> ThemeOptions { get; } = new() { "System", "Light", "Dark" };
     public List<string> FontSizeOptions { get; } = new() { "Small", "Medium", "Large", "Extra Large" };
 
@@ -81,7 +92,8 @@ public partial class SettingsViewModel : BaseViewModel
         IUserService userService, 
         INavigationService navigationService,
         ICloudSyncService cloudSyncService,
-        IFontScaleService? fontScaleService = null)
+        IFontScaleService? fontScaleService = null,
+        AI_Bible_App.Core.Interfaces.INotificationService? notificationService = null)
     {
         _exporter = exporter;
         _dialogService = dialogService;
@@ -89,11 +101,15 @@ public partial class SettingsViewModel : BaseViewModel
         _navigationService = navigationService;
         _cloudSyncService = cloudSyncService;
         _fontScaleService = fontScaleService;
+        _notificationService = notificationService;
         Title = "Settings";
         
         // Subscribe to user changes
         _userService.CurrentUserChanged += OnCurrentUserChanged;
         LoadUserProfile();
+        
+        // Load notification settings
+        _ = LoadNotificationSettingsAsync();
     }
 
     private void OnCurrentUserChanged(object? sender, Core.Models.AppUser? user)
@@ -189,6 +205,64 @@ public partial class SettingsViewModel : BaseViewModel
     {
         // Save the setting when toggled
         _ = SaveModerationSettingAsync(value);
+    }
+
+    partial void OnIsDailyReminderEnabledChanged(bool value)
+    {
+        // Save and update notification when toggled
+        _ = SaveNotificationSettingAsync();
+    }
+
+    partial void OnReminderTimeChanged(TimeSpan value)
+    {
+        // Update description and save when time changes
+        ReminderTimeDescription = $"You'll receive a daily reminder at {DateTime.Today.Add(value):h:mm tt}";
+        if (IsDailyReminderEnabled)
+        {
+            _ = SaveNotificationSettingAsync();
+        }
+    }
+
+    private async Task LoadNotificationSettingsAsync()
+    {
+        if (_notificationService == null) return;
+        
+        try
+        {
+            var settings = await _notificationService.GetSettingsAsync();
+            IsDailyReminderEnabled = settings.DailyReminderEnabled;
+            ReminderTime = new TimeSpan(settings.ReminderHour, settings.ReminderMinute, 0);
+            ReminderTimeDescription = $"You'll receive a daily reminder at {DateTime.Today.Add(ReminderTime):h:mm tt}";
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Settings] Failed to load notification settings: {ex.Message}");
+        }
+    }
+
+    private async Task SaveNotificationSettingAsync()
+    {
+        if (_notificationService == null) return;
+        
+        try
+        {
+            if (IsDailyReminderEnabled)
+            {
+                await _notificationService.ScheduleDailyReminderAsync(
+                    ReminderTime.Hours,
+                    ReminderTime.Minutes,
+                    "Daily Devotional",
+                    "Time for your daily Bible study and devotional!");
+            }
+            else
+            {
+                await _notificationService.CancelAllNotificationsAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Settings] Failed to save notification setting: {ex.Message}");
+        }
     }
 
     partial void OnSelectedThemeChanged(string value)

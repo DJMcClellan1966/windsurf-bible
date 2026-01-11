@@ -62,6 +62,12 @@ public static class MauiProgram
 		builder.Services.AddSingleton<ISecureConfigService, SecureConfigService>();
 		builder.Services.AddSingleton<AI_Bible_App.Core.Interfaces.IReadingPlanRepository, AI_Bible_App.Infrastructure.Repositories.ReadingPlanRepository>();
 		
+		// Notification service for daily reminders
+		builder.Services.AddSingleton<AI_Bible_App.Core.Interfaces.INotificationService, AI_Bible_App.Maui.Services.NotificationService>();
+		
+		// PDF export service
+		builder.Services.AddSingleton<AI_Bible_App.Core.Interfaces.IPdfExportService, AI_Bible_App.Maui.Services.PdfExportService>();
+		
 		// Custom character services
 		builder.Services.AddSingleton<ICustomCharacterRepository, CustomCharacterRepository>();
 		
