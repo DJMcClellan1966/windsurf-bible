@@ -1,0 +1,12 @@
+{
+  "Ollama": {
+    "Url": "http://localhost:11434",
+    "ModelName": "phi4"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning"
+    }
+  }
+}

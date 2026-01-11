@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             xmlns:controls="clr-namespace:AI_Bible_App.Maui.Controls"
+             x:Class="AI_Bible_App.Maui.Views.ChatPage"
+             x:DataType="vm:ChatViewModel"
+             x:Name="ThisPage"
+             Title="{Binding Title}"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
+    
+    <Grid RowDefinitions="*,Auto,Auto,Auto" Padding="5">
+        
+        <!-- Chat Messages -->
+        <ScrollView Grid.Row="0" x:Name="ChatScrollView">
+            <CollectionView ItemsSource="{Binding Messages}"
+                           Margin="20,15">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ChatMessage">
+                        <Grid Margin="0,8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            
+                            <!-- User Message (Right Aligned) -->
+                            <Border Grid.Row="0"
+                                    IsVisible="{Binding Role, Converter={StaticResource StringEqualConverter}, ConverterParameter='user'}"
+                                    HorizontalOptions="End"
+                                    AutomationProperties.Name="Your message"
+                                    AutomationProperties.IsInAccessibleTree="True"
+                                    MaximumWidthRequest="500"
+                                    Padding="15"
+                                    BackgroundColor="{DynamicResource Primary}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <Label Text="{Binding Content}"
+                                       TextColor="{StaticResource White}"
+                                       LineBreakMode="WordWrap"/>
+                            </Border>
+                            
+                            <!-- Assistant Message (Left Aligned) -->
+                            <Border Grid.Row="0"
+                                    IsVisible="{Binding Role, Converter={StaticResource StringEqualConverter}, ConverterParameter='assistant'}"
+                                    HorizontalOptions="Start"
+                                    MaximumWidthRequest="500"
+                                    Padding="15"
+                                    StrokeThickness="1"
+                                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBackground}, Dark={StaticResource CardBackgroundDark}}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <controls:BibleLinkLabel LinkedText="{Binding Content}"
+                                       TextColor="{AppThemeBinding Light={StaticResource TextColor}, Dark={StaticResource TextColorDark}}"
+                                       LineBreakMode="WordWrap"/>
+                            </Border>
+
+                            <!-- Contextual References (shown below assistant messages) -->
+                            <Border Grid.Row="1"
+                                    IsVisible="{Binding HasContextualReferences}"
+                                    HorizontalOptions="Start"
+                                    MaximumWidthRequest="500"
+                                    Margin="0,5,0,0"
+                                    Padding="12"
+                                    StrokeThickness="1"
+                                    Stroke="{DynamicResource Primary}"
+                                    BackgroundColor="{DynamicResource CardBackground}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                <VerticalStackLayout Spacing="8">
+                                    <HorizontalStackLayout Spacing="5">
+                                        <Label Text="📖" FontSize="14"/>
+                                        <Label Text="Related Scripture from my experience:"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="{DynamicResource Primary}"/>
+                                    </HorizontalStackLayout>
+                                    
+                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding ContextualReferences}" Spacing="10">
+                                        <BindableLayout.ItemTemplate>
+                                            <DataTemplate x:DataType="models:ContextualReference">
+                                                <VerticalStackLayout Spacing="3">
+                                                    <controls:BibleLinkLabel LinkedText="{Binding Reference}"
+                                                                             FontSize="13"
+                                                                             FontAttributes="Bold"
+                                                                             TextColor="{DynamicResource Primary}"/>
+                                                    <Label Text="{Binding Summary}"
+                                                           FontSize="12"
+                                                           TextColor="{DynamicResource TextColor}"
+                                                           LineBreakMode="WordWrap"/>
+                                                    <Label Text="{Binding Connection, StringFormat='💬 \&quot;{0}\&quot;'}"
+                                                           FontSize="11"
+                                                           FontAttributes="Italic"
+                                                           TextColor="{DynamicResource Gray600}"
+                                                           LineBreakMode="WordWrap"/>
+                                                </VerticalStackLayout>
+                                            </DataTemplate>
+                                        </BindableLayout.ItemTemplate>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!-- System Message (Centered, Error) -->
+                            <Border Grid.Row="0"
+                                    IsVisible="{Binding Role, Converter={StaticResource StringEqualConverter}, ConverterParameter='system'}"
+                                    HorizontalOptions="Center"
+                                    Padding="10"
+                                    BackgroundColor="{DynamicResource Warning}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="8"/>
+                                </Border.StrokeShape>
+                                <Label Text="{Binding Content}"
+                                       FontSize="12"
+                                       TextColor="White"
+                                       LineBreakMode="WordWrap"/>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </ScrollView>
+
+        <!-- Typing Indicator (Row 1 - between messages and input) -->
+        <Border Grid.Row="1"
+                IsVisible="{Binding IsAiTyping}"
+                HorizontalOptions="Start"
+                Margin="20,10"
+                Padding="14,10"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBackground}, Dark={StaticResource CardBackgroundDark}}"
+                StrokeThickness="1"
+                Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="18"/>
+            </Border.StrokeShape>
+            <HorizontalStackLayout Spacing="10">
+                <ActivityIndicator IsRunning="True"
+                                 WidthRequest="18"
+                                 HeightRequest="18"
+                                 Color="{DynamicResource Primary}"/>
+                <Label Text="{Binding Character.Name, StringFormat='{0} is typing...'}"
+                       FontSize="14"
+                       FontAttributes="Italic"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"/>
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- Response Action Buttons (Row 2 - linked to latest assistant message) -->
+        <HorizontalStackLayout Grid.Row="2"
+                               Spacing="10"
+                               HorizontalOptions="Start"
+                               Margin="20,8"
+                               IsVisible="{Binding LatestAssistantMessage, Converter={StaticResource NullToBoolConverter}}">
+            <!-- Thumbs Up -->
+            <Button Text="👍"
+                    FontSize="18"
+                    WidthRequest="50"
+                    HeightRequest="50"
+                    Padding="0"
+                    CornerRadius="25"
+                    BackgroundColor="{AppThemeBinding Light='#F5EDDE', Dark='#4A4034'}"
+                    Opacity="{Binding LatestAssistantMessage.Rating, Converter={StaticResource RatingOpacityConverter}, ConverterParameter='1'}"
+                    IsEnabled="{Binding IsActionInProgress, Converter={StaticResource InvertedBoolConverter}}"
+                    Command="{Binding RateMessageCommand}"
+                    CommandParameter="{Binding LatestAssistantMessage, Converter={StaticResource MessageToRatingTupleConverter}, ConverterParameter='1'}">
+                <Button.Shadow>
+                    <Shadow Brush="#30000000" Offset="1,2" Radius="4" Opacity="0.25" />
+                </Button.Shadow>
+            </Button>
+            <!-- Thumbs Down -->
+            <Button Text="👎"
+                    FontSize="18"
+                    WidthRequest="50"
+                    HeightRequest="44"
+                    Padding="0"
+                    CornerRadius="22"
+                    BackgroundColor="{AppThemeBinding Light='#E8E8E8', Dark='#505050'}"
+                    Opacity="{Binding LatestAssistantMessage.Rating, Converter={StaticResource RatingOpacityConverter}, ConverterParameter='-1'}"
+                    IsEnabled="{Binding IsActionInProgress, Converter={StaticResource InvertedBoolConverter}}"
+                    Command="{Binding RateMessageCommand}"
+                    CommandParameter="{Binding LatestAssistantMessage, Converter={StaticResource MessageToRatingTupleConverter}, ConverterParameter='-1'}"/>
+            <!-- Speak - with active state feedback -->
+            <Grid WidthRequest="44" HeightRequest="44">
+                <Button Text="{Binding IsSpeaking, Converter={StaticResource BoolToVoiceIconConverter}}"
+                        FontSize="16"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        Padding="0"
+                        CornerRadius="22"
+                        BackgroundColor="{AppThemeBinding Light='#E8E8E8', Dark='#505050'}"
+                        ToolTipProperties.Text="{Binding IsSpeaking, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Stop speaking,Read aloud'}"
+                        IsEnabled="{Binding IsActionInProgress, Converter={StaticResource InvertedBoolConverter}}"
+                        Command="{Binding ToggleVoiceCommand}"
+                        CommandParameter="{Binding LatestAssistantMessage}"
+                        IsVisible="{Binding IsSpeaking, Converter={StaticResource InvertedBoolConverter}}"/>
+                <!-- Speaking indicator with animation -->
+                <Border WidthRequest="44"
+                        HeightRequest="44"
+                        StrokeThickness="0"
+                        BackgroundColor="{AppThemeBinding Light='#4CAF50', Dark='#388E3C'}"
+                        StrokeShape="RoundRectangle 22"
+                        IsVisible="{Binding IsSpeaking}">
+                    <Button Text="⏹️"
+                            FontSize="16"
+                            Padding="0"
+                            BackgroundColor="Transparent"
+                            TextColor="White"
+                            ToolTipProperties.Text="Stop speaking"
+                            Command="{Binding StopVoiceCommand}"/>
+                </Border>
+            </Grid>
+            <!-- Save - with loading state -->
+            <Grid WidthRequest="44" HeightRequest="44">
+                <Button Text="📝"
+                        FontSize="16"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        Padding="0"
+                        CornerRadius="22"
+                        BackgroundColor="{AppThemeBinding Light='#E8E8E8', Dark='#505050'}"
+                        ToolTipProperties.Text="Save to reflections"
+                        IsVisible="{Binding IsSavingReflection, Converter={StaticResource InvertedBoolConverter}}"
+                        IsEnabled="{Binding IsActionInProgress, Converter={StaticResource InvertedBoolConverter}}"
+                        Command="{Binding SaveToReflectionsCommand}"
+                        CommandParameter="{Binding LatestAssistantMessage}"/>
+                <Border WidthRequest="44"
+                        HeightRequest="44"
+                        BackgroundColor="{AppThemeBinding Light='#E8E8E8', Dark='#505050'}"
+                        IsVisible="{Binding IsSavingReflection}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="22"/>
+                    </Border.StrokeShape>
+                    <ActivityIndicator IsRunning="{Binding IsSavingReflection}"
+                                       WidthRequest="20"
+                                       HeightRequest="20"
+                                       Color="{DynamicResource Primary}"/>
+                </Border>
+            </Grid>
+            <!-- Prayer - with loading state -->
+            <Grid WidthRequest="44" HeightRequest="44">
+                <Button Text="🙏"
+                        FontSize="16"
+                        WidthRequest="44"
+                        HeightRequest="44"
+                        Padding="0"
+                        CornerRadius="22"
+                        BackgroundColor="{AppThemeBinding Light='#E8E8E8', Dark='#505050'}"
+                        ToolTipProperties.Text="Generate a prayer"
+                        AutomationProperties.Name="Generate prayer from conversation"
+                        AutomationProperties.HelpText="Create a prayer based on the current conversation"
+                        IsVisible="{Binding IsGeneratingPrayer, Converter={StaticResource InvertedBoolConverter}}"
+                        IsEnabled="{Binding IsActionInProgress, Converter={StaticResource InvertedBoolConverter}}"
+                        Command="{Binding GeneratePrayerFromMessageCommand}"
+                        CommandParameter="{Binding LatestAssistantMessage}"/>
+                <Border WidthRequest="44"
+                        HeightRequest="44"
+                        BackgroundColor="{AppThemeBinding Light='#E8E8E8', Dark='#505050'}"
+                        IsVisible="{Binding IsGeneratingPrayer}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="22"/>
+                    </Border.StrokeShape>
+                    <ActivityIndicator IsRunning="{Binding IsGeneratingPrayer}"
+                                       WidthRequest="20"
+                                       HeightRequest="20"
+                                       Color="{DynamicResource Primary}"/>
+                </Border>
+            </Grid>
+            <!-- Status text for actions -->
+            <Label Text="{Binding IsGeneratingPrayer, Converter={StaticResource BoolToGeneratingPrayerTextConverter}}"
+                   IsVisible="{Binding IsActionInProgress}"
+                   VerticalOptions="Center"
+                   FontSize="12"
+                   FontAttributes="Italic"
+                   TextColor="{DynamicResource Gray600}"/>
+        </HorizontalStackLayout>
+
+        <!-- Input Area -->
+        <Grid Grid.Row="3" 
+              ColumnDefinitions="*,Auto"
+              Padding="20,12,20,18"
+              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
+            
+            <Border Grid.Column="0"
+                    Padding="15,10"
+                    StrokeThickness="1"
+                    Stroke="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray500}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource InputBackground}, Dark={StaticResource InputBackgroundDark}}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <Entry Text="{Binding UserMessage}"
+                       Placeholder="Type a message..."
+                       ReturnCommand="{Binding SendMessageCommand}"
+                       IsEnabled="{Binding IsAiTyping, Converter={StaticResource InvertedBoolConverter}}"
+                       MaxLength="2000"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
+                       PlaceholderColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
+                       FontSize="14"
+                       VerticalOptions="Center"
+                       AutomationProperties.Name="Message input"
+                       AutomationProperties.HelpText="Type your message here and press Enter to send"/>
+            </Border>
+
+            <!-- Send Button (visible when not typing) -->
+            <Button Grid.Column="1"
+                    Text="Send"
+                    Command="{Binding SendMessageCommand}"
+                    IsVisible="{Binding IsAiTyping, Converter={StaticResource InvertedBoolConverter}}"
+                    Margin="10,0,0,0"
+                    WidthRequest="80"
+                    HeightRequest="44"
+                    CornerRadius="20"
+                    FontSize="14"
+                    BackgroundColor="{DynamicResource Primary}"
+                    TextColor="{StaticResource White}"/>
+            
+            <!-- Stop Button (visible when AI is typing) -->
+            <Button Grid.Column="1"
+                    Text="⏹ Stop"
+                    Command="{Binding CancelResponseCommand}"
+                    IsVisible="{Binding IsAiTyping}"
+                    Margin="10,0,0,0"
+                    WidthRequest="80"
+                    HeightRequest="44"
+                    CornerRadius="26"
+                    FontSize="14"
+                    BackgroundColor="#C17B6F"
+                    TextColor="{StaticResource White}">
+                <Button.Shadow>
+                    <Shadow Brush="#40000000" Offset="2,3" Radius="6" Opacity="0.3" />
+                </Button.Shadow>
+            </Button>
+        </Grid>
+
+    </Grid>
+</ContentPage>

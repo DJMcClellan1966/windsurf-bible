@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             x:Class="AI_Bible_App.Maui.Views.RoundtableChatPage"
+             x:DataType="vm:RoundtableChatViewModel"
+             Title="🎯 Roundtable Discussion"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+    
+    <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Padding="20">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="6" Margin="0,10,0,10">
+            <Label Text="🎯 Roundtable Discussion"
+                   FontSize="24"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource Primary}"/>
+            
+            <Label Text="Characters discuss and debate the topic together"
+                   FontSize="12"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource Gray600}"/>
+        </VerticalStackLayout>
+
+        <!-- Participants Bar -->
+        <Border Grid.Row="1" 
+                Padding="10"
+                Margin="0,0,0,10"
+                BackgroundColor="{DynamicResource CardBackground}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="10"/>
+            </Border.StrokeShape>
+            <Grid ColumnDefinitions="Auto,*">
+                <Label Grid.Column="0" 
+                       Text="Participants:" 
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center"
+                       TextColor="{DynamicResource Gray600}"
+                       Margin="0,0,10,0"/>
+                
+                <!-- Loading state for participants -->
+                <HorizontalStackLayout Grid.Column="1" 
+                                       Spacing="5"
+                                       IsVisible="{Binding IsBusy}">
+                    <ActivityIndicator IsRunning="True" 
+                                      Color="{DynamicResource Primary}"
+                                      WidthRequest="18"
+                                      HeightRequest="18"/>
+                    <Label Text="Loading characters..." 
+                           FontSize="12"
+                           TextColor="{DynamicResource Gray500}"
+                           VerticalOptions="Center"/>
+                </HorizontalStackLayout>
+                
+                <!-- Character avatars -->
+                <CollectionView Grid.Column="1"
+                               ItemsSource="{Binding Characters}"
+                               IsVisible="{Binding IsBusy, Converter={StaticResource InverseBoolConverter}}"
+                               HeightRequest="40"
+                               ItemsLayout="HorizontalList">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BiblicalCharacter">
+                            <Border WidthRequest="36"
+                                    HeightRequest="36"
+                                    Margin="2"
+                                    BackgroundColor="{DynamicResource Primary}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="18"/>
+                                </Border.StrokeShape>
+                                <Label Text="{Binding Name, Converter={StaticResource FirstLetterConverter}}"
+                                       FontSize="16"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+        </Border>
+
+        <!-- Mode Toggle and Status -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="0,0,0,10">
+            <!-- Discussion Mode Toggle -->
+            <HorizontalStackLayout Grid.Column="0" Spacing="8">
+                <Label Text="Mode:" 
+                       VerticalOptions="Center"
+                       FontSize="13"
+                       TextColor="{DynamicResource Gray600}"/>
+                <Switch IsToggled="{Binding IsDiscussionMode}"
+                        OnColor="{DynamicResource Primary}"
+                        ThumbColor="White"/>
+                <Label Text="{Binding IsDiscussionMode, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Dynamic Discussion|Standard Roundtable'}"
+                       VerticalOptions="Center"
+                       FontSize="12"
+                       FontAttributes="Bold"
+                       TextColor="{DynamicResource Primary}"/>
+            </HorizontalStackLayout>
+            
+            <!-- Cancel Button (when active) -->
+            <Button Grid.Column="1"
+                    Text="⏹ Stop"
+                    Command="{Binding CancelDiscussionCommand}"
+                    IsVisible="{Binding IsDiscussionActive}"
+                    BackgroundColor="{DynamicResource Error}"
+                    TextColor="White"
+                    FontSize="11"
+                    HeightRequest="32"
+                    CornerRadius="8"/>
+        </Grid>
+
+        <!-- Empty State / Instructions -->
+        <Border Grid.Row="3"
+                IsVisible="{Binding HasNoMessages}"
+                Padding="30"
+                BackgroundColor="{DynamicResource CardBackground}"
+                VerticalOptions="Center"
+                HorizontalOptions="Center">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="15"/>
+            </Border.StrokeShape>
+            <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                <Label Text="💬" FontSize="50" HorizontalOptions="Center"/>
+                <Label Text="Start a Discussion"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{DynamicResource Primary}"/>
+                <Label Text="Enter a topic or question below to begin the roundtable discussion. The characters will share their perspectives and engage with each other."
+                       FontSize="13"
+                       TextColor="{DynamicResource Gray600}"
+                       HorizontalTextAlignment="Center"
+                       MaximumWidthRequest="350"/>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Messages ScrollView -->
+        <ScrollView Grid.Row="3" x:Name="MessagesScrollView" IsVisible="{Binding HasMessages}">
+            <VerticalStackLayout Spacing="12">
+                <!-- Messages List -->
+                <VerticalStackLayout Spacing="12" BindableLayout.ItemsSource="{Binding Messages}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:ChatMessage">
+                            <Border Padding="12"
+                                    BackgroundColor="{DynamicResource CardBackground}"
+                                    Shadow="{Shadow Brush=Black, Offset='0,2', Radius=4, Opacity=0.3}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                
+                                <VerticalStackLayout Spacing="8">
+                                    <!-- Character Header (for assistant messages) -->
+                                    <Grid ColumnDefinitions="45,*" ColumnSpacing="10" IsVisible="{Binding IsAssistant}">
+                                        <Border Grid.Column="0"
+                                                WidthRequest="45"
+                                                HeightRequest="45"
+                                                BackgroundColor="{DynamicResource Primary}">
+                                            <Border.StrokeShape>
+                                                <RoundRectangle CornerRadius="22"/>
+                                            </Border.StrokeShape>
+                                            <Label Text="{Binding CharacterName, Converter={StaticResource FirstLetterConverter}}"
+                                                   FontSize="20"
+                                                   FontAttributes="Bold"
+                                                   TextColor="White"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+                                        
+                                        <Label Grid.Column="1"
+                                               Text="{Binding CharacterName}"
+                                               FontSize="16"
+                                               FontAttributes="Bold"
+                                               TextColor="{DynamicResource Primary}"
+                                               VerticalOptions="Center"/>
+                                    </Grid>
+                                    
+                                    <!-- User message styling -->
+                                    <Label Text="You"
+                                           FontSize="15"
+                                           FontAttributes="Bold"
+                                           TextColor="{DynamicResource Secondary}"
+                                           IsVisible="{Binding IsUser}"/>
+                                    
+                                    <!-- Message Content -->
+                                    <Label Text="{Binding Content}"
+                                           FontSize="14"
+                                           TextColor="{DynamicResource TextColor}"
+                                           LineBreakMode="WordWrap"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+                <!-- Status Message (inside scroll) -->
+                <Border Padding="12"
+                        BackgroundColor="{DynamicResource Primary}"
+                        IsVisible="{Binding StatusMessage, Converter={StaticResource StringToBoolConverter}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="8"/>
+                    </Border.StrokeShape>
+                    <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                        <ActivityIndicator IsRunning="True" 
+                                          Color="White" 
+                                          WidthRequest="20" 
+                                          HeightRequest="20"/>
+                        <Label Text="{Binding StatusMessage}"
+                               TextColor="White"
+                               FontSize="14"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <!-- Waiting for User Input Prompt (inside scroll) -->
+                <Border Padding="15"
+                        BackgroundColor="{DynamicResource CardBackground}"
+                        Stroke="{DynamicResource Primary}"
+                        StrokeThickness="2"
+                        IsVisible="{Binding IsWaitingForUserInput}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="💬 Discussion Paused"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               TextColor="{DynamicResource Primary}"
+                               HorizontalOptions="Center"/>
+                        
+                        <Label Text="{Binding UserInputPrompt}"
+                               FontSize="13"
+                               TextColor="{DynamicResource Gray600}"
+                               HorizontalTextAlignment="Center"
+                               HorizontalOptions="Center"/>
+                        
+                        <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                            <Button Text="▶ Continue"
+                                    Command="{Binding ContinueDiscussionCommand}"
+                                    BackgroundColor="{DynamicResource Primary}"
+                                    TextColor="White"
+                                    FontSize="13"
+                                    FontAttributes="Bold"
+                                    HeightRequest="40"
+                                    Padding="20,0"
+                                    CornerRadius="8"/>
+                            <Button Text="✓ End Discussion"
+                                    Command="{Binding ConcludeDiscussionCommand}"
+                                    BackgroundColor="{DynamicResource Success}"
+                                    TextColor="White"
+                                    FontSize="13"
+                                    HeightRequest="40"
+                                    Padding="20,0"
+                                    CornerRadius="8"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Discussion Outcome (inside scroll) -->
+                <Border Padding="15"
+                        BackgroundColor="{DynamicResource Success}"
+                        IsVisible="{Binding DiscussionOutcome, Converter={StaticResource StringToBoolConverter}}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="10"/>
+                    </Border.StrokeShape>
+                    <Label Text="{Binding DiscussionOutcome}"
+                           TextColor="White"
+                           FontSize="15"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"/>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Input Area -->
+        <Grid Grid.Row="4" 
+              ColumnDefinitions="*,Auto" 
+              ColumnSpacing="10"
+              Margin="0,10,0,0">
+            
+            <Border Grid.Column="0"
+                    Padding="12,10"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                
+                <Editor Text="{Binding InputText}"
+                        Placeholder="{Binding IsWaitingForUserInput, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Share your thoughts with the group...|Enter a topic for discussion...'}"
+                        PlaceholderColor="{DynamicResource Gray500}"
+                        TextColor="{DynamicResource TextColor}"
+                        AutoSize="TextChanges"
+                        MaximumHeightRequest="100"
+                        VerticalOptions="Center"
+                        FontSize="14"/>
+            </Border>
+            
+            <Button Grid.Column="1"
+                    Text="{Binding IsDiscussionActive, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Add|Start'}"
+                    Command="{Binding SendMessageCommand}"
+                    IsEnabled="{Binding CanSend}"
+                    WidthRequest="70"
+                    HeightRequest="45"
+                    FontSize="14"
+                    FontAttributes="Bold"
+                    BackgroundColor="{DynamicResource Primary}"
+                    TextColor="White"
+                    CornerRadius="12"/>
+        </Grid>
+        
+        <!-- Loading Indicator (full screen overlay) -->
+        <Grid Grid.RowSpan="5"
+              IsVisible="{Binding IsBusy}"
+              BackgroundColor="#80000000">
+            <Border Padding="30"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="15">
+                    <ActivityIndicator IsRunning="True"
+                                      Color="{DynamicResource Primary}"
+                                      WidthRequest="40"
+                                      HeightRequest="40"/>
+                    <Label Text="Characters are thinking..."
+                           FontSize="14"
+                           TextColor="{DynamicResource TextColor}"
+                           HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

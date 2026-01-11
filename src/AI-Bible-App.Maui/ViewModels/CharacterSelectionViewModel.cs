@@ -1,0 +1,190 @@
+using AI_Bible_App.Core.Interfaces;
+using AI_Bible_App.Core.Models;
+using AI_Bible_App.Maui.Services;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
+
+#pragma warning disable MVVMTK0045 // AOT compatibility warning for WinRT scenarios
+
+namespace AI_Bible_App.Maui.ViewModels;
+
+public partial class CharacterSelectionViewModel : BaseViewModel
+{
+    private readonly ICharacterRepository _characterRepository;
+    private readonly INavigationService _navigationService;
+    private readonly IHealthCheckService? _healthCheckService;
+    private readonly IChatRepository _chatRepository;
+    private readonly IDialogService _dialogService;
+
+    [ObservableProperty]
+    private ObservableCollection<BiblicalCharacter> characters = new();
+
+    [ObservableProperty]
+    private BiblicalCharacter? selectedCharacter;
+
+    [ObservableProperty]
+    private bool isOllamaOnline;
+
+    [ObservableProperty]
+    private string ollamaStatusText = "Checking AI status...";
+
+    [ObservableProperty]
+    private Color ollamaStatusColor = Colors.Gray;
+
+    public CharacterSelectionViewModel(
+        ICharacterRepository characterRepository,
+        INavigationService navigationService,
+        IChatRepository chatRepository,
+        IDialogService dialogService,
+        IHealthCheckService? healthCheckService = null)
+    {
+        _characterRepository = characterRepository;
+        _navigationService = navigationService;
+        _chatRepository = chatRepository;
+        _dialogService = dialogService;
+        _healthCheckService = healthCheckService;
+        Title = "Choose a Biblical Character";
+    }
+
+    public async Task InitializeAsync()
+    {
+        await LoadCharactersAsync();
+        await CheckOllamaStatusAsync();
+    }
+
+    private async Task LoadCharactersAsync()
+    {
+        try
+        {
+            IsBusy = true;
+            var chars = await _characterRepository.GetAllCharactersAsync();
+            Characters = new ObservableCollection<BiblicalCharacter>(chars);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task CheckOllamaStatusAsync()
+    {
+        if (_healthCheckService == null)
+        {
+            IsOllamaOnline = false;
+            OllamaStatusText = "⚠️ Health check unavailable";
+            OllamaStatusColor = Colors.Orange;
+            return;
+        }
+
+        try
+        {
+            OllamaStatusText = "🔄 Checking AI...";
+            OllamaStatusColor = Colors.Gray;
+            
+            var isAvailable = await _healthCheckService.IsOllamaAvailableAsync();
+            IsOllamaOnline = isAvailable;
+            
+            if (isAvailable)
+            {
+                OllamaStatusText = "✅ AI Ready (Ollama Online)";
+                OllamaStatusColor = Colors.Green;
+            }
+            else
+            {
+                OllamaStatusText = "❌ AI Offline - Start Ollama";
+                OllamaStatusColor = Colors.Red;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ERROR] Ollama check failed: {ex.Message}");
+            IsOllamaOnline = false;
+            OllamaStatusText = "❌ AI Offline - Start Ollama";
+            OllamaStatusColor = Colors.Red;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SelectCharacter(BiblicalCharacter character)
+    {
+        System.Diagnostics.Debug.WriteLine($"[DEBUG] SelectCharacter called with: {character?.Name}");
+        
+        if (character == null || IsBusy)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] SelectCharacter early exit - character null: {character == null}, IsBusy: {IsBusy}");
+            return;
+        }
+
+        try
+        {
+            IsBusy = true;
+            SelectedCharacter = character;
+            
+            // Check if there's an existing session for this character
+            ChatSession? existingSession = null;
+            try
+            {
+                existingSession = await _chatRepository.GetLatestSessionForCharacterAsync(character.Id);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] Error loading session: {ex.Message}");
+            }
+            
+            var navParams = new Dictionary<string, object> { { "character", character } };
+            
+            if (existingSession != null && existingSession.Messages.Count > 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] Found existing session with {existingSession.Messages.Count} messages");
+                
+                // Ask user if they want to continue or start new
+                var result = await _dialogService.ShowActionSheetAsync(
+                    $"Continue conversation with {character.Name}?",
+                    "Cancel",
+                    null,
+                    "Continue Chat",
+                    "Start New Chat");
+                
+                if (result == "Cancel" || result == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("[DEBUG] User cancelled selection");
+                    return;
+                }
+                
+                if (result == "Start New Chat")
+                {
+                    System.Diagnostics.Debug.WriteLine("[DEBUG] User chose new chat");
+                    navParams.Add("newChat", true);
+                }
+                // "Continue Chat" will use the existing session automatically
+            }
+            
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] About to navigate to chat page...");
+            await _navigationService.NavigateToAsync("chat", navParams);
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] Navigation completed successfully");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ERROR] SelectCharacter FAILED: {ex}");
+            await _dialogService.ShowAlertAsync("Error", $"Failed to open chat: {ex.Message}");
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task NavigateToPrayer()
+    {
+        await _navigationService.NavigateToAsync("prayer");
+    }
+
+    [RelayCommand]
+    private async Task NavigateToMultiCharacter()
+    {
+        await _navigationService.NavigateToAsync("MultiCharacterSelectionPage");
+    }
+}

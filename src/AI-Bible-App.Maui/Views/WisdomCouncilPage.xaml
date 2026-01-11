@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             x:Class="AI_Bible_App.Maui.Views.WisdomCouncilPage"
+             x:DataType="vm:WisdomCouncilViewModel"
+             Title="🧠 Wisdom Council"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+    
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,20,0,20">
+            <Label Text="🧠 Wisdom Council"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource Primary}"/>
+            
+            <!-- Character Avatars -->
+            <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                <Label Text="Council Members:"
+                       FontSize="14"
+                       VerticalOptions="Center"
+                       TextColor="{DynamicResource Gray600}"/>
+                
+                <HorizontalStackLayout Spacing="-10" BindableLayout.ItemsSource="{Binding Characters}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:BiblicalCharacter">
+                            <Border WidthRequest="40"
+                                    HeightRequest="40"
+                                    Padding="0"
+                                    BackgroundColor="{DynamicResource Primary}"
+                                    StrokeThickness="2"
+                                    Stroke="White">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="20"/>
+                                </Border.StrokeShape>
+                                <Label Text="{Binding Name, Converter={StaticResource FirstLetterConverter}}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </HorizontalStackLayout>
+            </HorizontalStackLayout>
+            
+            <Label Text="Ask one question and receive wisdom from all council members"
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource Gray600}"
+                   HorizontalTextAlignment="Center"
+                   LineBreakMode="WordWrap"/>
+        </VerticalStackLayout>
+
+        <!-- Responses ScrollView -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="20" BindableLayout.ItemsSource="{Binding Responses}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:ChatMessage">
+                        <Border Padding="15"
+                                BackgroundColor="{DynamicResource CardBackground}"
+                                Shadow="{Shadow Brush=Black, Offset='0,2', Radius=4, Opacity=0.3}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12"/>
+                            </Border.StrokeShape>
+                            
+                            <VerticalStackLayout Spacing="10">
+                                <!-- Character Header -->
+                                <Grid ColumnDefinitions="50,*" ColumnSpacing="10" IsVisible="{Binding IsAssistant}">
+                                    <Border Grid.Column="0"
+                                            WidthRequest="50"
+                                            HeightRequest="50"
+                                            Padding="0"
+                                            BackgroundColor="{DynamicResource Primary}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="25"/>
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding CharacterName, Converter={StaticResource FirstLetterConverter}}"
+                                               FontSize="22"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Border>
+                                    
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding CharacterName}"
+                                               FontSize="18"
+                                               FontAttributes="Bold"
+                                               TextColor="{DynamicResource Primary}"/>
+                                        <Label Text="{Binding Timestamp, StringFormat='{0:h:mm tt}'}"
+                                               FontSize="11"
+                                               TextColor="{DynamicResource Gray500}"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                                
+                                <!-- Question (if user message) -->
+                                <Border Padding="12"
+                                        BackgroundColor="{DynamicResource Primary}"
+                                        IsVisible="{Binding IsUser}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="8"/>
+                                    </Border.StrokeShape>
+                                    <Label Text="{Binding Content}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           LineBreakMode="WordWrap"/>
+                                </Border>
+                                
+                                <!-- Response Content -->
+                                <Label Text="{Binding Content}"
+                                       FontSize="15"
+                                       TextColor="{DynamicResource TextColor}"
+                                       LineBreakMode="WordWrap"
+                                       IsVisible="{Binding IsAssistant}"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Input Area -->
+        <Grid Grid.Row="2" 
+              ColumnDefinitions="*,Auto" 
+              ColumnSpacing="10"
+              Margin="0,20,0,0">
+            
+            <Border Grid.Column="0"
+                    Padding="15,12"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                
+                <Editor Text="{Binding QuestionText}"
+                        Placeholder="Ask your question to the council..."
+                        PlaceholderColor="{DynamicResource Gray500}"
+                        TextColor="{DynamicResource TextColor}"
+                        AutoSize="TextChanges"
+                        MaximumHeightRequest="120"
+                        VerticalOptions="Center"
+                        FontSize="15"/>
+            </Border>
+            
+            <Button Grid.Column="1"
+                    Text="Ask"
+                    Command="{Binding AskCouncilCommand}"
+                    IsEnabled="{Binding CanAsk}"
+                    WidthRequest="80"
+                    HeightRequest="50"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    BackgroundColor="{DynamicResource Primary}"
+                    TextColor="White"
+                    CornerRadius="12"/>
+        </Grid>
+        
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.RowSpan="3"
+                          IsRunning="{Binding IsBusy}"
+                          IsVisible="{Binding IsBusy}"
+                          Color="{DynamicResource Primary}"
+                          WidthRequest="50"
+                          HeightRequest="50"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

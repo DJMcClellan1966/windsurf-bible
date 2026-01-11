@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             x:Class="AI_Bible_App.Maui.Views.SettingsPage"
+             x:DataType="vm:SettingsViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+    
+    <ScrollView Padding="20">
+        <VerticalStackLayout Spacing="20">
+            
+            <!-- Header -->
+            <Label Text="⚙️ Settings"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+            
+            <!-- User Profile Section -->
+            <Border Padding="20"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}"
+                    BackgroundColor="{DynamicResource CardBackground}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="👤 User Profile"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="15">
+                        <Frame Grid.Column="0" 
+                               WidthRequest="50" HeightRequest="50"
+                               CornerRadius="25" Padding="0"
+                               BackgroundColor="{DynamicResource Primary}">
+                            <Label Text="{Binding CurrentUserEmoji}" 
+                                   FontSize="24"
+                                   TextColor="White"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Frame>
+                        
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding CurrentUserName}" 
+                                   FontSize="18" 
+                                   FontAttributes="Bold"/>
+                            <Label Text="{Binding CurrentUserSince, StringFormat='Member since {0:MMM d, yyyy}'}" 
+                                   FontSize="12" 
+                                   TextColor="{DynamicResource Gray500}"/>
+                        </VerticalStackLayout>
+                        
+                        <Button Grid.Column="2"
+                                Text="Switch"
+                                Command="{Binding SwitchUserCommand}"
+                                BackgroundColor="{DynamicResource Gray200}"
+                                TextColor="{DynamicResource TextColor}"
+                                CornerRadius="8"
+                                Padding="15,8"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Appearance Section -->
+            <Border Padding="20"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}"
+                    BackgroundColor="{DynamicResource CardBackground}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🎨 Appearance"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    
+                    <!-- Theme Selection -->
+                    <Label Text="Theme"
+                           FontSize="14"
+                           FontAttributes="Bold"/>
+                    <Label Text="Choose how the app looks"
+                           FontSize="12"
+                           TextColor="{DynamicResource Gray600}"/>
+                    <Picker ItemsSource="{Binding ThemeOptions}"
+                            SelectedItem="{Binding SelectedTheme}"
+                            BackgroundColor="{DynamicResource InputBackground}"
+                            TextColor="{DynamicResource TextColor}"/>
+                    
+                    <!-- Font Size Selection -->
+                    <Label Text="Font Size"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           Margin="0,10,0,0"/>
+                    <Label Text="Adjust text size for better readability"
+                           FontSize="12"
+                           TextColor="{DynamicResource Gray600}"/>
+                    <Picker ItemsSource="{Binding FontSizeOptions}"
+                            SelectedItem="{Binding SelectedFontSize}"
+                            BackgroundColor="{DynamicResource InputBackground}"
+                            TextColor="{DynamicResource TextColor}"/>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Offline AI Models Section (NEW) -->
+            <Border Padding="20"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}"
+                    BackgroundColor="{DynamicResource CardBackground}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🤖 Offline AI Models"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    
+                    <Label Text="Download AI models to chat without internet. Perfect for travel or areas with limited connectivity."
+                           FontSize="13"
+                           TextColor="{DynamicResource Gray600}"/>
+                    
+                    <Button Text="📥 Manage Offline Models"
+                            Command="{Binding NavigateToOfflineModelsCommand}"
+                            BackgroundColor="{DynamicResource Primary}"
+                            TextColor="White"
+                            CornerRadius="10"
+                            HeightRequest="50"
+                            FontAttributes="Bold"/>
+                    
+                    <Label Text="💡 Tip: Download Phi 3.5 Mini for the best balance of speed and quality"
+                           FontSize="11"
+                           FontAttributes="Italic"
+                           TextColor="{DynamicResource Gray500}"/>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Content Moderation Section -->
+            <Border Padding="20"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}"
+                    BackgroundColor="{DynamicResource CardBackground}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🛡️ Content Moderation"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    
+                    <Label Text="Filter inappropriate language to maintain a respectful environment."
+                           FontSize="13"
+                           TextColor="{DynamicResource Gray600}"/>
+                    
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" 
+                               Text="Enable Content Filter"
+                               VerticalOptions="Center"/>
+                        <Switch Grid.Column="1" 
+                                IsToggled="{Binding IsModerationEnabled}"
+                                OnColor="{DynamicResource Primary}"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- PIN Protection Section -->
+            <Border Padding="20"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}"
+                    BackgroundColor="{DynamicResource CardBackground}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="🔐 Privacy Protection"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    
+                    <Label Text="Set a PIN to protect your profile from other users on this device."
+                           FontSize="13"
+                           TextColor="{DynamicResource Gray600}"/>
+                    
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Spacing="2">
+                            <Label Text="{Binding HasPinEnabled, Converter={StaticResource BoolToYesNoConverter}, StringFormat='PIN Protection: {0}'}"
+                                   FontSize="14"/>
+                            <Label Text="Your prayers, reflections, and chats stay private"
+                                   FontSize="11"
+                                   TextColor="{DynamicResource Gray500}"
+                                   IsVisible="{Binding HasPinEnabled}"/>
+                        </VerticalStackLayout>
+                        
+                        <!-- Set/Change PIN Button -->
+                        <Button Grid.Column="1"
+                                Text="{Binding HasPinEnabled, Converter={StaticResource BoolToSetChangeConverter}}"
+                                Command="{Binding SetOrChangePinCommand}"
+                                BackgroundColor="{DynamicResource Primary}"
+                                TextColor="White"
+                                CornerRadius="8"
+                                Padding="15,8"
+                                WidthRequest="100"/>
+                    </Grid>
+                    
+                    <!-- Remove PIN Button (only visible when PIN is set) -->
+                    <Button Text="Remove PIN"
+                            Command="{Binding RemovePinCommand}"
+                            BackgroundColor="{DynamicResource Gray200}"
+                            TextColor="{DynamicResource Gray700}"
+                            CornerRadius="8"
+                            IsVisible="{Binding HasPinEnabled}"
+                            HorizontalOptions="Start"/>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Training Data Section -->
+            <Border Padding="20"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}"
+                    BackgroundColor="{DynamicResource CardBackground}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="📊 Training Data Statistics"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    
+                    <Label Text="Rate AI responses with 👍/👎 to help improve future models."
+                           FontSize="13"
+                           TextColor="{DynamicResource Gray600}"/>
+                    
+                    <!-- Stats Grid -->
+                    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
+                        <Label Grid.Row="0" Text="Total Chat Sessions:" TextColor="{DynamicResource TextColor}"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalSessions}" FontAttributes="Bold"/>
+                        
+                        <Label Grid.Row="1" Text="Total Messages:" TextColor="{DynamicResource TextColor}"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalMessages}" FontAttributes="Bold"/>
+                        
+                        <Label Grid.Row="2" Text="Rated Messages:" TextColor="{DynamicResource TextColor}"/>
+                        <Label Grid.Row="2" Grid.Column="1" Text="{Binding RatedMessages}" FontAttributes="Bold" TextColor="{DynamicResource Primary}"/>
+                        
+                        <Label Grid.Row="3" Text="👍 Positive Ratings:" TextColor="{DynamicResource TextColor}"/>
+                        <Label Grid.Row="3" Grid.Column="1" Text="{Binding PositiveRatings}" FontAttributes="Bold" TextColor="Green"/>
+                        
+                        <Label Grid.Row="4" Text="👎 Negative Ratings:" TextColor="{DynamicResource TextColor}"/>
+                        <Label Grid.Row="4" Grid.Column="1" Text="{Binding NegativeRatings}" FontAttributes="Bold" TextColor="Red"/>
+                        
+                        <Label Grid.Row="5" Text="With Feedback:" TextColor="{DynamicResource TextColor}"/>
+                        <Label Grid.Row="5" Grid.Column="1" Text="{Binding MessagesWithFeedback}" FontAttributes="Bold"/>
+                    </Grid>
+                    
+                    <Button Text="🔄 Refresh Stats"
+                            Command="{Binding RefreshStatsCommand}"
+                            BackgroundColor="{DynamicResource Gray200}"
+                            TextColor="{DynamicResource TextColor}"
+                            CornerRadius="10"/>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Export Section -->
+            <Border Padding="20"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}"
+                    BackgroundColor="{DynamicResource CardBackground}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="📤 Export Training Data"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    
+                    <Label Text="Export rated conversations in JSONL format for LLM fine-tuning."
+                           FontSize="13"
+                           TextColor="{DynamicResource Gray600}"/>
+                    
+                    <Button Text="Export All Rated Conversations"
+                            Command="{Binding ExportAllRatedCommand}"
+                            BackgroundColor="{DynamicResource Primary}"
+                            TextColor="White"
+                            CornerRadius="10"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"/>
+                    
+                    <Button Text="Export Positive Only (👍)"
+                            Command="{Binding ExportPositiveOnlyCommand}"
+                            BackgroundColor="Green"
+                            TextColor="White"
+                            CornerRadius="10"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"/>
+                    
+                    <Label Text="Tip: Export positive ratings for training good responses, or all ratings for DPO training."
+                           FontSize="11"
+                           FontAttributes="Italic"
+                           TextColor="{DynamicResource Gray500}"/>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- About Section -->
+            <Border Padding="20"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}"
+                    BackgroundColor="{DynamicResource CardBackground}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="ℹ️ About"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    
+                    <Label Text="AI Bible App"
+                           FontSize="16"
+                           FontAttributes="Bold"/>
+                    
+                    <Label Text="Chat with biblical figures, powered by local AI."
+                           FontSize="13"
+                           TextColor="{DynamicResource Gray600}"/>
+                    
+                    <Label Text="Version 1.0"
+                           FontSize="12"
+                           TextColor="{DynamicResource Gray500}"/>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Activity Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                              IsVisible="{Binding IsBusy}"
+                              Color="{DynamicResource Primary}"/>
+            
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

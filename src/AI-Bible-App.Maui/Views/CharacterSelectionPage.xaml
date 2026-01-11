@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             x:Class="AI_Bible_App.Maui.Views.CharacterSelectionPage"
+             x:DataType="vm:CharacterSelectionViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+    
+    <Grid RowDefinitions="Auto,*,Auto" Padding="15">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="8" Margin="0,10,0,15">
+            <Label Text="📖 Voices of Scripture"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource Primary}"/>
+            <Label Text="Converse with Biblical Characters"
+                   FontSize="15"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource Gray600}"/>
+            
+            <!-- Ollama Status Indicator -->
+            <Border Padding="8,5"
+                    Margin="0,5,0,0"
+                    HorizontalOptions="Center"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="15"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CheckOllamaStatusCommand}"/>
+                </Border.GestureRecognizers>
+                <Label Text="{Binding OllamaStatusText}"
+                       FontSize="11"
+                       TextColor="{Binding OllamaStatusColor}"
+                       HorizontalOptions="Center"/>
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- Character List -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="15">
+                <Label Text="Choose a Character:"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       Margin="0,0,0,10"/>
+                
+                <!-- Empty state / loading message -->
+                <Label Text="Loading characters..."
+                       IsVisible="{Binding IsBusy}"
+                       FontSize="16"
+                       TextColor="{DynamicResource Gray600}"
+                       HorizontalOptions="Center"
+                       Margin="0,20,0,0"/>
+                
+                <CollectionView ItemsSource="{Binding Characters}"
+                                SelectionMode="Single"
+                                SelectionChanged="OnCharacterSelected">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BiblicalCharacter">
+                            <Border Padding="12"
+                                    Margin="0,0,0,10"
+                                    BackgroundColor="{DynamicResource CardBackground}"
+                                    Shadow="{Shadow Brush=Black, Offset='0,2', Radius=4, Opacity=0.3}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12"/>
+                                </Border.StrokeShape>
+                                
+                                <Grid ColumnDefinitions="60,*" ColumnSpacing="12">
+                                    <!-- Avatar Circle -->
+                                    <Border Grid.Column="0"
+                                            WidthRequest="55"
+                                            HeightRequest="55"
+                                            Padding="0"
+                                            BackgroundColor="{DynamicResource Primary}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="27"/>
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding Name, StringFormat='{0:substring(0,1)}'}"
+                                               FontSize="28"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Border>
+                                    
+                                    <!-- Character Info -->
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}"
+                                               FontSize="17"
+                                               FontAttributes="Bold"
+                                               LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding Title}"
+                                               FontSize="13"
+                                               TextColor="{DynamicResource Primary}"
+                                               LineBreakMode="TailTruncation"/>
+                                        <Label Text="{Binding Description}"
+                                               FontSize="11"
+                                               TextColor="{DynamicResource Gray600}"
+                                               LineBreakMode="WordWrap"
+                                               MaxLines="2"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Action Buttons -->
+        <VerticalStackLayout Grid.Row="2" Spacing="8" Margin="0,10,0,0">
+            <Button Text="👥 Multi-Character Chat"
+                    Command="{Binding NavigateToMultiCharacterCommand}"
+                    HeightRequest="48"
+                    FontSize="16"
+                    BackgroundColor="{DynamicResource Primary}"
+                    TextColor="White"
+                    CornerRadius="10"/>
+            
+            <Button Text="🙏 Generate a Prayer"
+                    Command="{Binding NavigateToPrayerCommand}"
+                    HeightRequest="48"
+                    FontSize="16"
+                    BackgroundColor="{DynamicResource Secondary}"
+                    TextColor="White"
+                    CornerRadius="10"/>
+        </VerticalStackLayout>
+        
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.RowSpan="3"
+                          IsRunning="{Binding IsBusy}"
+                          IsVisible="{Binding IsBusy}"
+                          Color="{DynamicResource Primary}"
+                          WidthRequest="50"
+                          HeightRequest="50"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

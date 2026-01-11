@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             x:Class="AI_Bible_App.Maui.Views.OfflineModelsPage"
+             x:DataType="viewmodels:OfflineModelsViewModel"
+             Title="{Binding Title}">
+
+    <Grid RowDefinitions="Auto,*" Padding="20">
+        
+        <!-- Header Section -->
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,20">
+            <Label Text="🤖 Offline AI Models"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Start"/>
+            
+            <Label Text="Download models to use the app without internet connection"
+                   FontSize="14"
+                   TextColor="{StaticResource Gray600}"
+                   Margin="0,0,0,10"/>
+
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                <BoxView Grid.Column="0"
+                         WidthRequest="12"
+                         HeightRequest="12"
+                         CornerRadius="6"
+                         Color="{Binding IsOnline, Converter={StaticResource BoolToColorConverter}, ConverterParameter='#4CAF50,#F44336'}"
+                         VerticalOptions="Center"/>
+                <Label Grid.Column="1"
+                       Text="{Binding IsOnline, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Online - can download models,Offline - using local models only'}"
+                       FontSize="13"
+                       TextColor="{StaticResource Gray600}"
+                       VerticalOptions="Center"/>
+            </Grid>
+
+            <Label Text="{Binding CurrentModelName, StringFormat='Current Active Model: {0}'}"
+                   FontSize="13"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Primary}"
+                   Margin="0,5,0,0"/>
+        </VerticalStackLayout>
+
+        <!-- Models List -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="15" BindableLayout.ItemsSource="{Binding Models}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="viewmodels:LocalModelItemViewModel">
+                        <Border BackgroundColor="{StaticResource Gray950}"
+                                StrokeThickness="1"
+                                Stroke="{StaticResource Gray800}"
+                                Padding="20"
+                                StrokeShape="RoundRectangle 12">
+                            
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="12">
+                                
+                                <!-- Model Name and Badge -->
+                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding DisplayName}"
+                                           FontSize="20"
+                                           FontAttributes="Bold"/>
+                                    
+                                    <Border Grid.Column="1"
+                                            BackgroundColor="{StaticResource Primary}"
+                                            Padding="8,4"
+                                            StrokeShape="RoundRectangle 8"
+                                            IsVisible="{Binding IsCurrent}">
+                                        <Label Text="ACTIVE"
+                                               FontSize="11"
+                                               FontAttributes="Bold"
+                                               TextColor="White"/>
+                                    </Border>
+                                </Grid>
+
+                                <!-- Size Category and Info -->
+                                <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,*" ColumnSpacing="15">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding SizeCategory}"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource Primary}"/>
+                                    
+                                    <Label Grid.Column="1"
+                                           Text="{Binding SizeText}"
+                                           FontSize="13"
+                                           TextColor="{StaticResource Gray600}"/>
+                                </Grid>
+
+                                <!-- Description -->
+                                <Label Grid.Row="2"
+                                       Text="{Binding Description}"
+                                       FontSize="14"
+                                       TextColor="{StaticResource Gray400}"
+                                       LineBreakMode="WordWrap"/>
+
+                                <!-- Recommended For -->
+                                <Label Grid.Row="3"
+                                       Text="{Binding RecommendedFor, StringFormat='✨ Best for: {0}'}"
+                                       FontSize="13"
+                                       TextColor="{StaticResource Gray500}"
+                                       FontAttributes="Italic"/>
+
+                                <!-- Action Buttons -->
+                                <Grid Grid.Row="4" ColumnDefinitions="*,*,Auto" ColumnSpacing="10" Margin="0,10,0,0">
+                                    
+                                    <!-- Download Button -->
+                                    <Button Grid.Column="0"
+                                            Text="{Binding IsDownloading, Converter={StaticResource BoolToStringConverter}, ConverterParameter='Downloading...,Download'}"
+                                            Command="{Binding DownloadCommand}"
+                                            IsEnabled="{Binding IsDownloading, Converter={StaticResource InverseBoolConverter}}"
+                                            IsVisible="{Binding IsDownloaded, Converter={StaticResource InverseBoolConverter}}"
+                                            BackgroundColor="{StaticResource Primary}"
+                                            TextColor="White"
+                                            FontSize="13"
+                                            HeightRequest="40"/>
+
+                                    <!-- Progress Bar (shown during download) -->
+                                    <ProgressBar Grid.Column="0" Grid.ColumnSpan="3"
+                                                 Progress="{Binding DownloadProgress, Converter={StaticResource PercentToDecimalConverter}}"
+                                                 IsVisible="{Binding IsDownloading}"
+                                                 ProgressColor="{StaticResource Primary}"
+                                                 HeightRequest="40"/>
+
+                                    <!-- Use Button -->
+                                    <Button Grid.Column="0"
+                                            Text="Use This Model"
+                                            Command="{Binding SetAsActiveCommand}"
+                                            IsVisible="{Binding IsDownloaded}"
+                                            IsEnabled="{Binding IsCurrent, Converter={StaticResource InverseBoolConverter}}"
+                                            BackgroundColor="{StaticResource Success}"
+                                            TextColor="White"
+                                            FontSize="13"
+                                            HeightRequest="40"/>
+
+                                    <!-- Delete Button -->
+                                    <Button Grid.Column="1"
+                                            Text="Delete"
+                                            Command="{Binding DeleteCommand}"
+                                            IsVisible="{Binding IsDownloaded}"
+                                            BackgroundColor="{StaticResource Gray700}"
+                                            TextColor="White"
+                                            FontSize="13"
+                                            HeightRequest="40"/>
+
+                                    <!-- Info Button -->
+                                    <Button Grid.Column="2"
+                                            Text="ℹ️"
+                                            Command="{Binding ViewRequirementsCommand}"
+                                            BackgroundColor="{StaticResource Gray800}"
+                                            TextColor="White"
+                                            FontSize="16"
+                                            WidthRequest="40"
+                                            HeightRequest="40"/>
+                                </Grid>
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="1"
+                          IsRunning="{Binding IsLoading}"
+                          IsVisible="{Binding IsLoading}"
+                          Color="{StaticResource Primary}"
+                          HeightRequest="50"
+                          WidthRequest="50"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

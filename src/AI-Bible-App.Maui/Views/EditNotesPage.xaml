@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:views="clr-namespace:AI_Bible_App.Maui.Views"
+             x:Class="AI_Bible_App.Maui.Views.EditNotesPage"
+             x:DataType="views:EditNotesPage"
+             Title="Edit Notes"
+             BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="8" Margin="0,0,0,15">
+            <Label Text="{Binding ReflectionTitle}" 
+                   FontSize="20" 
+                   FontAttributes="Bold"
+                   TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"/>
+            <Label Text="Add your personal thoughts and reflections"
+                   FontSize="14"
+                   TextColor="Gray"/>
+        </VerticalStackLayout>
+        
+        <!-- Large Notes Editor -->
+        <Border Grid.Row="1" 
+                Padding="15"
+                StrokeThickness="1"
+                Stroke="{AppThemeBinding Light=LightGray, Dark=DarkSlateGray}"
+                BackgroundColor="{AppThemeBinding Light='#FAFAFA', Dark='#1E1E1E'}">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12"/>
+            </Border.StrokeShape>
+            
+            <Editor x:Name="NotesEditor"
+                    Text="{Binding Notes}"
+                    Placeholder="Write your thoughts, prayers, or reflections here...&#10;&#10;What does this mean to you?&#10;How can you apply this?&#10;What questions do you have?"
+                    FontSize="16"
+                    AutoSize="TextChanges"
+                    MinimumHeightRequest="300"
+                    IsSpellCheckEnabled="True"
+                    IsTextPredictionEnabled="True"/>
+        </Border>
+        
+        <!-- Action Buttons -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="15" Margin="0,15,0,0">
+            <Button Grid.Column="0"
+                    Text="Cancel"
+                    Clicked="OnCancelClicked"
+                    BackgroundColor="{AppThemeBinding Light='#E0E0E0', Dark='#3D3D3D'}"
+                    TextColor="{AppThemeBinding Light=Black, Dark=White}"
+                    HeightRequest="50"
+                    CornerRadius="25"/>
+            <Button Grid.Column="1"
+                    Text="Save Notes"
+                    Clicked="OnSaveClicked"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                    TextColor="White"
+                    HeightRequest="50"
+                    CornerRadius="25"
+                    FontAttributes="Bold"/>
+        </Grid>
+    </Grid>
+</ContentPage>

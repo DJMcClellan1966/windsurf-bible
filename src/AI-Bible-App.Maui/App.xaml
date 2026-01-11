@@ -1,0 +1,42 @@
+﻿<?xml version = "1.0" encoding = "UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:AI_Bible_App.Maui"
+             xmlns:converters="clr-namespace:AI_Bible_App.Maui.Converters"
+             x:Class="AI_Bible_App.Maui.App">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Converters -->
+            <converters:StringEqualConverter x:Key="StringEqualConverter"/>
+            <converters:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+            <converters:StringNotEmptyConverter x:Key="StringNotEmptyConverter"/>
+            <converters:NullToBoolConverter x:Key="NullToBoolConverter"/>
+            <converters:RatingOpacityConverter x:Key="RatingOpacityConverter"/>
+            <converters:MessageToRatingTupleConverter x:Key="MessageToRatingTupleConverter"/>
+            <converters:FirstLetterConverter x:Key="FirstLetterConverter"/>
+            <converters:UtcToLocalTimeConverter x:Key="UtcToLocalTimeConverter"/>
+            <converters:ReflectionTypeToEmojiConverter x:Key="ReflectionTypeToEmojiConverter"/>
+            <converters:BoolToStarConverter x:Key="BoolToStarConverter"/>
+            <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
+            <converters:IntToBoolConverter x:Key="IntToBoolConverter"/>
+            <converters:BoolToMicIconConverter x:Key="BoolToMicIconConverter"/>
+            <converters:BoolToMicColorConverter x:Key="BoolToMicColorConverter"/>
+            <converters:BoolToPlaceholderConverter x:Key="BoolToPlaceholderConverter"/>
+            <converters:BoolToVoiceLabelConverter x:Key="BoolToVoiceLabelConverter"/>
+            <converters:BoolToVoiceIconConverter x:Key="BoolToVoiceIconConverter"/>
+            <converters:BoolToYesNoConverter x:Key="BoolToYesNoConverter"/>
+            <converters:BoolToSetChangeConverter x:Key="BoolToSetChangeConverter"/>
+            <converters:BoolToGeneratingPrayerTextConverter x:Key="BoolToGeneratingPrayerTextConverter"/>
+            <converters:BoolToColorConverter x:Key="BoolToColorConverter"/>
+            <converters:BoolToStringConverter x:Key="BoolToStringConverter"/>
+            <converters:BoolToDoubleConverter x:Key="BoolToDoubleConverter"/>
+            <converters:PercentToDecimalConverter x:Key="PercentToDecimalConverter"/>
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

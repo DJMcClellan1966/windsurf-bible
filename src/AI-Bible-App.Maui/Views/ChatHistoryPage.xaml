@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             x:Class="AI_Bible_App.Maui.Views.ChatHistoryPage"
+             x:DataType="vm:ChatHistoryViewModel"
+             x:Name="ThisPage"
+             Title="{Binding Title}"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Padding="20,20,20,10">
+            <Label Text="📜 Chat History"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+            <Label Text="Resume or review past conversations"
+                   FontSize="14"
+                   TextColor="{DynamicResource Gray600}"
+                   HorizontalOptions="Center"
+                   Margin="0,5,0,0"/>
+        </VerticalStackLayout>
+
+        <!-- Search Bar -->
+        <Border Grid.Row="1" 
+                Padding="15,0,15,10"
+                BackgroundColor="Transparent">
+            <SearchBar Placeholder="Search conversations..."
+                      Text="{Binding SearchText}"
+                      BackgroundColor="{DynamicResource InputBackground}"
+                      TextColor="{DynamicResource TextColor}"
+                      PlaceholderColor="{DynamicResource Gray600}"/>
+        </Border>
+
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.Row="2"
+                          IsRunning="{Binding IsLoading}"
+                          IsVisible="{Binding IsLoading}"
+                          VerticalOptions="Center"
+                          HorizontalOptions="Center"
+                          HeightRequest="50"
+                          WidthRequest="50"
+                          Color="{DynamicResource Primary}"/>
+
+        <!-- Empty State -->
+        <VerticalStackLayout Grid.Row="2"
+                            IsVisible="{Binding IsEmpty}"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Center"
+                            Spacing="15">
+            <Label Text="💬"
+                   FontSize="60"
+                   HorizontalOptions="Center"/>
+            <Label Text="No conversations yet"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
+            <Label Text="Start chatting with a biblical character to see your history here"
+                   FontSize="14"
+                   TextColor="{DynamicResource Gray600}"
+                   HorizontalOptions="Center"
+                   HorizontalTextAlignment="Center"
+                   MaximumWidthRequest="250"/>
+            <Button Text="Start a Conversation"
+                    Command="{Binding GoToCharactersCommand}"
+                    BackgroundColor="{DynamicResource Primary}"
+                    TextColor="White"
+                    CornerRadius="25"
+                    HeightRequest="50"
+                    Margin="0,10,0,0"/>
+        </VerticalStackLayout>
+
+        <!-- Chat Sessions List -->
+        <CollectionView Grid.Row="2"
+                       ItemsSource="{Binding ChatSessions}"
+                       IsVisible="{Binding IsEmpty, Converter={StaticResource InvertedBoolConverter}}"
+                       SelectionMode="Single"
+                       SelectedItem="{Binding SelectedSession}"
+                       Margin="15">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="vm:ChatHistoryItem">
+                    <SwipeView>
+                        <SwipeView.LeftItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Share"
+                                          IconImageSource="share"
+                                          BackgroundColor="{DynamicResource Secondary}"
+                                          Command="{Binding Path=BindingContext.ShareSessionCommand, Source={x:Reference ThisPage}}"
+                                          CommandParameter="{Binding}"/>
+                                <SwipeItem Text="Export"
+                                          BackgroundColor="{DynamicResource Primary}"
+                                          Command="{Binding Path=BindingContext.ExportSessionCommand, Source={x:Reference ThisPage}}"
+                                          CommandParameter="{Binding}"/>
+                            </SwipeItems>
+                        </SwipeView.LeftItems>
+                        <SwipeView.RightItems>
+                            <SwipeItems>
+                                <SwipeItem Text="Delete"
+                                          BackgroundColor="{DynamicResource Danger}"
+                                          Command="{Binding Path=BindingContext.DeleteSessionCommand, Source={x:Reference ThisPage}}"
+                                          CommandParameter="{Binding}"/>
+                            </SwipeItems>
+                        </SwipeView.RightItems>
+                        
+                        <Border Padding="15"
+                                Margin="0,0,0,10"
+                                StrokeThickness="1"
+                                Stroke="{DynamicResource Gray300}"
+                                BackgroundColor="{DynamicResource CardBackground}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12"/>
+                            </Border.StrokeShape>
+                            
+                            <Grid ColumnDefinitions="70,*,Auto" ColumnSpacing="15">
+                                <!-- Character Avatar -->
+                                <Border Grid.Column="0"
+                                        WidthRequest="70"
+                                        HeightRequest="70"
+                                        BackgroundColor="{DynamicResource Primary}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="35"/>
+                                    </Border.StrokeShape>
+                                    <Label Text="{Binding CharacterName, Converter={StaticResource FirstLetterConverter}}"
+                                           FontSize="30"
+                                           FontAttributes="Bold"
+                                           TextColor="White"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Border>
+                                
+                                <!-- Session Info -->
+                                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                    <Label Text="{Binding CharacterName}"
+                                           FontSize="16"
+                                           FontAttributes="Bold"/>
+                                    <Label Text="{Binding CharacterTitle}"
+                                           FontSize="12"
+                                           TextColor="{DynamicResource Primary}"/>
+                                    <Label Text="{Binding LastMessage}"
+                                           FontSize="12"
+                                           TextColor="{DynamicResource Gray600}"
+                                           LineBreakMode="TailTruncation"
+                                           MaxLines="2"/>
+                                </VerticalStackLayout>
+                                
+                                <!-- Date & Message Count -->
+                                <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                                    <Label Text="{Binding StartedAt, Converter={StaticResource UtcToLocalTimeConverter}, StringFormat='{0:MMM d, h:mm tt}'}"
+                                           FontSize="12"
+                                           TextColor="{DynamicResource Gray500}"
+                                           HorizontalOptions="End"/>
+                                    <Border BackgroundColor="{DynamicResource Primary}"
+                                            Padding="8,4"
+                                            HorizontalOptions="End">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="10"/>
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding MessageCount}"
+                                               FontSize="11"
+                                               TextColor="White"/>
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

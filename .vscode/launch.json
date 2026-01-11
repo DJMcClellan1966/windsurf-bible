@@ -1,0 +1,32 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "AI Bible App (Windows)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-windows",
+            "program": "${workspaceFolder}/src/AI-Bible-App.Maui/bin/Debug/net9.0-windows10.0.19041.0/win10-x64/AI-Bible-App.Maui.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "env": {
+                "DOTNET_ENVIRONMENT": "Development"
+            }
+        },
+        {
+            "name": "AI Bible App (No Debug)",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build-windows",
+            "program": "${workspaceFolder}/src/AI-Bible-App.Maui/bin/Debug/net9.0-windows10.0.19041.0/win10-x64/AI-Bible-App.Maui.exe",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "justMyCode": true,
+            "enableStepFiltering": true
+        }
+    ]
+}

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             x:Class="AI_Bible_App.Maui.Views.PrayerChainPage"
+             x:DataType="vm:PrayerChainViewModel"
+             Title="🙏 Prayer Chain"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+    
+    <Grid RowDefinitions="Auto,*,Auto" Padding="20">
+        
+        <!-- Header -->
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,20,0,20">
+            <Label Text="🙏 Prayer Chain"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource Primary}"/>
+            
+            <Label Text="Characters will pray in sequence, building on each other"
+                   FontSize="14"
+                   HorizontalOptions="Center"
+                   TextColor="{DynamicResource Gray600}"
+                   HorizontalTextAlignment="Center"
+                   LineBreakMode="WordWrap"/>
+        </VerticalStackLayout>
+
+        <!-- Prayers ScrollView -->
+        <ScrollView Grid.Row="1" x:Name="PrayersScrollView">
+            <VerticalStackLayout Spacing="20" BindableLayout.ItemsSource="{Binding Prayers}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="models:ChatMessage">
+                        <Border Padding="20"
+                                BackgroundColor="{AppThemeBinding Light='#F5EDDE', Dark='#4A4034'}"
+                                Shadow="{Shadow Brush=Black, Offset='0,2', Radius=4, Opacity=0.3}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12"/>
+                            </Border.StrokeShape>
+                            
+                            <VerticalStackLayout Spacing="12">
+                                <!-- Character Header -->
+                                <Grid ColumnDefinitions="50,*" ColumnSpacing="10">
+                                    <Border Grid.Column="0"
+                                            WidthRequest="50"
+                                            HeightRequest="50"
+                                            Padding="0"
+                                            BackgroundColor="{DynamicResource Primary}">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="25"/>
+                                        </Border.StrokeShape>
+                                        <Label Text="{Binding CharacterName, Converter={StaticResource FirstLetterConverter}}"
+                                               FontSize="22"
+                                               FontAttributes="Bold"
+                                               TextColor="White"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"/>
+                                    </Border>
+                                    
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding CharacterName}"
+                                               FontSize="18"
+                                               FontAttributes="Bold"
+                                               TextColor="{DynamicResource Primary}"/>
+                                        <Label Text="prays..."
+                                               FontSize="12"
+                                               FontAttributes="Italic"
+                                               TextColor="{DynamicResource Gray500}"/>
+                                    </VerticalStackLayout>
+                                </Grid>
+                                
+                                <!-- Prayer Content -->
+                                <Label Text="{Binding Content}"
+                                       FontSize="15"
+                                       FontAttributes="Italic"
+                                       TextColor="{DynamicResource TextColor}"
+                                       LineBreakMode="WordWrap"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Input Area (only shown if haven't started yet) -->
+        <Grid Grid.Row="2" 
+              ColumnDefinitions="*,Auto" 
+              ColumnSpacing="10"
+              Margin="0,20,0,0"
+              IsVisible="{Binding CanStartPrayer}">
+            
+            <Border Grid.Column="0"
+                    Padding="15,12"
+                    BackgroundColor="{DynamicResource CardBackground}"
+                    StrokeThickness="1"
+                    Stroke="{DynamicResource Gray300}">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="12"/>
+                </Border.StrokeShape>
+                
+                <Editor Text="{Binding PrayerTopic}"
+                        Placeholder="What would you like prayer for?..."
+                        PlaceholderColor="{DynamicResource Gray500}"
+                        TextColor="{DynamicResource TextColor}"
+                        AutoSize="TextChanges"
+                        MaximumHeightRequest="120"
+                        VerticalOptions="Center"
+                        FontSize="15"/>
+            </Border>
+            
+            <Button Grid.Column="1"
+                    Text="Pray"
+                    Command="{Binding StartPrayerChainCommand}"
+                    IsEnabled="{Binding CanStartPrayer}"
+                    WidthRequest="80"
+                    HeightRequest="50"
+                    FontSize="16"
+                    FontAttributes="Bold"
+                    BackgroundColor="{DynamicResource Secondary}"
+                    TextColor="White"
+                    CornerRadius="12"/>
+        </Grid>
+        
+        <!-- Loading Indicator -->
+        <ActivityIndicator Grid.RowSpan="3"
+                          IsRunning="{Binding IsBusy}"
+                          IsVisible="{Binding IsBusy}"
+                          Color="{DynamicResource Primary}"
+                          WidthRequest="50"
+                          HeightRequest="50"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

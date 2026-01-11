@@ -1,0 +1,79 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-windows",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/AI-Bible-App.Maui/AI-Bible-App.Maui.csproj",
+                "-f",
+                "net9.0-windows10.0.19041.0",
+                "-c",
+                "Debug"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "build-release",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/AI-Bible-App.Maui/AI-Bible-App.Maui.csproj",
+                "-f",
+                "net9.0-windows10.0.19041.0",
+                "-c",
+                "Release"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "build"
+        },
+        {
+            "label": "run-app",
+            "type": "shell",
+            "command": "Stop-Process -Name 'AI-Bible-App.Maui' -Force -ErrorAction SilentlyContinue; Start-Sleep -Milliseconds 500; & '${workspaceFolder}/src/AI-Bible-App.Maui/bin/Debug/net9.0-windows10.0.19041.0/win10-x64/AI-Bible-App.Maui.exe'",
+            "dependsOn": "build-windows",
+            "problemMatcher": [],
+            "group": "none",
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "clean",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "clean",
+                "${workspaceFolder}/src/AI-Bible-App.Maui/AI-Bible-App.Maui.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "run-tests",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "test",
+                "${workspaceFolder}/tests/AI-Bible-App.Tests/AI-Bible-App.Tests.csproj"
+            ],
+            "problemMatcher": "$msCompile",
+            "group": "test"
+        }
+    ]
+}
