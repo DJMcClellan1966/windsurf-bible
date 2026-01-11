@@ -20,6 +20,8 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("chat", typeof(ChatPage));
 		Routing.RegisterRoute("prayer", typeof(PrayerPage));
 		Routing.RegisterRoute("userselection", typeof(UserSelectionPage));
+		Routing.RegisterRoute("devotional", typeof(DevotionalPage));
+		Routing.RegisterRoute("bookmarks", typeof(BookmarksPage));
 		
 		// ═══════════════════════════════════════════════════════════════════
 		// EXPERIMENTAL FEATURE ROUTES

@@ -40,6 +40,20 @@
             Route="reflections" />
     </FlyoutItem>
     
+    <FlyoutItem Title="Daily Devotional" Icon="{OnPlatform Default='📖'}">
+        <ShellContent
+            Title="Daily Devotional"
+            ContentTemplate="{DataTemplate views:DevotionalPage}"
+            Route="devotional" />
+    </FlyoutItem>
+    
+    <FlyoutItem Title="My Bookmarks" Icon="{OnPlatform Default='🔖'}">
+        <ShellContent
+            Title="My Bookmarks"
+            ContentTemplate="{DataTemplate views:BookmarksPage}"
+            Route="bookmarks" />
+    </FlyoutItem>
+    
     <FlyoutItem Title="Settings" Icon="{OnPlatform Default='⚙️'}">
         <ShellContent
             Title="Settings"

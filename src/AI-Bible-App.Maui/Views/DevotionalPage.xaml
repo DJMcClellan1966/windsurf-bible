@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             x:Class="AI_Bible_App.Maui.Views.DevotionalPage"
+             x:DataType="vm:DevotionalViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <Grid RowDefinitions="Auto,*">
+        
+        <!-- Header -->
+        <Grid Grid.Row="0" 
+              ColumnDefinitions="*,Auto,Auto"
+              Padding="15"
+              BackgroundColor="{DynamicResource CardBackground}">
+            
+            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                <Label Text="📖 Daily Devotional"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="{DynamicResource TextColor}"/>
+                <Label Text="{Binding TodaysDevotional.Date, StringFormat='{0:dddd, MMMM d, yyyy}'}"
+                       FontSize="13"
+                       TextColor="{DynamicResource Gray600}"/>
+            </VerticalStackLayout>
+            
+            <Button Grid.Column="1"
+                    Text="📜"
+                    Command="{Binding ToggleHistoryCommand}"
+                    ToolTipProperties.Text="View History"
+                    HeightRequest="44"
+                    WidthRequest="44"
+                    CornerRadius="22"
+                    Padding="0"
+                    BackgroundColor="{DynamicResource Gray200}"
+                    TextColor="{DynamicResource TextColor}"/>
+            
+            <Button Grid.Column="2"
+                    Text="🔄"
+                    Command="{Binding RefreshDevotionalCommand}"
+                    ToolTipProperties.Text="Generate New"
+                    HeightRequest="44"
+                    WidthRequest="44"
+                    CornerRadius="22"
+                    Padding="0"
+                    Margin="8,0,0,0"
+                    BackgroundColor="{DynamicResource Primary}"
+                    TextColor="White"/>
+        </Grid>
+
+        <!-- Main Content -->
+        <ScrollView Grid.Row="1">
+            <Grid>
+                
+                <!-- Loading State -->
+                <VerticalStackLayout IsVisible="{Binding IsGenerating}"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center"
+                                    Spacing="15"
+                                    Padding="30">
+                    <ActivityIndicator IsRunning="True" 
+                                      Color="{DynamicResource Primary}"
+                                      HeightRequest="60"
+                                      WidthRequest="60"/>
+                    <Label Text="{Binding GeneratingMessage}"
+                           FontSize="16"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{DynamicResource TextColor}"/>
+                </VerticalStackLayout>
+
+                <!-- History Panel (slides in) -->
+                <Border IsVisible="{Binding ShowHistory}"
+                        Margin="15"
+                        Padding="15"
+                        BackgroundColor="{DynamicResource CardBackground}"
+                        StrokeThickness="1"
+                        Stroke="{DynamicResource Gray300}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12"/>
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="📜 Recent Devotionals"
+                               FontSize="18"
+                               FontAttributes="Bold"
+                               TextColor="{DynamicResource TextColor}"/>
+                        <CollectionView ItemsSource="{Binding RecentDevotionals}"
+                                       SelectionMode="Single"
+                                       SelectionChangedCommand="{Binding ViewDevotionalCommand}"
+                                       SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:Devotional">
+                                    <Border Margin="0,5"
+                                            Padding="12"
+                                            BackgroundColor="{DynamicResource InputBackground}"
+                                            StrokeThickness="0">
+                                        <Border.StrokeShape>
+                                            <RoundRectangle CornerRadius="8"/>
+                                        </Border.StrokeShape>
+                                        <Grid ColumnDefinitions="Auto,*,Auto">
+                                            <Label Grid.Column="0"
+                                                   Text="{Binding Date, StringFormat='{0:MMM d}'}"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{DynamicResource Primary}"
+                                                   VerticalOptions="Center"/>
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Title}"
+                                                   FontSize="14"
+                                                   Margin="10,0"
+                                                   LineBreakMode="TailTruncation"
+                                                   TextColor="{DynamicResource TextColor}"
+                                                   VerticalOptions="Center"/>
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding IsRead, Converter={StaticResource BoolToYesNoConverter}, ConverterParameter='✓|'}"
+                                                   FontSize="16"
+                                                   TextColor="{DynamicResource Success}"
+                                                   VerticalOptions="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                            <CollectionView.EmptyView>
+                                <Label Text="No previous devotionals yet"
+                                       HorizontalOptions="Center"
+                                       TextColor="{DynamicResource Gray500}"
+                                       Margin="0,20"/>
+                            </CollectionView.EmptyView>
+                        </CollectionView>
+                        <Button Text="Close"
+                                Command="{Binding ToggleHistoryCommand}"
+                                HeightRequest="40"
+                                CornerRadius="8"
+                                BackgroundColor="{DynamicResource Gray200}"
+                                TextColor="{DynamicResource TextColor}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Devotional Content -->
+                <VerticalStackLayout IsVisible="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}"
+                                    Spacing="15"
+                                    Padding="15">
+                    
+                    <!-- Title Card -->
+                    <Border Padding="20"
+                            BackgroundColor="{DynamicResource Primary}"
+                            StrokeThickness="0">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="{Binding TodaysDevotional.Category}"
+                                   FontSize="12"
+                                   TextColor="White"
+                                   Opacity="0.8"/>
+                            <Label Text="{Binding TodaysDevotional.Title}"
+                                   FontSize="22"
+                                   FontAttributes="Bold"
+                                   TextColor="White"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Scripture Card -->
+                    <Border Padding="20"
+                            BackgroundColor="{DynamicResource CardBackground}"
+                            StrokeThickness="1"
+                            Stroke="{DynamicResource Gray300}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="12">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="📜" FontSize="18"/>
+                                <Label Text="Scripture"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="{DynamicResource Gray600}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding TodaysDevotional.Scripture}"
+                                   FontSize="16"
+                                   FontAttributes="Italic"
+                                   TextColor="{DynamicResource TextColor}"
+                                   LineHeight="1.4"/>
+                            <Label Text="{Binding TodaysDevotional.ScriptureReference}"
+                                   FontSize="13"
+                                   FontAttributes="Bold"
+                                   TextColor="{DynamicResource Primary}"
+                                   HorizontalOptions="End"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Reflection Card -->
+                    <Border Padding="20"
+                            BackgroundColor="{DynamicResource CardBackground}"
+                            StrokeThickness="1"
+                            Stroke="{DynamicResource Gray300}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="12">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="💭" FontSize="18"/>
+                                <Label Text="Reflection"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="{DynamicResource Gray600}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding TodaysDevotional.Content}"
+                                   FontSize="15"
+                                   TextColor="{DynamicResource TextColor}"
+                                   LineHeight="1.5"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Prayer Card -->
+                    <Border Padding="20"
+                            BackgroundColor="{DynamicResource SecondaryBackground}"
+                            StrokeThickness="1"
+                            Stroke="{DynamicResource Gray300}">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12"/>
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="12">
+                            <HorizontalStackLayout Spacing="8">
+                                <Label Text="🙏" FontSize="18"/>
+                                <Label Text="Prayer"
+                                       FontSize="14"
+                                       FontAttributes="Bold"
+                                       TextColor="{DynamicResource Gray600}"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <Label Text="{Binding TodaysDevotional.Prayer}"
+                                   FontSize="15"
+                                   FontAttributes="Italic"
+                                   TextColor="{DynamicResource TextColor}"
+                                   LineHeight="1.4"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Action Buttons -->
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10">
+                        <Button Grid.Column="0"
+                                Text="✓ Mark Complete"
+                                Command="{Binding MarkAsReadCommand}"
+                                IsEnabled="{Binding TodaysDevotional.IsRead, Converter={StaticResource InvertedBoolConverter}}"
+                                HeightRequest="50"
+                                CornerRadius="12"
+                                BackgroundColor="{DynamicResource Success}"
+                                TextColor="White"/>
+                        <Button Grid.Column="1"
+                                Text="📤 Share"
+                                Command="{Binding ShareDevotionalCommand}"
+                                HeightRequest="50"
+                                CornerRadius="12"
+                                BackgroundColor="{DynamicResource Primary}"
+                                TextColor="White"/>
+                    </Grid>
+
+                    <!-- Completion Badge -->
+                    <Border IsVisible="{Binding TodaysDevotional.IsRead}"
+                            Padding="15"
+                            BackgroundColor="{DynamicResource SuccessLight}"
+                            StrokeThickness="0"
+                            HorizontalOptions="Center">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="20"/>
+                        </Border.StrokeShape>
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="✓" FontSize="16" TextColor="{DynamicResource Success}"/>
+                            <Label Text="Completed Today"
+                                   FontSize="14"
+                                   FontAttributes="Bold"
+                                   TextColor="{DynamicResource Success}"/>
+                        </HorizontalStackLayout>
+                    </Border>
+
+                </VerticalStackLayout>
+            </Grid>
+        </ScrollView>
+    </Grid>
+</ContentPage>

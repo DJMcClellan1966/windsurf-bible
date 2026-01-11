@@ -41,27 +41,31 @@ The following major features are **already implemented** and working:
 
 ### Priority 1: UI Pages Needed
 
-#### 1. Devotionals Page
+#### 1. Devotionals Page ✅ IMPLEMENTED
 **Backend:** ✅ Complete (`DevotionalRepository`, `Devotional` model)  
-**UI:** ❌ Missing `DevotionalPage.xaml`
+**UI:** ✅ Complete (`DevotionalPage.xaml`, `DevotionalViewModel.cs`)
 
-**Features to implement:**
+**Features implemented:**
 - Today's devotional view with Scripture, reflection, prayer
+- AI-generated daily devotionals
 - History list (last 7 days)
 - Mark as read functionality
-- Daily notification system
+- Share devotional feature
+- Keyboard shortcut: `Ctrl+D`
 
 ---
 
-#### 2. Bookmarks Page
+#### 2. Bookmarks Page ✅ IMPLEMENTED
 **Backend:** ✅ Complete (`VerseBookmarkRepository`, `VerseBookmark` model)  
-**UI:** ❌ Missing `BookmarksPage.xaml`
+**UI:** ✅ Complete (`BookmarksPage.xaml`, `BookmarksViewModel.cs`)
 
-**Features to implement:**
-- List/grid view of saved verses
+**Features implemented:**
+- List view of saved verses
 - Category filtering (Comfort, Strength, Wisdom, etc.)
-- Search by reference, text, notes, tags
+- Search by reference, text, notes
 - Quick actions (edit note, share, delete)
+- Add new bookmark dialog
+- Keyboard shortcut: `Ctrl+B`
 
 ---
 

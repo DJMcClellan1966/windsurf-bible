@@ -82,8 +82,10 @@ public class KeyboardShortcutService : IKeyboardShortcutService
         RegisterNavigationShortcut("N", "ctrl", "characters", "New Chat (Character Selection)");
         RegisterNavigationShortcut("H", "ctrl", "chathistory", "Chat History");
         RegisterNavigationShortcut("P", "ctrl", "prayer", "Prayer Journal");
-        RegisterNavigationShortcut("R", "ctrl", "reflection", "Reflections");
+        RegisterNavigationShortcut("R", "ctrl", "reflections", "Reflections");
         RegisterNavigationShortcut("Comma", "ctrl", "settings", "Settings"); // Ctrl+,
+        RegisterNavigationShortcut("D", "ctrl", "devotional", "Daily Devotional");
+        RegisterNavigationShortcut("B", "ctrl", "bookmarks", "Bookmarks");
         
         // Multi-character features
         RegisterNavigationShortcut("W", "ctrl", "wisdomcouncil", "Wisdom Council");
@@ -91,7 +93,7 @@ public class KeyboardShortcutService : IKeyboardShortcutService
         RegisterNavigationShortcut("Y", "ctrl", "prayerchain", "Prayer Chain");
         
         // System
-        RegisterNavigationShortcut("D", "ctrl+shift", "diagnostics", "System Diagnostics");
+        RegisterNavigationShortcut("F12", "", "diagnostics", "System Diagnostics");
         
         System.Diagnostics.Debug.WriteLine($"[Keyboard] Registered {_shortcuts.Count} default shortcuts");
     }

@@ -176,6 +176,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<RoundtableChatViewModel>();
 		builder.Services.AddTransient<CharacterEvolutionViewModel>();
 		builder.Services.AddTransient<SystemDiagnosticsViewModel>();
+		builder.Services.AddTransient<DevotionalViewModel>();
+		builder.Services.AddTransient<BookmarksViewModel>();
 
 		// Register Pages
 		builder.Services.AddTransient<UserSelectionPage>();
@@ -192,6 +194,8 @@ public static class MauiProgram
 		builder.Services.AddTransient<RoundtableChatPage>();
 		builder.Services.AddTransient<CharacterEvolutionPage>();
 		builder.Services.AddTransient<SystemDiagnosticsPage>();
+		builder.Services.AddTransient<DevotionalPage>();
+		builder.Services.AddTransient<BookmarksPage>();
 
 		return builder.Build();
 	}
