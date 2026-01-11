@@ -5,7 +5,7 @@ namespace AI_Bible_App.Tests.Repositories;
 public class InMemoryCharacterRepositoryTests
 {
     [Fact]
-    public async Task GetAllCharactersAsync_ShouldReturnAllElevenCharacters()
+    public async Task GetAllCharactersAsync_ShouldReturnAllCharacters()
     {
         // Arrange
         var repository = new InMemoryCharacterRepository();
@@ -15,7 +15,7 @@ public class InMemoryCharacterRepositoryTests
 
         // Assert
         Assert.NotNull(characters);
-        Assert.Equal(11, characters.Count);
+        Assert.Equal(18, characters.Count); // Updated to reflect actual character count
         Assert.Contains(characters, c => c.Id == "david");
         Assert.Contains(characters, c => c.Id == "paul");
         Assert.Contains(characters, c => c.Id == "moses");

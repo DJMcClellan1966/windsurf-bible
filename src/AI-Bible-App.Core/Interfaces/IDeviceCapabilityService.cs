@@ -99,9 +99,14 @@ public enum AIBackendType
     OnDevice,
     
     /// <summary>
-    /// Cloud API (Groq)
+    /// Cloud API (Groq - fast, free tier)
     /// </summary>
     Cloud,
+    
+    /// <summary>
+    /// Azure OpenAI (enterprise-grade, requires subscription)
+    /// </summary>
+    AzureOpenAI,
     
     /// <summary>
     /// Pre-cached responses (emergency fallback)
