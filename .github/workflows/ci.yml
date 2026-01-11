@@ -1,0 +1,168 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ master, main, develop ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  SOLUTION_PATH: 'AI-Bible-App.sln'
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+    - name: Build solution
+      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test tests/AI-Bible-App.Tests/AI-Bible-App.Tests.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v4
+      with:
+        directory: ./coverage
+        fail_ci_if_error: false
+      continue-on-error: true
+
+  build-windows:
+    name: Build Windows MSIX
+    runs-on: windows-latest
+    needs: build-and-test
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/master')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Install MAUI workload
+      run: dotnet workload install maui-windows
+
+    - name: Restore dependencies
+      run: dotnet restore src/AI-Bible-App.Maui/AI-Bible-App.Maui.csproj
+
+    - name: Build Windows app
+      run: |
+        dotnet publish src/AI-Bible-App.Maui/AI-Bible-App.Maui.csproj `
+          -c Release `
+          -f net9.0-windows10.0.19041.0 `
+          -p:RuntimeIdentifierOverride=win10-x64 `
+          -p:WindowsPackageType=None `
+          --output ./publish/windows
+
+    - name: Upload Windows build
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-app
+        path: ./publish/windows/
+        retention-days: 30
+
+  build-android:
+    name: Build Android APK
+    runs-on: windows-latest
+    needs: build-and-test
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/master')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Setup Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'microsoft'
+        java-version: '17'
+
+    - name: Install MAUI workload
+      run: dotnet workload install maui-android
+
+    - name: Restore dependencies
+      run: dotnet restore src/AI-Bible-App.Maui/AI-Bible-App.Maui.csproj
+
+    - name: Build Android APK
+      run: |
+        dotnet publish src/AI-Bible-App.Maui/AI-Bible-App.Maui.csproj `
+          -c Release `
+          -f net9.0-android `
+          -p:AndroidPackageFormat=apk `
+          --output ./publish/android
+
+    - name: Upload Android APK
+      uses: actions/upload-artifact@v4
+      with:
+        name: android-apk
+        path: ./publish/android/*.apk
+        retention-days: 30
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-android]
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-app
+        path: ./artifacts/windows
+
+    - name: Download Android artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: android-apk
+        path: ./artifacts/android
+
+    - name: Create ZIP archives
+      run: |
+        cd ./artifacts/windows && zip -r ../../AI-Bible-App-Windows.zip . && cd ../..
+        cd ./artifacts/android && zip -r ../../AI-Bible-App-Android.zip . && cd ../..
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          AI-Bible-App-Windows.zip
+          AI-Bible-App-Android.zip
+        generate_release_notes: true
+        draft: false
+        prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}

@@ -1,8 +1,42 @@
 # Voices of Scripture
 
-A cross-platform application that allows users to interact with biblical figures through AI-powered conversations and receive personalized daily prayers - **now fully offline with Scripture-grounded responses and a beautiful modern UI**.
+<div align="center">
 
-## ✨ New Features
+[![Build Status](https://github.com/DJMcClellan1966/bible-playground/actions/workflows/ci.yml/badge.svg)](https://github.com/DJMcClellan1966/bible-playground/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/)
+[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Android%20%7C%20iOS%20%7C%20macOS-blue)](https://docs.microsoft.com/dotnet/maui/)
+
+**A cross-platform app for AI-powered conversations with biblical characters and personalized prayer generation — fully offline with Scripture-grounded responses.**
+
+[Quick Start](#-quick-start) • [Features](#-features) • [Screenshots](#-screenshots) • [Documentation](#-documentation) • [Contributing](#-contributing)
+
+</div>
+
+---
+
+## 📸 Screenshots
+
+<div align="center">
+<table>
+<tr>
+<td align="center"><b>Character Selection</b></td>
+<td align="center"><b>Chat Interface</b></td>
+<td align="center"><b>Prayer Generator</b></td>
+</tr>
+<tr>
+<td><em>Choose from 18 biblical characters</em></td>
+<td><em>Natural conversation with RAG-powered responses</em></td>
+<td><em>Personalized prayers with Scripture</em></td>
+</tr>
+</table>
+</div>
+
+> 📷 *Screenshots coming soon! Run the app to see the beautiful UI in action.*
+
+---
+
+## ✨ Features
 
 ### 🎨 Modern Cross-Platform UI (NEW!)
 - **Beautiful .NET MAUI interface** for mobile and desktop
@@ -314,34 +348,61 @@ The application uses Microsoft.Extensions.Logging for structured logging:
 
 ## Future Enhancements
 
-### 📋 Improvement Recommendations
+See [FUTURE_IMPROVEMENTS.md](FUTURE_IMPROVEMENTS.md) for our full roadmap.
 
-#### High Priority (Quick Wins)
-- [ ] **1. Full Bible Reader** - Add a complete Bible reading mode with chapter navigation
-- [ ] **2. Search Functionality** - Search across conversations and Bible text
-- [ ] **3. Export/Share** - Export conversations as PDF or share to social media
-- [ ] **4. Daily Verse** - Home screen widget with daily verse and character insight
-- [ ] **5. More Characters** - Add Ruth, Esther, Solomon, Peter, John, Mary, etc.
+---
 
-#### Medium Priority (Enhanced Features)
-- [ ] **6. Reading Plans** - Guided study plans (21-day journey through Psalms with David)
-- [ ] **7. Bookmarks** - Save favorite verses and conversations
-- [ ] **8. Offline Indicator** - Show when using cached responses vs. live AI
-- [ ] **9. Font Size Settings** - Accessibility settings for text size
-- [ ] **10. Conversation Topics** - Pre-built discussion starters for each character
+## 📚 Documentation
 
-#### Lower Priority (Advanced)
-- [ ] **11. Cloud Sync** - Sync conversations and reflections across devices
-- [ ] **12. Original Languages** - Show Hebrew/Greek with transliteration
-- [ ] **13. Cross-References** - Link related verses automatically
-- [ ] **14. Commentary Integration** - Add scholarly commentary access
-- [ ] **15. Group Study Mode** - Share conversations in group settings
+| Document | Description |
+|----------|-------------|
+| [Quick Start Guide](QUICK_START.md) | Get running in 5 minutes |
+| [Developer Guide](DEVELOPER.md) | Architecture and development setup |
+| [MAUI Implementation](MAUI_IMPLEMENTATION.md) | Cross-platform UI details |
+| [RAG Implementation](RAG_IMPLEMENTATION.md) | How Scripture grounding works |
+| [Ollama Setup](OLLAMA_SETUP.md) | Local AI model configuration |
+| [Local AI Setup](LOCAL_AI_SETUP.md) | Phi-4 and embedding setup |
+| [Mobile Deployment](MOBILE_DEPLOYMENT.md) | Android/iOS deployment |
+| [Contributing](CONTRIBUTING.md) | How to contribute |
+| [Security](SECURITY.md) | Privacy and security info |
+| [Branching Strategy](BRANCHING_STRATEGY.md) | Git workflow |
 
-#### Technical Improvements
-- [x] **16. Fix TTS** ✅ - Re-implemented with Windows Speech API for Windows platform
-- [x] **17. Streaming Responses** ✅ - Already implemented with `IAsyncEnumerable<string>`
-- [x] **18. Better Error Recovery** ✅ - Added resilience helper with retry logic and user-friendly messages
-- [x] **19. Performance Improvements** ✅ - Lazy loading Bible data, indexed lookups, LRU cache
+---
+
+## 🤝 Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+- How to report bugs
+- How to suggest features  
+- Development setup
+- Pull request process
+- Code of conduct
+
+---
+
+## 🔒 Privacy & Security
+
+- **Local-first**: All AI processing happens on your device by default
+- **No telemetry**: Usage metrics are anonymized and stored locally only
+- **Your data, your control**: Export or delete your data anytime
+
+See [SECURITY.md](SECURITY.md) for details.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+**Built with ❤️ for those seeking to engage with Scripture through technology**
+
+[⬆ Back to Top](#voices-of-scripture)
+
+</div>
 
 ### Recent Technical Updates
 
