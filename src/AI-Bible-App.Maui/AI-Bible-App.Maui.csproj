@@ -28,7 +28,10 @@
 		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
 		
 		<!-- Suppress XAML binding warnings for x:Reference in DataTemplates (false positives) -->
-		<NoWarn>$(NoWarn);XC0045</NoWarn>
+		<!-- Suppress MVVM Toolkit AOT warnings (not targeting UWP/WinUI3) -->
+		<!-- Suppress XAML compiled binding warnings (incremental improvement) -->
+		<!-- Suppress deprecated SemanticProperties warnings (will migrate in future) -->
+		<NoWarn>$(NoWarn);XC0045;MVVMTK0045;XC0022;XC0023;XC0024;XC0618</NoWarn>
 
 		<!-- Display name -->
 		<ApplicationTitle>Voices of Scripture</ApplicationTitle>
