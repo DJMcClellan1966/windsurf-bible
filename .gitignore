@@ -55,3 +55,6 @@ appsettings.Development.json
 appsettings.local.json
 *.db
 data/
+asv/
+darby/
+bible/youngs/
