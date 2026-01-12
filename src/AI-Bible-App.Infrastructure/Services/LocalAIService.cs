@@ -121,7 +121,10 @@ public class LocalAIService : IAIService
             NumCtx = _numCtx,
             NumPredict = overrideNumPredict ?? _numPredict,
             NumGpu = _numGpu,
-            NumThread = _numThread > 0 ? _numThread : null
+            NumThread = _numThread > 0 ? _numThread : null,
+            Temperature = 0.8f,  // Increased for more varied, less repetitive responses
+            TopP = 0.95f,       // Slightly higher for more creativity
+            RepeatPenalty = 1.15f // Penalty for repetition
         };
     }
 
@@ -139,6 +142,19 @@ public class LocalAIService : IAIService
                 {
                     Role = ChatRole.System,
                     Content = character.SystemPrompt
+                },
+                new Message
+                {
+                    Role = ChatRole.System,
+                    Content = @"CRITICAL RESPONSE RULES - FOLLOW EXACTLY:
+1. READ THE USER'S ACTUAL QUESTION - Don't ignore it and give a generic response
+2. Your response must DIRECTLY ADDRESS what they asked - if they ask about fear, talk about fear; if they ask about relationships, talk about relationships
+3. Connect your biblical experience to THEIR SPECIFIC situation - use examples that actually relate to their question
+4. DO NOT give the same response you gave before - vary your stories and experiences
+5. Keep responses SHORT (2-3 paragraphs max) and CONVERSATIONAL
+6. If you don't understand their question, ASK for clarification instead of giving a generic answer
+
+Remember: You are having a CONVERSATION, not giving a prepared speech. Listen to them!"
                 }
             };
 
@@ -171,11 +187,11 @@ public class LocalAIService : IAIService
                 });
             }
 
-            // Add current user message
+            // Add current user message with emphasis
             messages.Add(new Message
             {
                 Role = ChatRole.User,
-                Content = userMessage
+                Content = $"{userMessage}\n\n[Remember: Respond specifically to THIS question, not a generic response]"
             });
 
             var request = new ChatRequest
@@ -223,6 +239,19 @@ public class LocalAIService : IAIService
             {
                 Role = ChatRole.System,
                 Content = GetCachedSystemPrompt(character)
+            },
+            new Message
+            {
+                Role = ChatRole.System,
+                Content = @"CRITICAL RESPONSE RULES - FOLLOW EXACTLY:
+1. READ THE USER'S ACTUAL QUESTION - Don't ignore it and give a generic response
+2. Your response must DIRECTLY ADDRESS what they asked - if they ask about fear, talk about fear; if they ask about relationships, talk about relationships
+3. Connect your biblical experience to THEIR SPECIFIC situation - use examples that actually relate to their question
+4. DO NOT give the same response you gave before - vary your stories and experiences
+5. Keep responses SHORT (2-3 paragraphs max) and CONVERSATIONAL
+6. If you don't understand their question, ASK for clarification instead of giving a generic answer
+
+Remember: You are having a CONVERSATION, not giving a prepared speech. Listen to them!"
             }
         };
 
@@ -251,11 +280,11 @@ public class LocalAIService : IAIService
             });
         }
 
-        // Add current user message
+        // Add current user message with emphasis
         messages.Add(new Message
         {
             Role = ChatRole.User,
-            Content = userMessage
+            Content = $"{userMessage}\n\n[Remember: Respond specifically to THIS question, not a generic response]"
         });
 
         var request = new ChatRequest
