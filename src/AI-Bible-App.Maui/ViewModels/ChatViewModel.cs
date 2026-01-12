@@ -698,15 +698,8 @@ public partial class ChatViewModel : BaseViewModel
             IsGeneratingPrayer = true;
             IsActionInProgress = true;
 
-            // Create a prayer prompt in the character's voice
-            var prayerTopic = $@"Generate a heartfelt prayer in the voice and style of {Character.Name}, a {Character.Description}.
-
-The prayer should be inspired by this conversation:
-User's question: {userQuestion}
-{Character.Name}'s response: {message.Content.Substring(0, Math.Min(500, message.Content.Length))}...
-
-Write the prayer as if {Character.Name} is leading the reader in prayer, using first-person plural (""we"", ""us"", ""our"") to include the reader. 
-Draw from {Character.Name}'s biblical experiences and wisdom. Keep the prayer 2-3 paragraphs, ending with Amen.";
+            // Create a simple topic based on the conversation
+            var prayerTopic = $"A prayer inspired by {Character.Name}'s wisdom about: {userQuestion}";
 
             var prayer = await _aiService.GeneratePrayerAsync(prayerTopic);
 
