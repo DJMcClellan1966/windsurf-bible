@@ -25,6 +25,8 @@
     <!-- SQLite for better data management -->
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.2" />
     <PackageReference Include="Dapper" Version="2.1.66" />
+    <!-- HTML parsing for web scraping -->
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
   </ItemGroup>
 
   <PropertyGroup>

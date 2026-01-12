@@ -113,6 +113,13 @@ public static class MauiProgram
 		// Knowledge base for historical context and language insights
 		builder.Services.AddSingleton<IKnowledgeBaseService, KnowledgeBaseService>();
 		
+		// Autonomous research services - web scraping during off-peak hours
+		builder.Services.AddSingleton<ICharacterUsageTracker, CharacterUsageTracker>();
+		builder.Services.AddHttpClient<WebScrapingService>();
+		builder.Services.AddSingleton<ContentValidator>();
+		builder.Services.AddSingleton<ICharacterResearchService, CharacterResearchService>();
+		builder.Services.AddSingleton<ResearchScheduler>();
+		
 		// Device capability detection and adaptive configuration
 		builder.Services.AddSingleton<IDeviceCapabilityService, DeviceCapabilityService>();
 		
