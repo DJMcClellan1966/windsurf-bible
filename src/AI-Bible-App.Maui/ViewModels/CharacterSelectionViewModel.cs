@@ -111,17 +111,30 @@ public partial class CharacterSelectionViewModel : BaseViewModel
     {
         System.Diagnostics.Debug.WriteLine($"[DEBUG] SelectCharacter called with: {character?.Name}");
         
-        if (character == null || IsBusy)
+        if (character == null)
         {
-            System.Diagnostics.Debug.WriteLine($"[DEBUG] SelectCharacter early exit - character null: {character == null}, IsBusy: {IsBusy}");
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] SelectCharacter early exit - character is null");
+            return;
+        }
+
+        if (IsBusy)
+        {
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] SelectCharacter early exit - IsBusy is true");
             return;
         }
 
         try
         {
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] Setting IsBusy = true");
             IsBusy = true;
             SelectedCharacter = character;
             
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] Creating navigation parameters");
+            var navParams = new Dictionary<string, object> { { "character", character } };
+            
+            // TEMPORARILY DISABLED: Skip existing session check to isolate crash
+            // Will re-enable after confirming basic navigation works
+            /*
             // Check if there's an existing session for this character
             ChatSession? existingSession = null;
             try
@@ -132,8 +145,6 @@ public partial class CharacterSelectionViewModel : BaseViewModel
             {
                 System.Diagnostics.Debug.WriteLine($"[DEBUG] Error loading session: {ex.Message}");
             }
-            
-            var navParams = new Dictionary<string, object> { { "character", character } };
             
             if (existingSession != null && existingSession.Messages.Count > 0)
             {
@@ -160,6 +171,7 @@ public partial class CharacterSelectionViewModel : BaseViewModel
                 }
                 // "Continue Chat" will use the existing session automatically
             }
+            */
             
             System.Diagnostics.Debug.WriteLine($"[DEBUG] About to navigate to chat page...");
             await _navigationService.NavigateToAsync("chat", navParams);
@@ -168,10 +180,20 @@ public partial class CharacterSelectionViewModel : BaseViewModel
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[ERROR] SelectCharacter FAILED: {ex}");
-            await _dialogService.ShowAlertAsync("Error", $"Failed to open chat: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[ERROR] Exception details: {ex.ToString()}");
+            
+            try
+            {
+                await _dialogService.ShowAlertAsync("Error", $"Failed to open chat: {ex.Message}", "OK");
+            }
+            catch (Exception alertEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ERROR] Failed to show error alert: {alertEx.Message}");
+            }
         }
         finally
         {
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] Setting IsBusy = false");
             IsBusy = false;
         }
     }

@@ -28,16 +28,58 @@ public partial class CharacterSelectionPage : ContentPage
     
     private void OnCharacterSelected(object sender, SelectionChangedEventArgs e)
     {
-        if (e.CurrentSelection.FirstOrDefault() is BiblicalCharacter character)
+        try
         {
-            // Clear selection to allow re-selection
-            if (sender is CollectionView cv)
-                cv.SelectedItem = null;
-                
-            if (_viewModel.SelectCharacterCommand.CanExecute(character))
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] OnCharacterSelected fired");
+            
+            var collectionView = sender as CollectionView;
+            var character = e.CurrentSelection.FirstOrDefault() as BiblicalCharacter;
+            
+            System.Diagnostics.Debug.WriteLine($"[DEBUG] Character: {character?.Name ?? "null"}");
+            
+            // Clear selection immediately to allow re-selection
+            if (collectionView != null)
             {
-                _viewModel.SelectCharacterCommand.Execute(character);
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] Clearing selection");
+                collectionView.SelectedItem = null;
             }
+            
+            // Execute command on main thread with a slight delay to ensure selection is cleared
+            if (character != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] Dispatching command for {character.Name}");
+                
+                Dispatcher.Dispatch(async () =>
+                {
+                    try
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Inside Dispatcher.Dispatch");
+                        
+                        if (_viewModel.SelectCharacterCommand.CanExecute(character))
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[DEBUG] Executing command");
+                            await _viewModel.SelectCharacterCommand.ExecuteAsync(character);
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[DEBUG] Command cannot execute");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[ERROR] Command execution failed: {ex}");
+                        await DisplayAlert("Error", $"Failed to select character: {ex.Message}", "OK");
+                    }
+                });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[DEBUG] Character is null, skipping");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ERROR] OnCharacterSelected crashed: {ex}");
         }
     }
     
@@ -50,15 +92,23 @@ public partial class CharacterSelectionPage : ContentPage
         }
     }
     
-    private void OnCharacterCardTapped(object sender, TappedEventArgs e)
+    private async void OnCharacterCardTapped(object sender, TappedEventArgs e)
     {
         if (CharacterCarousel.CurrentItem is BiblicalCharacter character)
         {
             HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
             
-            if (_viewModel.SelectCharacterCommand.CanExecute(character))
+            try
             {
-                _viewModel.SelectCharacterCommand.Execute(character);
+                if (_viewModel.SelectCharacterCommand.CanExecute(character))
+                {
+                    await _viewModel.SelectCharacterCommand.ExecuteAsync(character);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ERROR] OnCharacterCardTapped failed: {ex}");
+                await DisplayAlert("Error", $"Failed to select character: {ex.Message}", "OK");
             }
         }
     }
@@ -97,15 +147,23 @@ public partial class CharacterSelectionPage : ContentPage
         HapticFeedback.Default.Perform(HapticFeedbackType.Click);
     }
     
-    private void OnSwipeChatInvoked(object sender, EventArgs e)
+    private async void OnSwipeChatInvoked(object sender, EventArgs e)
     {
         if (sender is SwipeItem swipeItem && swipeItem.BindingContext is BiblicalCharacter character)
         {
             HapticFeedback.Default.Perform(HapticFeedbackType.LongPress);
             
-            if (_viewModel.SelectCharacterCommand.CanExecute(character))
+            try
             {
-                _viewModel.SelectCharacterCommand.Execute(character);
+                if (_viewModel.SelectCharacterCommand.CanExecute(character))
+                {
+                    await _viewModel.SelectCharacterCommand.ExecuteAsync(character);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ERROR] OnSwipeChatInvoked failed: {ex}");
+                await DisplayAlert("Error", $"Failed to select character: {ex.Message}", "OK");
             }
         }
     }
