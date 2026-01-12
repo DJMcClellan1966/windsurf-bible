@@ -26,6 +26,7 @@ public class LocalAIService : IAIService
     private readonly int _numThread;
     private readonly ILogger<LocalAIService> _logger;
     private readonly IBibleRAGService? _ragService;
+    private readonly IKnowledgeBaseService? _knowledgeBaseService;
     private readonly bool _useRAG;
     
     // Optimized caching with thread-safe collections
@@ -51,10 +52,12 @@ public class LocalAIService : IAIService
     public LocalAIService(
         IConfiguration configuration, 
         ILogger<LocalAIService> logger,
-        IBibleRAGService? ragService = null)
+        IBibleRAGService? ragService = null,
+        IKnowledgeBaseService? knowledgeBaseService = null)
     {
         _logger = logger;
         _ragService = ragService;
+        _knowledgeBaseService = knowledgeBaseService;
         
         _ollamaUrl = configuration["Ollama:Url"] ?? "http://localhost:11434";
         _modelName = configuration["Ollama:ModelName"] ?? "phi3.5:3.8b-mini-instruct-q4_K_M";
@@ -173,7 +176,56 @@ Remember: You are having a CONVERSATION, not giving a prepared speech. Listen to
                         Content = $"Relevant Scripture passages for context:\n{retrievedContext}\n\nUse these passages to inform your response when appropriate."
                     });
                     
-                    _logger.LogDebug("Added RAG context to chat request");
+             
+            
+            // Knowledge Base: Add historical/cultural context and language insights
+            if (_knowledgeBaseService != null)
+            {
+                // Get historical context
+                var historicalContexts = await _knowledgeBaseService.GetHistoricalContextAsync(
+                    character.Id, 
+                    userMessage, 
+                    maxResults: 2);
+                    
+                if (historicalContexts.Any())
+                {
+                    var contextText = string.Join("\n\n", historicalContexts.Select(c => 
+                        $"[Historical Context: {c.Title}]\n{c.Content}"));
+                    
+                    messages.Add(new Message
+                    {
+                        Role = ChatRole.System,
+                        Content = $"Historical & Cultural Context for your time period:\n{contextText}\n\nUse this context to add depth and authenticity to your response."
+                    });
+                    
+                    _logger.LogDebug("Added {Count} historical contexts", historicalContexts.Count);
+                }
+                
+                // Find thematic connections if user references a passage
+                if (userMessage.Contains("Genesis") || userMessage.Contains("Exodus") || 
+                    userMessage.Contains("Matthew") || userMessage.Contains("John") ||
+                    userMessage.Contains("Romans") || userMessage.Contains("Corinthians"))
+                {
+                    var connections = await _knowledgeBaseService.FindThematicConnectionsAsync(
+                        userMessage, 
+                        "", 
+                        maxResults: 2);
+                        
+                    if (connections.Any())
+                    {
+                        var connectionText = string.Join("\n\n", connections.Select(c => 
+                            $"[Connection: {c.Theme}]\n{c.PrimaryPassage} ↔ {c.SecondaryPassage}\n{c.Insight}"));
+                        
+                        messages.Add(new Message
+                        {
+                            Role = ChatRole.System,
+                            Content = $"Thematic Connections you might explore:\n{connectionText}\n\nConsider mentioning these connections if relevant to the conversation."
+                        });
+                        
+                        _logger.LogDebug("Added {Count} thematic connections", connections.Count);
+                    }
+                }
+            }       _logger.LogDebug("Added RAG context to chat request");
                 }
             }
 

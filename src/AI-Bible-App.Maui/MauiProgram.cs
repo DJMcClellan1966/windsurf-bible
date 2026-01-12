@@ -110,6 +110,9 @@ public static class MauiProgram
 		builder.Services.AddSingleton<IModelEvaluationService, ModelEvaluationService>();
 		builder.Services.AddSingleton<IAutonomousLearningService, AutonomousLearningService>();
 		
+		// Knowledge base for historical context and language insights
+		builder.Services.AddSingleton<IKnowledgeBaseService, KnowledgeBaseService>();
+		
 		// Character Intelligence Service - evolving character personalities
 		builder.Services.AddSingleton<CharacterIntelligenceService>();
 		
