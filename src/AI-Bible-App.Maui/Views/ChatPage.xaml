@@ -38,6 +38,7 @@
                                 </Border.StrokeShape>
                                 <Label Text="{Binding Content}"
                                        TextColor="{StaticResource White}"
+                                       FontSize="{StaticResource BodyFontSize}"
                                        LineBreakMode="WordWrap"/>
                             </Border>
                             
@@ -57,6 +58,7 @@
                                 </Border.StrokeShape>
                                 <controls:BibleLinkLabel LinkedText="{Binding Content}"
                                        TextColor="{AppThemeBinding Light={StaticResource TextColor}, Dark={StaticResource TextColorDark}}"
+                                       FontSize="{StaticResource BodyFontSize}"
                                        LineBreakMode="WordWrap"/>
                             </Border>
 
@@ -73,29 +75,29 @@
                                 <Border.StrokeShape>
                                     <RoundRectangle CornerRadius="12"/>
                                 </Border.StrokeShape>
-                                <VerticalStackLayout Spacing="8">
+                                <VerticalStackLayout Spacing="{StaticResource CardSpacing}">
                                     <HorizontalStackLayout Spacing="5">
-                                        <Label Text="📖" FontSize="14"/>
+                                        <Label Text="📖" FontSize="{StaticResource SubtitleFontSize}"/>
                                         <Label Text="Related Scripture from my experience:"
-                                               FontSize="12"
+                                               FontSize="{StaticResource CaptionFontSize}"
                                                FontAttributes="Bold"
                                                TextColor="{DynamicResource Primary}"/>
                                     </HorizontalStackLayout>
                                     
-                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding ContextualReferences}" Spacing="10">
+                                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding ContextualReferences}" Spacing="{StaticResource CardSpacing}">
                                         <BindableLayout.ItemTemplate>
                                             <DataTemplate x:DataType="models:ContextualReference">
                                                 <VerticalStackLayout Spacing="3">
                                                     <controls:BibleLinkLabel LinkedText="{Binding Reference}"
-                                                                             FontSize="13"
+                                                                             FontSize="{StaticResource BodyFontSize}"
                                                                              FontAttributes="Bold"
                                                                              TextColor="{DynamicResource Primary}"/>
                                                     <Label Text="{Binding Summary}"
-                                                           FontSize="12"
+                                                           FontSize="{StaticResource CaptionFontSize}"
                                                            TextColor="{DynamicResource TextColor}"
                                                            LineBreakMode="WordWrap"/>
                                                     <Label Text="{Binding Connection, StringFormat='💬 \&quot;{0}\&quot;'}"
-                                                           FontSize="11"
+                                                           FontSize="{StaticResource CaptionFontSize}"
                                                            FontAttributes="Italic"
                                                            TextColor="{DynamicResource Gray600}"
                                                            LineBreakMode="WordWrap"/>
@@ -116,7 +118,7 @@
                                     <RoundRectangle CornerRadius="8"/>
                                 </Border.StrokeShape>
                                 <Label Text="{Binding Content}"
-                                       FontSize="12"
+                                       FontSize="{StaticResource CaptionFontSize}"
                                        TextColor="White"
                                        LineBreakMode="WordWrap"/>
                             </Border>
@@ -144,7 +146,7 @@
                                  HeightRequest="18"
                                  Color="{DynamicResource Primary}"/>
                 <Label Text="{Binding Character.Name, StringFormat='{0} is typing...'}"
-                       FontSize="14"
+                       FontSize="{StaticResource SubtitleFontSize}"
                        FontAttributes="Italic"
                        TextColor="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}"/>
             </HorizontalStackLayout>
@@ -274,7 +276,7 @@
             <Label Text="{Binding IsGeneratingPrayer, Converter={StaticResource BoolToGeneratingPrayerTextConverter}}"
                    IsVisible="{Binding IsActionInProgress}"
                    VerticalOptions="Center"
-                   FontSize="12"
+                   FontSize="{StaticResource CaptionFontSize}"
                    FontAttributes="Italic"
                    TextColor="{DynamicResource Gray600}"/>
         </HorizontalStackLayout>
@@ -301,7 +303,7 @@
                        MaxLength="2000"
                        TextColor="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource White}}"
                        PlaceholderColor="{AppThemeBinding Light={StaticResource Gray400}, Dark={StaticResource Gray500}}"
-                       FontSize="14"
+                       FontSize="{StaticResource BodyFontSize}"
                        VerticalOptions="Center"
                        SemanticProperties.Description="Message input"
                        SemanticProperties.Hint="Type your message here and press Enter to send"/>
@@ -313,10 +315,10 @@
                     Command="{Binding SendMessageCommand}"
                     IsVisible="{Binding IsAiTyping, Converter={StaticResource InvertedBoolConverter}}"
                     Margin="10,0,0,0"
-                    WidthRequest="80"
-                    HeightRequest="44"
+                    MinimumWidthRequest="{StaticResource ButtonMinWidth}"
+                    HeightRequest="{StaticResource ButtonHeight}"
                     CornerRadius="20"
-                    FontSize="14"
+                    FontSize="{StaticResource ButtonFontSize}"
                     BackgroundColor="{DynamicResource Primary}"
                     TextColor="{StaticResource White}"/>
             
@@ -326,10 +328,10 @@
                     Command="{Binding CancelResponseCommand}"
                     IsVisible="{Binding IsAiTyping}"
                     Margin="10,0,0,0"
-                    WidthRequest="80"
-                    HeightRequest="44"
+                    MinimumWidthRequest="{StaticResource ButtonMinWidth}"
+                    HeightRequest="{StaticResource ButtonHeight}"
                     CornerRadius="26"
-                    FontSize="14"
+                    FontSize="{StaticResource ButtonFontSize}"
                     BackgroundColor="#C17B6F"
                     TextColor="{StaticResource White}">
                 <Button.Shadow>

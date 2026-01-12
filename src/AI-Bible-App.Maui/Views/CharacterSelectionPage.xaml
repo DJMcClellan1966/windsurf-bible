@@ -8,12 +8,12 @@
              Title="{Binding Title}"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
     
-    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Padding="15">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Padding="{StaticResource PageMargin}">
         
         <!-- Header -->
-        <VerticalStackLayout Grid.Row="0" Spacing="8" Margin="0,10,0,15">
+        <VerticalStackLayout Grid.Row="0" Spacing="{StaticResource CardSpacing}" Margin="0,10,0,15">
             <Label Text="📖 Voices of Scripture"
-                   FontSize="28"
+                   FontSize="{StaticResource TitleFontSize}"
                    FontAttributes="Bold"
                    HorizontalOptions="Center"
                    TextColor="{DynamicResource Primary}"
@@ -21,7 +21,7 @@
                    SemanticProperties.HeadingLevel="Level1"
                    SemanticProperties.Description="Main page heading - Voices of Scripture app"/>
             <Label Text="Swipe to explore • Tap to chat"
-                   FontSize="14"
+                   FontSize="{StaticResource SubtitleFontSize}"
                    HorizontalOptions="Center"
                    TextColor="{DynamicResource Gray600}"
                    AutomationProperties.IsInAccessibleTree="True"
@@ -41,7 +41,7 @@
                     <TapGestureRecognizer Command="{Binding CheckOllamaStatusCommand}"/>
                 </Border.GestureRecognizers>
                 <Label Text="{Binding OllamaStatusText}"
-                       FontSize="11"
+                       FontSize="{StaticResource CaptionFontSize}"
                        TextColor="{Binding OllamaStatusColor}"
                        HorizontalOptions="Center"
                        AutomationProperties.IsInAccessibleTree="True"/>
@@ -58,9 +58,9 @@
                     Clicked="OnCardsViewClicked"
                     BackgroundColor="{DynamicResource Primary}"
                     TextColor="White"
-                    HeightRequest="36"
+                    HeightRequest="{StaticResource ButtonHeight}"
                     CornerRadius="18"
-                    FontSize="13"
+                    FontSize="{StaticResource ButtonFontSize}"
                     Padding="15,0"
                     SemanticProperties.Description="Card view"/>
             <Button Text="📋 List"
@@ -68,9 +68,9 @@
                     Clicked="OnListViewClicked"
                     BackgroundColor="{DynamicResource Gray300}"
                     TextColor="{DynamicResource Gray800}"
-                    HeightRequest="36"
+                    HeightRequest="{StaticResource ButtonHeight}"
                     CornerRadius="18"
-                    FontSize="13"
+                    FontSize="{StaticResource ButtonFontSize}"
                     Padding="15,0"
                     SemanticProperties.Description="List view"/>
         </HorizontalStackLayout>
@@ -98,10 +98,10 @@
                                 <TapGestureRecognizer Tapped="OnCharacterCardTapped"/>
                             </Border.GestureRecognizers>
                             
-                            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                            <VerticalStackLayout Spacing="{StaticResource CardSpacing}" HorizontalOptions="Center">
                                 <!-- Large Avatar -->
-                                <Border WidthRequest="120"
-                                        HeightRequest="120"
+                                <Border WidthRequest="{StaticResource AvatarSize}"
+                                        HeightRequest="{StaticResource AvatarSize}"
                                         Padding="0"
                                         HorizontalOptions="Center"
                                         BackgroundColor="{DynamicResource Primary}">
@@ -118,7 +118,7 @@
                                 
                                 <!-- Character Name -->
                                 <Label Text="{Binding Name, Converter={StaticResource ShortNameConverter}}"
-                                       FontSize="26"
+                                       FontSize="{StaticResource TitleFontSize}"
                                        FontAttributes="Bold"
                                        TextColor="{DynamicResource Primary}"
                                        HorizontalOptions="Center"
@@ -126,7 +126,7 @@
                                 
                                 <!-- Title/Role -->
                                 <Label Text="{Binding Title}"
-                                       FontSize="16"
+                                       FontSize="{StaticResource SubtitleFontSize}"
                                        FontAttributes="Italic"
                                        TextColor="{DynamicResource Gray600}"
                                        HorizontalOptions="Center"
@@ -141,7 +141,7 @@
                                 
                                 <!-- Description -->
                                 <Label Text="{Binding Description}"
-                                       FontSize="14"
+                                       FontSize="{StaticResource BodyFontSize}"
                                        TextColor="{DynamicResource Gray600}"
                                        HorizontalOptions="Center"
                                        HorizontalTextAlignment="Center"
@@ -158,7 +158,7 @@
                                         <RoundRectangle CornerRadius="15"/>
                                     </Border.StrokeShape>
                                     <Label Text="{Binding Era}"
-                                           FontSize="12"
+                                           FontSize="{StaticResource CaptionFontSize}"
                                            FontAttributes="Bold"
                                            TextColor="{DynamicResource Primary}"
                                            HorizontalOptions="Center"/>
@@ -230,8 +230,8 @@
                                     <Grid ColumnDefinitions="70,*,Auto" ColumnSpacing="12">
                                         <!-- Avatar with Name Below -->
                                         <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
-                                            <Border WidthRequest="55"
-                                                    HeightRequest="55"
+                                            <Border WidthRequest="{StaticResource AvatarSize}"
+                                                    HeightRequest="{StaticResource AvatarSize}"
                                                     Padding="0"
                                                     HorizontalOptions="Center"
                                                     BackgroundColor="{DynamicResource Primary}">
@@ -250,16 +250,16 @@
                                         <!-- Character Info -->
                                         <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
                                             <Label Text="{Binding Name, Converter={StaticResource ShortNameConverter}}"
-                                                   FontSize="18"
+                                                   FontSize="{StaticResource SubtitleFontSize}"
                                                    FontAttributes="Bold"
                                                    TextColor="{DynamicResource Primary}"
                                                    LineBreakMode="TailTruncation"/>
                                             <Label Text="{Binding Title}"
-                                                   FontSize="13"
+                                                   FontSize="{StaticResource BodyFontSize}"
                                                    TextColor="{DynamicResource Gray600}"
                                                    LineBreakMode="TailTruncation"/>
                                             <Label Text="{Binding Description}"
-                                                   FontSize="11"
+                                                   FontSize="{StaticResource CaptionFontSize}"
                                                    TextColor="{DynamicResource Gray500}"
                                                    LineBreakMode="WordWrap"
                                                    MaxLines="2"/>
@@ -284,18 +284,18 @@
         <Label Grid.Row="2"
                Text="Loading characters..."
                IsVisible="{Binding IsBusy}"
-               FontSize="16"
+               FontSize="{StaticResource SubtitleFontSize}"
                TextColor="{DynamicResource Gray600}"
                HorizontalOptions="Center"
                VerticalOptions="Center"/>
 
         <!-- Action Buttons -->
-        <Grid Grid.Row="3" ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,15,0,0">
+        <Grid Grid.Row="3" ColumnDefinitions="*,*" ColumnSpacing="{StaticResource CardSpacing}" Margin="0,15,0,0">
             <Button Grid.Column="0"
                     Text="🙏 Prayer"
                     Command="{Binding NavigateToPrayerCommand}"
-                    HeightRequest="48"
-                    FontSize="15"
+                    HeightRequest="{StaticResource ButtonHeight}"
+                    FontSize="{StaticResource ButtonFontSize}"
                     BackgroundColor="{DynamicResource Primary}"
                     TextColor="White"
                     CornerRadius="10"
@@ -303,8 +303,8 @@
             <Button Grid.Column="1"
                     Text="📖 Bible"
                     Clicked="OnBibleReaderClicked"
-                    HeightRequest="48"
-                    FontSize="15"
+                    HeightRequest="{StaticResource ButtonHeight}"
+                    FontSize="{StaticResource ButtonFontSize}"
                     BackgroundColor="{DynamicResource Secondary}"
                     TextColor="White"
                     CornerRadius="10"
@@ -318,7 +318,7 @@
                     Clicked="OnHistoryClicked"
                     BackgroundColor="Transparent"
                     TextColor="{DynamicResource Gray600}"
-                    FontSize="24"
+                    FontSize="{StaticResource TitleFontSize}"
                     HeightRequest="50"
                     SemanticProperties.Description="View History"/>
             <Button Grid.Column="1"
