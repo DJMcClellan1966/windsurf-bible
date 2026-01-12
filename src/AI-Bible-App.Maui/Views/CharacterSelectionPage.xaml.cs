@@ -30,19 +30,13 @@ public partial class CharacterSelectionPage : ContentPage
     {
         try
         {
-            System.Diagnostics.Debug.WriteLine($"[DEBUG] OnCharacterSelected fired");
-            
             var character = e.CurrentSelection.FirstOrDefault() as BiblicalCharacter;
-            
-            System.Diagnostics.Debug.WriteLine($"[DEBUG] Character: {character?.Name ?? "null"}");
             
             // DO NOT clear selection here - causes WinUI3 crash
             // Will clear after command execution completes
             
             if (character != null)
             {
-                System.Diagnostics.Debug.WriteLine($"[DEBUG] Dispatching command for {character.Name}");
-                
                 // Capture sender for later selection clearing
                 var collectionView = sender as CollectionView;
                 
@@ -50,23 +44,15 @@ public partial class CharacterSelectionPage : ContentPage
                 {
                     try
                     {
-                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Inside Dispatcher.Dispatch");
-                        
                         if (_viewModel.SelectCharacterCommand.CanExecute(character))
                         {
-                            System.Diagnostics.Debug.WriteLine($"[DEBUG] Executing command");
                             await _viewModel.SelectCharacterCommand.ExecuteAsync(character);
                             
                             // Clear selection AFTER command completes
                             if (collectionView != null)
                             {
-                                System.Diagnostics.Debug.WriteLine($"[DEBUG] Clearing selection after command");
                                 collectionView.SelectedItem = null;
                             }
-                        }
-                        else
-                        {
-                            System.Diagnostics.Debug.WriteLine($"[DEBUG] Command cannot execute");
                         }
                     }
                     catch (Exception ex)
@@ -75,10 +61,6 @@ public partial class CharacterSelectionPage : ContentPage
                         await DisplayAlert("Error", $"Failed to select character: {ex.Message}", "OK");
                     }
                 });
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"[DEBUG] Character is null, skipping");
             }
         }
         catch (Exception ex)
@@ -123,8 +105,6 @@ public partial class CharacterSelectionPage : ContentPage
         
         try
         {
-            System.Diagnostics.Debug.WriteLine("[DEBUG] Switching to cards view");
-            
             _isCarouselView = true;
             
             Dispatcher.Dispatch(() =>
@@ -151,12 +131,10 @@ public partial class CharacterSelectionPage : ContentPage
                     ListViewButton.Background = new SolidColorBrush(Colors.Transparent);
                     if (ListViewButton.Content is Label listLabel)
                         listLabel.TextColor = Color.FromArgb("#6C757D");
-                    
-                    System.Diagnostics.Debug.WriteLine("[DEBUG] Cards view switch completed");
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[ERROR] Cards view switch inner failed: {ex}");
+                    System.Diagnostics.Debug.WriteLine($"[ERROR] Cards view switch failed: {ex}");
                 }
             });
             
@@ -174,8 +152,6 @@ public partial class CharacterSelectionPage : ContentPage
         
         try
         {
-            System.Diagnostics.Debug.WriteLine("[DEBUG] Switching to list view");
-            
             _isCarouselView = false;
             
             Dispatcher.Dispatch(() =>

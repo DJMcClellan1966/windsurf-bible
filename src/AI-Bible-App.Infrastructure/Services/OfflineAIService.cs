@@ -1,5 +1,6 @@
 using LLama;
 using LLama.Common;
+using LLama.Sampling;
 using Microsoft.Extensions.Logging;
 using AI_Bible_App.Core.Services;
 using System.Runtime.CompilerServices;
@@ -120,10 +121,13 @@ public class OfflineAIService : IOfflineAIService
             var inferenceParams = new InferenceParams
             {
                 MaxTokens = 512,
-                Temperature = 0.7f,
-                TopP = 0.9f,
-                TopK = 40,
-                RepeatPenalty = 1.1f,
+                SamplingPipeline = new DefaultSamplingPipeline
+                {
+                    Temperature = 0.7f,
+                    TopP = 0.9f,
+                    TopK = 40,
+                    RepeatPenalty = 1.1f
+                },
                 AntiPrompts = new List<string> { "<|user|>", "<|system|>" }
             };
 
@@ -176,10 +180,13 @@ public class OfflineAIService : IOfflineAIService
         var inferenceParams = new InferenceParams
         {
             MaxTokens = 512,
-            Temperature = 0.7f,
-            TopP = 0.9f,
-            TopK = 40,
-            RepeatPenalty = 1.1f,
+            SamplingPipeline = new DefaultSamplingPipeline
+            {
+                Temperature = 0.7f,
+                TopP = 0.9f,
+                TopK = 40,
+                RepeatPenalty = 1.1f
+            },
             AntiPrompts = new List<string> { "<|user|>", "<|system|>" }
         };
 

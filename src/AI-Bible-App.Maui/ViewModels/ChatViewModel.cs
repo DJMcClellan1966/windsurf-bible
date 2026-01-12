@@ -15,7 +15,7 @@ using System.Globalization;
 
 namespace AI_Bible_App.Maui.ViewModels;
 
-public partial class ChatViewModel : BaseViewModel
+public partial class ChatViewModel : BaseViewModel, IDisposable
 {
     private readonly IAIService _aiService;
     private readonly IChatRepository _chatRepository;
@@ -740,5 +740,23 @@ public partial class ChatViewModel : BaseViewModel
             IsGeneratingPrayer = false;
             IsActionInProgress = false;
         }
+    }
+
+    public void Dispose()
+    {
+        // Cancel any ongoing operations
+        _speechCancellationTokenSource?.Cancel();
+        _aiResponseCancellationTokenSource?.Cancel();
+        _voiceCancellationTokenSource?.Cancel();
+
+        // Dispose cancellation token sources
+        _speechCancellationTokenSource?.Dispose();
+        _aiResponseCancellationTokenSource?.Dispose();
+        _voiceCancellationTokenSource?.Dispose();
+
+        // Clear references
+        _speechCancellationTokenSource = null;
+        _aiResponseCancellationTokenSource = null;
+        _voiceCancellationTokenSource = null;
     }
 }

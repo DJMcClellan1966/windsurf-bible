@@ -412,14 +412,17 @@ public class AnimatedCard : Border
             : Colors.White;
         StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(12) };
         
-        // Add shadow for elevation
-        Shadow = IsElevated ? new Shadow
+        // Add shadow for elevation (WinUI3 has issues with Shadow, consider using borders instead)
+        if (IsElevated)
         {
-            Brush = new SolidColorBrush(Colors.Black),
-            Offset = new Point(0, 4),
-            Radius = 8,
-            Opacity = 0.15f
-        } : null;
+            Shadow = new Shadow
+            {
+                Brush = new SolidColorBrush(Colors.Black),
+                Offset = new Point(0, 4),
+                Radius = 8,
+                Opacity = 0.15f
+            };
+        }
 
         // Set up gesture recognizers
         var tapGesture = new TapGestureRecognizer();
