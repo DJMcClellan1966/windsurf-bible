@@ -208,7 +208,7 @@ The following major features are **already implemented** and working:
 | Translation | Status |
 |-------------|--------|
 | ASV (American Standard 1901) | 🔲 Add |
-| Darby Translation | 🔲 Add |
+| Darby Translation | ✅ Added (31,099 verses) |
 | Young's Literal Translation | ✅ Added (31,102 verses) |
 
 **Commentaries/References:**
