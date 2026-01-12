@@ -35,7 +35,7 @@ public class ModelWarmupService : IModelWarmupService
         _logger = logger;
         
         _ollamaUrl = configuration["Ollama:Url"] ?? "http://localhost:11434";
-        _modelName = configuration["Ollama:ModelName"] ?? "phi3.5:3.8b-mini-instruct-q4_K_M";
+        _modelName = configuration["Ollama:ModelName"] ?? "phi3:mini";
         _numGpu = int.TryParse(configuration["Ollama:NumGpu"], out var gpu) ? gpu : -1; // -1 = auto
         _numThread = int.TryParse(configuration["Ollama:NumThread"], out var thread) ? thread : 0; // 0 = auto
     }

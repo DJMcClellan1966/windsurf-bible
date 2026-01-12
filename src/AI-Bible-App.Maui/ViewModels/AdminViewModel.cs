@@ -1,3 +1,9 @@
+using AI_Bible_App.Core.Models;
+using AI_Bible_App.Core.Services;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
+
 namespace AI_Bible_App.Maui.ViewModels;
 
 /// <summary>
@@ -50,7 +56,8 @@ public partial class AdminViewModel : ObservableObject
             Statistics = await _learningService.GetLearningStatisticsAsync();
             
             // Check available conversations
-            var conversations = await _trainingRepo.GetHighQualityConversationsAsync(4.0, 100);
+            var allConversations = await _trainingRepo.GetHighQualityConversationsAsync(4.0);
+            var conversations = allConversations.Take(100).ToList();
             AvailableConversations = conversations.Count;
             
             // Check if cycle can be started

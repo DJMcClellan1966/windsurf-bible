@@ -63,9 +63,8 @@ public class AutonomousLearningService : IAutonomousLearningService
             
             // Step 2: Collect high-quality training data
             _logger.LogInformation("Collecting training data (min quality: {MinQuality})", MIN_QUALITY_SCORE);
-            var conversations = await _trainingRepo.GetHighQualityConversationsAsync(
-                MIN_QUALITY_SCORE,
-                MAX_CONVERSATIONS_PER_CYCLE);
+            var allConversations = await _trainingRepo.GetHighQualityConversationsAsync(MIN_QUALITY_SCORE);
+            var conversations = allConversations.Take(MAX_CONVERSATIONS_PER_CYCLE).ToList();
             
             result.ConversationsUsed = conversations.Count;
             
@@ -82,7 +81,13 @@ public class AutonomousLearningService : IAutonomousLearningService
             // Step 3: Export training data
             var timestamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss");
             var trainingDataPath = Path.Combine(_dataDirectory, $"training-{timestamp}.jsonl");
-            await _trainingRepo.ExportTrainingDataAsync(trainingDataPath, conversations);
+            
+            // Save conversations first, then export
+            foreach (var conv in conversations)
+            {
+                await _trainingRepo.SaveTrainingConversationAsync(conv);
+            }
+            await _trainingRepo.ExportTrainingDataAsync(trainingDataPath);
             _logger.LogInformation("Exported training data to {Path}", trainingDataPath);
             
             // Step 4: Start fine-tuning
@@ -202,9 +207,7 @@ public class AutonomousLearningService : IAutonomousLearningService
         try
         {
             // Check if enough new conversations exist
-            var conversations = await _trainingRepo.GetHighQualityConversationsAsync(
-                MIN_QUALITY_SCORE,
-                MIN_CONVERSATIONS_FOR_CYCLE + 1);
+            var conversations = await _trainingRepo.GetHighQualityConversationsAsync(MIN_QUALITY_SCORE);
             
             if (conversations.Count < MIN_CONVERSATIONS_FOR_CYCLE)
             {

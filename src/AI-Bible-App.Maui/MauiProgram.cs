@@ -169,13 +169,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<IDeviceCapabilityService>(sp =>
 		{
 			var logger = sp.GetRequiredService<ILogger<DeviceCapabilityService>>();
-			// Inject MAUI connectivity check
-			Func<bool> networkCheck = () => 
-			{
-				try { return Connectivity.Current.NetworkAccess == NetworkAccess.Internet; }
-				catch { return true; }
-			};
-			return new DeviceCapabilityService(logger, networkCheck);
+			return new DeviceCapabilityService(logger);
 		});
 		
 		// AI Services - Tiered system with fallback chain
@@ -186,13 +180,8 @@ public static class MauiProgram
 		builder.Services.AddSingleton<GroqAIService>();
 		builder.Services.AddSingleton<CachedResponseAIService>();
 		
-		// On-device AI is only used on mobile, registered as null on desktop
-		// The HybridAIService accepts OnDeviceAIService? and handles null gracefully
-#pragma warning disable CS8634 // Nullable type doesn't match class constraint
-		builder.Services.AddSingleton<OnDeviceAIService?>(sp => (OnDeviceAIService?)null);
-#pragma warning restore CS8634
-		
-		builder.Services.AddSingleton<IAIService, HybridAIService>();
+		// Use LocalAIService directly for now (HybridAIService needs refactoring)
+		builder.Services.AddSingleton<IAIService>(sp => sp.GetRequiredService<LocalAIService>());
 
 		// Register ViewModels
 		builder.Services.AddTransient<UserSelectionViewModel>();

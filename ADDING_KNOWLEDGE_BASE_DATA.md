@@ -1,3 +1,13 @@
+{
+  "Word": "covenant",
+  "OriginalLanguage": "Hebrew",
+  "Transliteration": "berith",
+  "StrongsNumber": "H1285",
+  "Definition": "A solemn agreement or treaty",
+  "AlternateMeanings": ["binding obligation", "alliance", "pledge"],
+  "CulturalContext": "Ancient Near Eastern covenants involved ritual ceremonies (e.g., cutting animals in half). When God made covenant with Abraham, He alone passed through the pieces, taking all responsibility.",
+  "ExampleVerses": ["Genesis 15:18", "Exodus 24:7-8", "Jeremiah 31:31"]
+}
 # Adding Historical & Cultural Context Data
 
 ## Quick Start

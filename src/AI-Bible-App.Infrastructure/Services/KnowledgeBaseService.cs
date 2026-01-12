@@ -164,17 +164,17 @@ public class KnowledgeBaseService : IKnowledgeBaseService
     }
     
     public async Task<List<ThematicConnection>> FindThematicConnectionsAsync(
-        strApply device-specific limits
-        if (_currentConfig != null && _currentConfig.UseKnowledgeBasePagination)
-        {
-            maxResults = Math.Min(maxResults, _currentConfig.MaxThematicConnections);
-        }
-        
-        // ing passage,
+        string passage,
         string theme,
         int maxResults = 3)
     {
         await InitializeAsync();
+        
+        // Apply device-specific limits
+        if (_currentConfig != null && _currentConfig.UseKnowledgeBasePagination)
+        {
+            maxResults = Math.Min(maxResults, _currentConfig.MaxThematicConnections);
+        }
         
         // Find connections that match the passage or theme
         var connections = _thematicConnections

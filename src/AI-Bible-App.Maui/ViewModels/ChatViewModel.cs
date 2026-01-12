@@ -275,7 +275,8 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
             Messages.Add(chatMessage);
             _currentSession?.Messages.Add(chatMessage);
             System.Diagnostics.Debug.WriteLine($"[DEBUG] Added user message: {userMsg}");
-            Collect user question for training data (with consent check)
+            
+            // Collect user question for training data (with consent check)
             if (_questionCollector != null && _userService.CurrentUser != null)
             {
                 var userConsented = _userService.CurrentUser.Settings?.ShareDataForImprovement ?? false;

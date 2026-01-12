@@ -272,6 +272,16 @@ public class SyntheticDataGenerator : ISyntheticDataGenerator
                 character, 
                 userQuestion, 
                 cancellationToken);
+
+            if (conversation != null)
+            {
+                conversations.Add(conversation);
+            }
+        }
+
+        return conversations;
+    }
+
     /// <summary>
     /// Generate conversation from a REAL human question (not AI-generated)
     /// This avoids echo chamber effect and ensures realistic training data
@@ -371,22 +381,6 @@ public class SyntheticDataGenerator : ISyntheticDataGenerator
         if (lowerQ.Contains("pride") || lowerQ.Contains("humble") || lowerQ.Contains("humility"))
             return "pride and humility";
         
-        return "general guidance";           },
-                    new TrainingMessage
-                    {
-                        Role = "assistant",
-                        Content = characterResponse
-                    }
-                },
-                Tags = new List<string> { topic },
-                QualityScore = 0.5 // Default - would need evaluation
-            };
-
-            return trainingConversation;
-        }
-        catch (Exception)
-        {
-            return null;
-        }
+        return "general guidance";
     }
 }

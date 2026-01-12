@@ -1,199 +1,241 @@
-using AI_Bible_App.Core.Interfaces;
+using AI_Bible_App.Core.Models;
+using AI_Bible_App.Core.Services;
 using Microsoft.Extensions.Logging;
-using System.Net.NetworkInformation;
+using System.Runtime.InteropServices;
 
 namespace AI_Bible_App.Infrastructure.Services;
 
 /// <summary>
-/// Service for detecting device capabilities to determine optimal AI tier.
-/// Provides platform-specific memory and capability detection.
+/// Detects device capabilities and recommends optimal AI configuration
 /// </summary>
 public class DeviceCapabilityService : IDeviceCapabilityService
 {
     private readonly ILogger<DeviceCapabilityService> _logger;
-    private readonly Func<bool>? _networkCheck;
-    private DeviceCapabilityTier? _cachedTier;
+    private DeviceCapabilities? _cachedCapabilities;
+    private ModelConfiguration? _userOverride;
 
-    public DeviceCapabilityService(ILogger<DeviceCapabilityService> logger, Func<bool>? networkCheck = null)
+    public DeviceCapabilityService(ILogger<DeviceCapabilityService> logger)
     {
         _logger = logger;
-        _networkCheck = networkCheck;
     }
 
-    public DeviceCapabilityTier GetCapabilityTier()
+    public async Task<DeviceCapabilities> DetectCapabilitiesAsync()
     {
-        if (_cachedTier.HasValue)
-            return _cachedTier.Value;
+        if (_cachedCapabilities != null)
+            return _cachedCapabilities;
 
-        var memoryMB = GetAvailableMemoryMB();
-        
-        _cachedTier = memoryMB switch
+        var capabilities = new DeviceCapabilities
         {
-            < 1500 => DeviceCapabilityTier.Minimal,  // < 1.5GB - cached only
-            < 2500 => DeviceCapabilityTier.Low,      // 1.5-2.5GB - tiny models (0.5B)
-            < 5000 => DeviceCapabilityTier.Medium,   // 2.5-5GB - small models (1-2B)
-            _ => DeviceCapabilityTier.High           // 5GB+ - larger models
+            DeviceId = Environment.MachineName,
+            DeviceName = Environment.MachineName,
+            Platform = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "Windows" :
+                      RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? "macOS" :
+                      RuntimeInformation.IsOSPlatform(OSPlatform.Linux) ? "Linux" : "Unknown"
         };
 
-        _logger.LogInformation("Device capability tier: {Tier} (Available RAM: {RAM}MB)", 
-            _cachedTier.Value, memoryMB);
-        
-        return _cachedTier.Value;
+        // Detect CPU
+        capabilities.CpuCoreCount = Environment.ProcessorCount;
+        capabilities.CpuArchitecture = RuntimeInformation.ProcessArchitecture.ToString();
+
+        // Detect memory (Windows-specific using native API)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            try
+            {
+                var memStatus = new MEMORYSTATUSEX();
+                if (GlobalMemoryStatusEx(memStatus))
+                {
+                    capabilities.TotalMemoryBytes = (long)memStatus.ullTotalPhys;
+                    capabilities.AvailableMemoryBytes = (long)memStatus.ullAvailPhys;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to detect memory using Windows API");
+            }
+        }
+
+        // Detect GPU (basic check)
+        capabilities.HasDedicatedGpu = await DetectGpuAsync();
+
+        // Calculate performance tier
+        capabilities.PerformanceTier = CalculatePerformanceTier(capabilities);
+
+        // Set recommendations
+        var config = GetConfigurationForTier(capabilities.PerformanceTier);
+        capabilities.RecommendedModelSize = config.ModelSize;
+        capabilities.RecommendedMaxContextLength = config.ContextLength;
+
+        _cachedCapabilities = capabilities;
+        return capabilities;
     }
 
-    public long GetAvailableMemoryMB()
+    public async Task<ModelConfiguration> GetRecommendedConfigurationAsync()
     {
-        try
+        if (_userOverride != null)
+            return _userOverride;
+
+        var capabilities = await DetectCapabilitiesAsync();
+        return GetConfigurationForTier(capabilities.PerformanceTier);
+    }
+
+    public List<ModelConfiguration> GetAvailableConfigurations()
+    {
+        return new List<ModelConfiguration>
         {
-            // Cross-platform memory detection
-            if (OperatingSystem.IsIOS() || OperatingSystem.IsMacCatalyst())
+            new()
             {
-                return GetAppleDeviceMemory();
-            }
-            else if (OperatingSystem.IsAndroid())
+                TierId = "low",
+                DisplayName = "Low Performance (Budget Devices)",
+                MinimumTier = DevicePerformanceTier.Low,
+                ModelSize = "2.5GB",
+                ContextLength = 2048,
+                MaxHistoricalContexts = 1,
+                MaxLanguageInsights = 2,
+                MaxThematicConnections = 1,
+                UseKnowledgeBasePagination = true,
+                NumGpuLayers = 0,
+                PreferCloudOffloading = true
+            },
+            new()
             {
-                return GetAndroidMemory();
-            }
-            else if (OperatingSystem.IsWindows())
+                TierId = "medium",
+                DisplayName = "Medium Performance (Standard Devices)",
+                MinimumTier = DevicePerformanceTier.Medium,
+                ModelSize = "4GB",
+                ContextLength = 4096,
+                MaxHistoricalContexts = 2,
+                MaxLanguageInsights = 3,
+                MaxThematicConnections = 2,
+                UseKnowledgeBasePagination = true,
+                NumGpuLayers = 10,
+                PreferCloudOffloading = false
+            },
+            new()
             {
-                return GetWindowsMemory();
+                TierId = "high",
+                DisplayName = "High Performance (Gaming/Work)",
+                MinimumTier = DevicePerformanceTier.High,
+                ModelSize = "6GB",
+                ContextLength = 8192,
+                MaxHistoricalContexts = 3,
+                MaxLanguageInsights = 5,
+                MaxThematicConnections = 3,
+                UseKnowledgeBasePagination = false,
+                NumGpuLayers = 20,
+                PreferCloudOffloading = false
+            },
+            new()
+            {
+                TierId = "ultra",
+                DisplayName = "Ultra Performance (Enthusiast)",
+                MinimumTier = DevicePerformanceTier.Ultra,
+                ModelSize = "8GB+",
+                ContextLength = 16384,
+                MaxHistoricalContexts = 5,
+                MaxLanguageInsights = 10,
+                MaxThematicConnections = 5,
+                UseKnowledgeBasePagination = false,
+                NumGpuLayers = 35,
+                PreferCloudOffloading = false
             }
-            
-            // Fallback: assume medium capability
-            return 4000;
-        }
-        catch (Exception ex)
+        };
+    }
+
+    public async Task SetConfigurationAsync(string tierId)
+    {
+        var config = GetAvailableConfigurations().FirstOrDefault(c => c.TierId == tierId);
+        if (config != null)
         {
-            _logger.LogWarning(ex, "Failed to detect device memory, assuming 4GB");
-            return 4000;
+            _userOverride = config;
+            _logger.LogInformation("User manually set configuration to {TierId}", tierId);
         }
     }
 
-    public bool HasNetworkConnectivity()
+    public bool CanHandleConfiguration(ModelConfiguration config, DeviceCapabilities capabilities)
     {
+        return capabilities.PerformanceTier >= config.MinimumTier;
+    }
+
+    private DevicePerformanceTier CalculatePerformanceTier(DeviceCapabilities capabilities)
+    {
+        var ramGB = capabilities.TotalMemoryBytes / (1024.0 * 1024 * 1024);
+
+        if (ramGB < 4)
+            return DevicePerformanceTier.Low;
+        if (ramGB < 8)
+            return DevicePerformanceTier.Medium;
+        if (ramGB < 16)
+            return DevicePerformanceTier.High;
+
+        return DevicePerformanceTier.Ultra;
+    }
+
+    private ModelConfiguration GetConfigurationForTier(DevicePerformanceTier tier)
+    {
+        return GetAvailableConfigurations().First(c => c.MinimumTier == tier);
+    }
+
+    private async Task<bool> DetectGpuAsync()
+    {
+        // Simple GPU detection - check for NVIDIA/AMD in system
         try
         {
-            // Use injected network check if available (MAUI-specific)
-            if (_networkCheck != null)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return _networkCheck();
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "wmic",
+                    Arguments = "path win32_VideoController get name",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                };
+
+                using var process = System.Diagnostics.Process.Start(psi);
+                if (process != null)
+                {
+                    var output = await process.StandardOutput.ReadToEndAsync();
+                    await process.WaitForExitAsync();
+
+                    return output.Contains("NVIDIA", StringComparison.OrdinalIgnoreCase) ||
+                           output.Contains("AMD", StringComparison.OrdinalIgnoreCase) ||
+                           output.Contains("Radeon", StringComparison.OrdinalIgnoreCase);
+                }
             }
-            
-            // Fallback: try to ping or assume true
-            return NetworkInterface.GetIsNetworkAvailable();
         }
         catch
         {
-            // Assume connectivity if check fails
-            return true;
+            // GPU detection is best-effort
         }
+
+        return false;
     }
 
-    public AIBackendRecommendation GetRecommendedBackend()
+    #region Windows API for Memory Detection
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    private class MEMORYSTATUSEX
     {
-        var tier = GetCapabilityTier();
-        var hasNetwork = HasNetworkConnectivity();
-        var isMobile = OperatingSystem.IsAndroid() || OperatingSystem.IsIOS();
-        var isDesktop = OperatingSystem.IsWindows() || OperatingSystem.IsMacCatalyst();
+        public uint dwLength;
+        public uint dwMemoryLoad;
+        public ulong ullTotalPhys;
+        public ulong ullAvailPhys;
+        public ulong ullTotalPageFile;
+        public ulong ullAvailPageFile;
+        public ulong ullTotalVirtual;
+        public ulong ullAvailVirtual;
+        public ulong ullAvailExtendedVirtual;
 
-        var recommendation = new AIBackendRecommendation();
-
-        // Desktop with Ollama available
-        if (isDesktop && !isMobile)
+        public MEMORYSTATUSEX()
         {
-            recommendation.Primary = AIBackendType.LocalOllama;
-            recommendation.Fallback = hasNetwork ? AIBackendType.Cloud : AIBackendType.OnDevice;
-            recommendation.RecommendedModelName = "phi3:mini";
-            recommendation.RecommendedContextSize = 4096;
-            return recommendation;
+            dwLength = (uint)Marshal.SizeOf(typeof(MEMORYSTATUSEX));
         }
-
-        // Mobile device recommendations based on tier
-        switch (tier)
-        {
-            case DeviceCapabilityTier.High:
-                // High-end mobile: prefer on-device, cloud fallback
-                recommendation.Primary = hasNetwork ? AIBackendType.Cloud : AIBackendType.OnDevice;
-                recommendation.Fallback = AIBackendType.OnDevice;
-                recommendation.RecommendedModelName = "tinyllama-1.1b-chat-q4_k_m.gguf";
-                recommendation.RecommendedContextSize = 2048;
-                break;
-
-            case DeviceCapabilityTier.Medium:
-                // Mid-range: on-device tiny model, cloud fallback
-                recommendation.Primary = hasNetwork ? AIBackendType.Cloud : AIBackendType.OnDevice;
-                recommendation.Fallback = AIBackendType.OnDevice;
-                recommendation.RecommendedModelName = "qwen2-0.5b-instruct-q4_k_m.gguf";
-                recommendation.RecommendedContextSize = 1024;
-                break;
-
-            case DeviceCapabilityTier.Low:
-                // Low-end: cloud preferred, tiny on-device backup
-                recommendation.Primary = hasNetwork ? AIBackendType.Cloud : AIBackendType.OnDevice;
-                recommendation.Fallback = AIBackendType.Cached;
-                recommendation.RecommendedModelName = "qwen2-0.5b-instruct-q4_k_m.gguf";
-                recommendation.RecommendedContextSize = 512;
-                break;
-
-            case DeviceCapabilityTier.Minimal:
-            default:
-                // Very limited: cloud only, cached fallback
-                recommendation.Primary = hasNetwork ? AIBackendType.Cloud : AIBackendType.Cached;
-                recommendation.Fallback = AIBackendType.Cached;
-                recommendation.RecommendedModelName = null; // No on-device model
-                recommendation.RecommendedContextSize = 256;
-                break;
-        }
-
-        _logger.LogInformation(
-            "AI Backend Recommendation: Primary={Primary}, Fallback={Fallback}, Model={Model}, Context={Context}",
-            recommendation.Primary, recommendation.Fallback, 
-            recommendation.RecommendedModelName ?? "none", recommendation.RecommendedContextSize);
-
-        return recommendation;
     }
 
-    private long GetAppleDeviceMemory()
-    {
-        // On iOS/Mac, we can use NSProcessInfo or estimate from device model
-        // For now, estimate based on GC memory - actual implementation would use native APIs
-        var gcMemory = GC.GetGCMemoryInfo();
-        var totalMB = gcMemory.TotalAvailableMemoryBytes / (1024 * 1024);
-        
-        // iOS typically allows apps to use ~50% of device RAM
-        // Adjust estimate based on platform hints
-        if (totalMB < 100)
-        {
-            // GC info not available, estimate from environment
-            // Most iOS devices 2021+ have 4GB+, older ones 2-3GB
-            return 3000; // Conservative estimate
-        }
-        
-        return totalMB;
-    }
+    [return: MarshalAs(UnmanagedType.Bool)]
+    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern bool GlobalMemoryStatusEx([In, Out] MEMORYSTATUSEX lpBuffer);
 
-    private long GetAndroidMemory()
-    {
-        // On Android, estimate from available GC memory
-        var gcMemory = GC.GetGCMemoryInfo();
-        var totalMB = gcMemory.TotalAvailableMemoryBytes / (1024 * 1024);
-        
-        if (totalMB < 100)
-        {
-            // Fallback estimate for Android
-            return 3000;
-        }
-        
-        return totalMB;
-    }
-
-    private long GetWindowsMemory()
-    {
-        // Windows: use GC memory info which is more accurate
-        var gcMemory = GC.GetGCMemoryInfo();
-        var totalMB = gcMemory.TotalAvailableMemoryBytes / (1024 * 1024);
-        
-        // Windows typically has more memory available
-        return totalMB > 100 ? totalMB : 8000;
-    }
+    #endregion
 }

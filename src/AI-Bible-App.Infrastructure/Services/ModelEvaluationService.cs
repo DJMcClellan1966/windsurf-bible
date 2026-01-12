@@ -1,4 +1,5 @@
 using AI_Bible_App.Core.Interfaces;
+using AI_Bible_App.Core.Models;
 using AI_Bible_App.Core.Services;
 using Microsoft.Extensions.Logging;
 
@@ -118,12 +119,16 @@ public class ModelEvaluationService : IModelEvaluationService
     {
         // This would need to load the specific model and get response
         // For now, use the current AI service (would need enhancement)
-        var messages = new List<AI_Bible_App.Core.Models.ChatMessage>
-        {
-            new() { Role = "user", Content = question.Question }
+        var messages = new List<AI_Bible_App.Core.Models.ChatMessage>();
+        
+        // Get the character for this question
+        var character = new BiblicalCharacter 
+        { 
+            Id = question.CharacterId, 
+            Name = question.CharacterId // Simplified - would need character service
         };
         
-        return await _aiService.GetResponseAsync(messages, question.CharacterId, cancellationToken);
+        return await _aiService.GetChatResponseAsync(character, messages, question.Question, cancellationToken);
     }
     
     public Task<List<EvaluationQuestion>> GetEvaluationQuestionsAsync()

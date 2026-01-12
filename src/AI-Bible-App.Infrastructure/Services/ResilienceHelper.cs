@@ -138,8 +138,8 @@ public class ResilienceHelper
 /// </summary>
 public static class UserFriendlyErrors
 {
-    public const string ConnectionError = "Unable to connect to the AI service. Please check your internet connection and try again.";
-    public const string TimeoutError = "The request took too long. Please try again with a shorter message.";
+    public const string OllamaConnectionError = "Unable to connect to Ollama. Please ensure Ollama is running:\n\n1. Open PowerShell\n2. Run: ollama serve\n\nOr restart Ollama from your system tray.";
+    public const string TimeoutError = "The request took too long. The model may be loading (first request can take 30+ seconds). Please wait and try again.";
     public const string ServiceUnavailable = "The AI service is temporarily unavailable. Please try again in a moment.";
     public const string GeneralError = "Something went wrong. Please try again.";
     public const string OfflineMode = "You're offline. Using cached responses which may be limited.";
@@ -149,12 +149,23 @@ public static class UserFriendlyErrors
         if (ex is TimeoutException)
             return TimeoutError;
             
-        if (ex is HttpRequestException)
-            return ConnectionError;
+        if (ex is HttpRequestException httpEx)
+        {
+            // Check if it's a localhost connection issue (Ollama not running)
+            if (httpEx.Message.Contains("localhost", StringComparison.OrdinalIgnoreCase) ||
+                httpEx.Message.Contains("11434", StringComparison.OrdinalIgnoreCase) ||
+                httpEx.Message.Contains("Connection refused", StringComparison.OrdinalIgnoreCase))
+            {
+                return OllamaConnectionError;
+            }
+            return OllamaConnectionError; // Default to Ollama error for HTTP issues
+        }
             
         if (ex.Message.Contains("connection", StringComparison.OrdinalIgnoreCase) ||
-            ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase))
-            return ConnectionError;
+            ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("localhost", StringComparison.OrdinalIgnoreCase) ||
+            ex.Message.Contains("11434", StringComparison.OrdinalIgnoreCase))
+            return OllamaConnectionError;
             
         if (ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase))
             return TimeoutError;

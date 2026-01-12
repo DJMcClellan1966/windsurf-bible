@@ -1,3 +1,5 @@
+using AI_Bible_App.Core.Models;
+
 namespace AI_Bible_App.Core.Services;
 
 /// <summary>
