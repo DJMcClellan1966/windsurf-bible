@@ -31,6 +31,16 @@ public class AppUser
     /// Whether this user has cloud sync enabled
     /// </summary>
     public bool HasSyncEnabled => SyncIdentity != null && !string.IsNullOrEmpty(SyncIdentity.SyncCode);
+    
+    /// <summary>
+    /// User's subscription information (tier, status, billing)
+    /// </summary>
+    public UserSubscription? Subscription { get; set; }
+    
+    /// <summary>
+    /// Email address for subscription/billing (optional for free tier)
+    /// </summary>
+    public string Email { get; set; } = string.Empty;
 }
 
 /// <summary>

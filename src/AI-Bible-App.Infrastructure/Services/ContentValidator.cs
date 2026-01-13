@@ -202,7 +202,8 @@ CONCERNS: list any specific issues";
                 new() { Role = "user", Content = prompt }
             };
             
-            var response = _aiService.StreamChatResponseAsync(null, messages, "phi3:mini");
+            AI_Bible_App.Core.Models.BiblicalCharacter? character = null;
+            var response = _aiService.StreamChatResponseAsync(character, messages, "phi3:mini");
             var fullResponse = string.Empty;
             await foreach (var chunk in response)
             {

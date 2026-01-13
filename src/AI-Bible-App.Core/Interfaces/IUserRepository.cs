@@ -18,6 +18,16 @@ public interface IUserRepository
     Task<AppUser?> GetUserAsync(string userId);
     
     /// <summary>
+    /// Get a user by ID (alias for consistency)
+    /// </summary>
+    Task<AppUser?> GetUserByIdAsync(string userId) => GetUserAsync(userId);
+    
+    /// <summary>
+    /// Update an existing user profile
+    /// </summary>
+    Task UpdateUserAsync(AppUser user) => SaveUserAsync(user);
+    
+    /// <summary>
     /// Save or update a user profile
     /// </summary>
     Task SaveUserAsync(AppUser user);
