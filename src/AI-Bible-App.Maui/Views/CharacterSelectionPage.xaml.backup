@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             x:Class="AI_Bible_App.Maui.Views.CharacterSelectionPage"
+             x:DataType="vm:CharacterSelectionViewModel"
+             Title="{Binding Title}">
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{StaticResource HallowDarkPurple}" Offset="0.0" />
+            <GradientStop Color="{StaticResource HallowDeepBlue}" Offset="0.5" />
+            <GradientStop Color="{StaticResource HallowMidPurple}" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
+    
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="{StaticResource PageMargin}">
+        
+        <!-- Modern Header with Hallow Theme -->
+        <Frame Grid.Row="0" Margin="0,15,0,20" Padding="20,25"
+               Style="{StaticResource HallowCard}">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Voices of Scripture"
+                       Style="{StaticResource HallowHeaderText}"
+                       AutomationProperties.IsInAccessibleTree="True"
+                       SemanticProperties.HeadingLevel="Level1"
+                       SemanticProperties.Description="Main page heading - Voices of Scripture app"/>
+                <BoxView HeightRequest="3" WidthRequest="60" CornerRadius="1.5"
+                         HorizontalOptions="Center" Margin="0,5,0,8">
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                            <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
+                <Label Text="Connect with Biblical Figures Through AI"
+                       Style="{StaticResource HallowSubtitleText}"
+                       HorizontalOptions="Center"
+                       FontAttributes="Italic"
+                       AutomationProperties.IsInAccessibleTree="True"
+                       SemanticProperties.Hint="Use arrow keys or swipe to browse biblical characters"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <!-- Modern View Toggle with Hallow Theme -->
+        <Border Grid.Row="1" HorizontalOptions="Center" Margin="0,0,0,15"
+                BackgroundColor="{StaticResource HallowCardBackground}" 
+                Padding="4" 
+                StrokeThickness="0">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="25"/>
+            </Border.StrokeShape>
+            <HorizontalStackLayout Spacing="6">
+                <Border x:Name="CardsViewButton" Padding="18,10" 
+                        StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="22"/>
+                    </Border.StrokeShape>
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                            <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCardsViewClicked"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="Cards" TextColor="{StaticResource HallowTextPrimary}" FontSize="15"
+                           FontAttributes="Bold" VerticalOptions="Center"
+                           SemanticProperties.Description="Card view"/>
+                </Border>
+                <Border x:Name="ListViewButton" Padding="18,10" 
+                        BackgroundColor="Transparent" 
+                        StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="22"/>
+                    </Border.StrokeShape>
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnListViewClicked"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="List" TextColor="{StaticResource HallowTextMuted}" FontSize="15"
+                           FontAttributes="Bold" VerticalOptions="Center"
+                           SemanticProperties.Description="List view"/>
+                </Border>
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- Swipe Character Carousel (Card View) -->
+        <Grid Grid.Row="2" x:Name="CarouselContainer">
+            <CarouselView x:Name="CharacterCarousel"
+                          ItemsSource="{Binding Characters}"
+                          Loop="True"
+                          PeekAreaInsets="40"
+                          CurrentItemChanged="OnCarouselItemChanged"
+                          SemanticProperties.Description="Character selector carousel">
+                <CarouselView.ItemTemplate>
+                    <DataTemplate x:DataType="models:BiblicalCharacter">
+                        <Border Padding="25,30"
+                                Margin="15,10"
+                                BackgroundColor="White"
+                                StrokeThickness="1"
+                                Stroke="#E0E0E0"
+                                AutomationProperties.IsInAccessibleTree="True"
+                                SemanticProperties.Description="{Binding Name}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="30"/>
+                            </Border.StrokeShape>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnCharacterCardTapped"/>
+                            </Border.GestureRecognizers>
+                            
+                            <VerticalStackLayout Spacing="15" HorizontalOptions="Center">
+                                <!-- Modern Avatar with Gradient -->
+                                <Border WidthRequest="100" HeightRequest="100"
+                                        Padding="0" HorizontalOptions="Center"
+                                        StrokeThickness="4" 
+                                        Stroke="{StaticResource HallowAccentPurple}">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                                            <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="50"/>
+                                    </Border.StrokeShape>
+                                    <Label Text="{Binding Name, StringFormat='{0:substring(0,1)}'}"
+                                           FontSize="45"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource HallowTextPrimary}"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Border>
+                                
+                                <!-- Character Name -->
+                                <Label Text="{Binding Name, Converter={StaticResource ShortNameConverter}}"
+                                       Style="{StaticResource HallowTitleText}"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"/>
+                                
+                                <!-- Title/Role Badge -->
+                                <Frame Style="{StaticResource HallowBadge}"
+                                       HorizontalOptions="Center">
+                                    <Label Text="{Binding Title}"
+                                           FontSize="13"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource HallowTextPrimary}"
+                                           HorizontalOptions="Center"/>
+                                </Frame>
+                                
+                                <!-- Description -->
+                                <Label Text="{Binding Description}"
+                                       Style="{StaticResource HallowBodyText}"
+                                       HorizontalOptions="Center"
+                                       HorizontalTextAlignment="Center"
+                                       LineBreakMode="WordWrap"
+                                       MaxLines="3"
+                                       LineHeight="1.4"
+                                       Margin="10,5,10,0"/>
+                                
+                                <!-- Start Chat CTA -->
+                                <Button Text="Start Conversation →"
+                                        Style="{StaticResource HallowPrimaryButton}"
+                                        Margin="0,15,0,0"
+                                        WidthRequest="220" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CarouselView.ItemTemplate>
+            </CarouselView>
+            
+            <!-- Modern Swipe Indicators -->
+            <HorizontalStackLayout HorizontalOptions="Center" 
+                                   VerticalOptions="End"
+                                   Spacing="10"
+                                   Margin="0,0,0,20">
+                <IndicatorView x:Name="CharacterIndicator"
+                               IndicatorColor="{StaticResource HallowDivider}"
+                               SelectedIndicatorColor="{StaticResource HallowAccentPurple}"
+                               IndicatorSize="8"
+                               HorizontalOptions="Center"/>
+            </HorizontalStackLayout>
+        </Grid>
+
+        <!-- List View (Alternative) -->
+        <ScrollView Grid.Row="2" x:Name="ListContainer" IsVisible="False">
+            <VerticalStackLayout Spacing="10" Padding="0,10">
+                <CollectionView ItemsSource="{Binding Characters}"
+                                SelectionMode="Single"
+                                SelectionChanged="OnCharacterSelected">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BiblicalCharacter">
+                            <SwipeView SemanticProperties.Description="{Binding Name}">
+                                <SwipeView.LeftItems>
+                                    <SwipeItems Mode="Execute">
+                                        <SwipeItem Text="💬 Chat"
+                                                   BackgroundColor="{DynamicResource Primary}"
+                                                   Invoked="OnSwipeChatInvoked"/>
+                                    </SwipeItems>
+                                </SwipeView.LeftItems>
+                                <SwipeView.RightItems>
+                                    <SwipeItems Mode="Execute">
+                                        <SwipeItem Text="ℹ️ Info"
+                                                   BackgroundColor="{DynamicResource Secondary}"
+                                                   Invoked="OnSwipeInfoInvoked"/>
+                                    </SwipeItems>
+                                </SwipeView.RightItems>
+                                
+                                <Border Padding="12"
+                                        Margin="5,0"
+                                        BackgroundColor="{DynamicResource CardBackground}"
+                                        StrokeThickness="1"
+                                        Stroke="{DynamicResource Gray200}">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12"/>
+                                    </Border.StrokeShape>
+                                    
+                                    <Grid ColumnDefinitions="70,*,Auto" ColumnSpacing="12">
+                                        <!-- Avatar with Name Below -->
+                                        <VerticalStackLayout Grid.Column="0" Spacing="4" VerticalOptions="Center">
+                                            <Border WidthRequest="{StaticResource AvatarSize}"
+                                                    HeightRequest="{StaticResource AvatarSize}"
+                                                    Padding="0"
+                                                    HorizontalOptions="Center"
+                                                    BackgroundColor="{DynamicResource Primary}">
+                                                <Border.StrokeShape>
+                                                    <RoundRectangle CornerRadius="27"/>
+                                                </Border.StrokeShape>
+                                                <Label Text="{Binding Name, StringFormat='{0:substring(0,1)}'}"
+                                                       FontSize="26"
+                                                       FontAttributes="Bold"
+                                                       TextColor="White"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"/>
+                                            </Border>
+                                        </VerticalStackLayout>
+                                        
+                                        <!-- Character Info -->
+                                        <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                            <Label Text="{Binding Name, Converter={StaticResource ShortNameConverter}}"
+                                                   FontSize="{StaticResource SubtitleFontSize}"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{DynamicResource Primary}"
+                                                   LineBreakMode="TailTruncation"/>
+                                            <Label Text="{Binding Title}"
+                                                   FontSize="{StaticResource BodyFontSize}"
+                                                   TextColor="{DynamicResource Gray600}"
+                                                   LineBreakMode="TailTruncation"/>
+                                            <Label Text="{Binding Description}"
+                                                   FontSize="{StaticResource CaptionFontSize}"
+                                                   TextColor="{DynamicResource Gray500}"
+                                                   LineBreakMode="WordWrap"
+                                                   MaxLines="2"/>
+                                        </VerticalStackLayout>
+                                        
+                                        <!-- Swipe Hint Arrow -->
+                                        <Label Grid.Column="2"
+                                               Text="⟷"
+                                               FontSize="18"
+                                               TextColor="{DynamicResource Gray400}"
+                                               VerticalOptions="Center"/>
+                                    </Grid>
+                                </Border>
+                            </SwipeView>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Loading Indicator -->
+        <Label Grid.Row="2"
+               Text="Loading characters..."
+               IsVisible="{Binding IsBusy}"
+               FontSize="{StaticResource SubtitleFontSize}"
+               TextColor="{DynamicResource Gray600}"
+               HorizontalOptions="Center"
+               VerticalOptions="Center"/>
+
+        <!-- Modern Action Buttons -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,*,*" ColumnSpacing="12" Margin="0,20,0,15">
+            <!-- Settings -->
+            <Border Grid.Column="0" Padding="16,14" BackgroundColor="White"
+                    StrokeThickness="1" Stroke="#E0E0E0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateToSettingsCommand}"/>
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                    <Label Text="⚙️" FontSize="28" HorizontalOptions="Center"/>
+                    <Label Text="Settings" FontSize="12" FontAttributes="Bold"
+                           TextColor="#6C757D" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Prayer -->
+            <Border Grid.Column="1" Padding="16,14" StrokeThickness="0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#F093FB" Offset="0.0" />
+                        <GradientStop Color="#F5576C" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding NavigateToPrayerCommand}"/>
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                    <Label Text="🙏" FontSize="28" HorizontalOptions="Center"/>
+                    <Label Text="Prayer" FontSize="12" FontAttributes="Bold"
+                           TextColor="White" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+            
+            <!-- Bible -->
+            <Border Grid.Column="2" Padding="16,14" BackgroundColor="White"
+                    StrokeThickness="1" Stroke="#E0E0E0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="20"/>
+                </Border.StrokeShape>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBibleReaderClicked"/>
+                </Border.GestureRecognizers>
+                <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                    <Label Text="📖" FontSize="28" HorizontalOptions="Center"/>
+                    <Label Text="Bible" FontSize="12" FontAttributes="Bold"
+                           TextColor="#6C757D" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+        
+        <!-- Loading Overlay -->
+        <ActivityIndicator Grid.RowSpan="5"
+                          IsRunning="{Binding IsBusy}"
+                          IsVisible="{Binding IsBusy}"
+                          Color="{DynamicResource Primary}"
+                          WidthRequest="50"
+                          HeightRequest="50"
+                          HorizontalOptions="Center"
+                          VerticalOptions="Center"/>
+    </Grid>
+</ContentPage>

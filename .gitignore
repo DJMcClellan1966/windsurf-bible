@@ -53,6 +53,7 @@ Thumbs.db
 # User data
 appsettings.Development.json
 appsettings.local.json
+appsettings.json
 *.db
 data/
 asv/

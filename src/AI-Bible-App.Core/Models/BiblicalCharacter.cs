@@ -43,6 +43,11 @@ public class BiblicalCharacter
     /// Whether this is a user-created custom character
     /// </summary>
     public bool IsCustom { get; set; } = false;
+    
+    /// <summary>
+    /// Whether this character is enabled for roundtable discussions
+    /// </summary>
+    public bool RoundtableEnabled { get; set; } = false;
 }
 
 /// <summary>

@@ -7,8 +7,16 @@
              x:Class="AI_Bible_App.Maui.Views.ReflectionPage"
              x:DataType="vm:ReflectionViewModel"
              x:Name="ThisPage"
-             Title="{Binding Title}"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
+             Title="{Binding Title}">
+
+    <!-- Hallow gradient background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{StaticResource HallowDarkPurple}" Offset="0.0" />
+            <GradientStop Color="{StaticResource HallowDeepBlue}" Offset="0.5" />
+            <GradientStop Color="{StaticResource HallowMidPurple}" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
     <ContentPage.Resources>
         <converters:UtcToLocalTimeConverter x:Key="UtcToLocalTimeConverter"/>
@@ -17,77 +25,79 @@
     <Grid RowDefinitions="Auto,Auto,*">
         
         <!-- Header with Search -->
-        <Grid Grid.Row="0" 
-              ColumnDefinitions="*,Auto"
-              Padding="15"
-              BackgroundColor="{DynamicResource CardBackground}">
-            
-            <Border Grid.Column="0"
-                    Padding="10"
-                    StrokeThickness="1"
-                    Stroke="{DynamicResource Gray300}"
-                    BackgroundColor="{DynamicResource InputBackground}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="20"/>
-                </Border.StrokeShape>
-                <Entry Text="{Binding SearchText}"
-                       Placeholder="Search reflections..."
-                       ReturnCommand="{Binding SearchCommand}"
-                       ClearButtonVisibility="WhileEditing"/>
-            </Border>
-            
-            <Button Grid.Column="1"
-                    Text="+ New"
-                    Command="{Binding CreateNewReflectionCommand}"
-                    Margin="10,0,0,0"
-                    HeightRequest="44"
-                    CornerRadius="22"
-                    BackgroundColor="{DynamicResource Primary}"
-                    TextColor="White"/>
-        </Grid>
+        <Frame Grid.Row="0" Margin="15,15,15,10" Padding="12"
+               BackgroundColor="{StaticResource HallowCardBackground}"
+               BorderColor="Transparent"
+               CornerRadius="20">
+            <Grid ColumnDefinitions="*,Auto">
+                <Frame Grid.Column="0"
+                       Padding="10,0"
+                       BackgroundColor="{StaticResource HallowCardHover}"
+                       BorderColor="Transparent"
+                       CornerRadius="20"
+                       HeightRequest="44">
+                    <Entry Text="{Binding SearchText}"
+                           Placeholder="Search reflections..."
+                           PlaceholderColor="{StaticResource HallowTextMuted}"
+                           TextColor="{StaticResource HallowTextPrimary}"
+                           ReturnCommand="{Binding SearchCommand}"
+                           ClearButtonVisibility="WhileEditing"
+                           VerticalOptions="Center"/>
+                </Frame>
+                
+                <Button Grid.Column="1"
+                        Text="+ New"
+                        Command="{Binding CreateNewReflectionCommand}"
+                        Margin="10,0,0,0"
+                        HeightRequest="44"
+                        CornerRadius="22"
+                        Padding="15,0"
+                        BackgroundColor="{StaticResource HallowAccentPurple}"
+                        TextColor="{StaticResource HallowTextPrimary}"/>
+            </Grid>
+        </Frame>
 
         <!-- Filter Tabs -->
-        <HorizontalStackLayout Grid.Row="1" 
-                               Spacing="8" 
-                               Padding="15,5"
-                               HorizontalOptions="Start">
-            <Button Text="All"
-                    Command="{Binding FilterByTypeCommand}"
-                    CommandParameter=""
-                    HeightRequest="32"
-                    CornerRadius="16"
-                    FontSize="12"
-                    Padding="12,0"
-                    BackgroundColor="{DynamicResource Primary}"
-                    TextColor="White"/>
-            <Button Text="⭐ Favorites"
-                    Command="{Binding FilterByTypeCommand}"
-                    CommandParameter="favorites"
-                    HeightRequest="32"
-                    CornerRadius="16"
-                    FontSize="12"
-                    Padding="12,0"
-                    BackgroundColor="{DynamicResource Gray200}"
-                    TextColor="{DynamicResource TextColor}"/>
-            <Button Text="💬 Chats"
-                    Command="{Binding FilterByTypeCommand}"
-                    CommandParameter="Chat"
-                    HeightRequest="32"
-                    CornerRadius="16"
-                    FontSize="12"
-                    Padding="12,0"
-                    BackgroundColor="{DynamicResource Gray200}"
-                    TextColor="{DynamicResource TextColor}"/>
-            <Button Text="🙏 Prayers"
-                    Command="{Binding FilterByTypeCommand}"
-                    CommandParameter="Prayer"
-                    HeightRequest="32"
-                    CornerRadius="16"
-                    FontSize="12"
-                    Padding="12,0"
-                    BackgroundColor="{DynamicResource Gray200}"
-                    TextColor="{DynamicResource TextColor}"/>
-        </HorizontalStackLayout>
+        <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+            <HorizontalStackLayout Spacing="8" Padding="15,5">
+                <Button Text="All"
+                        Command="{Binding FilterByTypeCommand}"
+                        CommandParameter=""
+                        HeightRequest="36"
+                        CornerRadius="18"
+                        FontSize="13"
+                        Padding="16,0"
+                        BackgroundColor="{StaticResource HallowAccentPurple}"
+                        TextColor="{StaticResource HallowTextPrimary}"/>
+                <Button Text="⭐ Favorites"
+                        Command="{Binding FilterByTypeCommand}"
+                        CommandParameter="favorites"
+                        HeightRequest="36"
+                        CornerRadius="18"
+                        FontSize="13"
+                        Padding="16,0"
+                        BackgroundColor="{StaticResource HallowCardBackground}"
+                        TextColor="{StaticResource HallowTextSecondary}"/>
+                <Button Text="💬 Chats"
+                        Command="{Binding FilterByTypeCommand}"
+                        CommandParameter="Chat"
+                        HeightRequest="36"
+                        CornerRadius="18"
+                        FontSize="13"
+                        Padding="16,0"
+                        BackgroundColor="{StaticResource HallowCardBackground}"
+                        TextColor="{StaticResource HallowTextSecondary}"/>
+                <Button Text="🙏 Prayers"
+                        Command="{Binding FilterByTypeCommand}"
+                        CommandParameter="Prayer"
+                        HeightRequest="36"
+                        CornerRadius="18"
+                        FontSize="13"
+                        Padding="16,0"
+                        BackgroundColor="{StaticResource HallowCardBackground}"
+                        TextColor="{StaticResource HallowTextSecondary}"/>
+            </HorizontalStackLayout>
+        </ScrollView>
 
         <!-- Empty State -->
         <VerticalStackLayout Grid.Row="2"
@@ -96,16 +106,28 @@
                             HorizontalOptions="Center"
                             Spacing="15"
                             Padding="30">
-            <Label Text="📝" FontSize="48" HorizontalOptions="Center"/>
+            <Frame WidthRequest="100" HeightRequest="100"
+                   CornerRadius="50" Padding="0"
+                   BorderColor="Transparent"
+                   HorizontalOptions="Center">
+                <Frame.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                        <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Frame.Background>
+                <Label Text="📝" FontSize="40" HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Frame>
             <Label Text="No reflections yet"
-                   FontSize="18"
+                   FontSize="20"
                    FontAttributes="Bold"
                    HorizontalOptions="Center"
-                   TextColor="{DynamicResource TextColor}"/>
+                   TextColor="{StaticResource HallowTextPrimary}"/>
             <Label Text="Save responses from chats or prayers to reflect on later. Tap '+ New' to create a custom reflection."
                    FontSize="14"
                    HorizontalTextAlignment="Center"
-                   TextColor="{DynamicResource Gray600}"/>
+                   TextColor="{StaticResource HallowTextSecondary}"
+                   MaxLines="3"/>
         </VerticalStackLayout>
 
         <!-- Reflections List -->
@@ -117,40 +139,48 @@
                        SelectionChangedCommandParameter="{Binding SelectedReflection}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Reflection">
-                    <Border Margin="15,8"
-                            Padding="15"
-                            StrokeThickness="1"
-                            Stroke="{DynamicResource Gray300}"
-                            BackgroundColor="{DynamicResource CardBackground}">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12"/>
-                        </Border.StrokeShape>
+                    <Frame Margin="15,8" Padding="15"
+                           BackgroundColor="{StaticResource HallowCardBackground}"
+                           BorderColor="Transparent"
+                           CornerRadius="15">
                         
                         <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto">
-                            <!-- Type Icon -->
-                            <Label Grid.Row="0" Grid.Column="0"
-                                   Text="{Binding Type, Converter={StaticResource ReflectionTypeToEmojiConverter}}"
-                                   FontSize="24"
-                                   VerticalOptions="Center"
-                                   Margin="0,0,12,0"/>
+                            <!-- Type Icon with gradient circle -->
+                            <Frame Grid.Row="0" Grid.Column="0"
+                                   WidthRequest="48" HeightRequest="48"
+                                   CornerRadius="24" Padding="0"
+                                   BorderColor="Transparent"
+                                   Margin="0,0,12,0"
+                                   VerticalOptions="Center">
+                                <Frame.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                                        <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                                    </LinearGradientBrush>
+                                </Frame.Background>
+                                <Label Text="{Binding Type, Converter={StaticResource ReflectionTypeToEmojiConverter}}"
+                                       FontSize="22"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Frame>
                             
                             <!-- Title and Character -->
-                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="3" VerticalOptions="Center">
                                 <Label Text="{Binding Title}"
                                        FontSize="16"
                                        FontAttributes="Bold"
-                                       TextColor="{DynamicResource TextColor}"
+                                       TextColor="{StaticResource HallowTextPrimary}"
                                        LineBreakMode="TailTruncation"/>
                                 <Label Text="{Binding CharacterName, StringFormat='From {0}'}"
                                        FontSize="12"
-                                       TextColor="{DynamicResource Gray600}"
+                                       TextColor="{StaticResource HallowTextSecondary}"
                                        IsVisible="{Binding CharacterName, Converter={StaticResource StringToBoolConverter}}"/>
                             </VerticalStackLayout>
                             
                             <!-- Favorite Star -->
                             <Label Grid.Row="0" Grid.Column="2"
                                    Text="{Binding IsFavorite, Converter={StaticResource BoolToStarConverter}}"
-                                   FontSize="20"
+                                   FontSize="22"
                                    VerticalOptions="Start">
                                 <Label.GestureRecognizers>
                                     <TapGestureRecognizer 
@@ -163,25 +193,30 @@
                             <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
                                    Text="{Binding SavedContent}"
                                    FontSize="13"
-                                   TextColor="{DynamicResource Gray600}"
+                                   TextColor="{StaticResource HallowTextMuted}"
                                    LineBreakMode="TailTruncation"
                                    MaxLines="2"
-                                   Margin="0,8,0,0"/>
+                                   Margin="0,10,0,0"/>
                             
                             <!-- Date and Notes indicator -->
                             <HorizontalStackLayout Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
-                                                   Spacing="10"
-                                                   Margin="0,8,0,0">
+                                                   Spacing="12"
+                                                   Margin="0,10,0,0">
                                 <Label Text="{Binding CreatedAt, Converter={StaticResource UtcToLocalTimeConverter}, StringFormat='{0:MMM d, yyyy}'}"
                                        FontSize="11"
-                                       TextColor="{DynamicResource Gray500}"/>
-                                <Label Text="📝 Has notes"
-                                       FontSize="11"
-                                       TextColor="{DynamicResource Primary}"
-                                       IsVisible="{Binding PersonalNotes, Converter={StaticResource StringToBoolConverter}}"/>
+                                       TextColor="{StaticResource HallowTextMuted}"/>
+                                <Frame BackgroundColor="{StaticResource HallowAccentPurple}"
+                                       CornerRadius="8"
+                                       Padding="8,2"
+                                       BorderColor="Transparent"
+                                       IsVisible="{Binding PersonalNotes, Converter={StaticResource StringToBoolConverter}}">
+                                    <Label Text="📝 Has notes"
+                                           FontSize="10"
+                                           TextColor="{StaticResource HallowTextPrimary}"/>
+                                </Frame>
                             </HorizontalStackLayout>
                         </Grid>
-                    </Border>
+                    </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
@@ -192,6 +227,6 @@
                           IsVisible="{Binding IsBusy}"
                           VerticalOptions="Center"
                           HorizontalOptions="Center"
-                          Color="{DynamicResource Primary}"/>
+                          Color="{StaticResource HallowAccentPurple}"/>
     </Grid>
 </ContentPage>

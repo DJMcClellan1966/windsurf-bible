@@ -190,9 +190,10 @@ public static class MauiProgram
 		builder.Services.AddSingleton<LocalAIService>();
 		builder.Services.AddSingleton<GroqAIService>();
 		builder.Services.AddSingleton<CachedResponseAIService>();
+		builder.Services.AddSingleton<HybridAIServiceSimple>();
 		
-		// Use LocalAIService directly for now (HybridAIService needs refactoring)
-		builder.Services.AddSingleton<IAIService>(sp => sp.GetRequiredService<LocalAIService>());
+		// Use HybridAIServiceSimple - tries local first, falls back to Groq for speed
+		builder.Services.AddSingleton<IAIService>(sp => sp.GetRequiredService<HybridAIServiceSimple>());
 
 		// Register ViewModels
 		builder.Services.AddTransient<UserSelectionViewModel>();

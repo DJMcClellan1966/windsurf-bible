@@ -5,34 +5,58 @@
              x:Class="AI_Bible_App.Maui.Views.ChatHistoryPage"
              x:DataType="vm:ChatHistoryViewModel"
              x:Name="ThisPage"
-             Title="{Binding Title}"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
+             Title="{Binding Title}">
+
+    <!-- Hallow gradient background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{StaticResource HallowDarkPurple}" Offset="0.0" />
+            <GradientStop Color="{StaticResource HallowDeepBlue}" Offset="0.5" />
+            <GradientStop Color="{StaticResource HallowMidPurple}" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
     <Grid RowDefinitions="Auto,Auto,*">
         
-        <!-- Header -->
-        <VerticalStackLayout Grid.Row="0" Padding="20,20,20,10">
-            <Label Text="📜 Chat History"
-                   FontSize="28"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"/>
-            <Label Text="Resume or review past conversations"
-                   FontSize="14"
-                   TextColor="{DynamicResource Gray600}"
-                   HorizontalOptions="Center"
-                   Margin="0,5,0,0"/>
-        </VerticalStackLayout>
+        <!-- Header Card -->
+        <Frame Grid.Row="0" Margin="15,15,15,10" Padding="20"
+               BackgroundColor="{StaticResource HallowCardBackground}"
+               BorderColor="Transparent"
+               CornerRadius="20"
+               HasShadow="True">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="📜 Chat History"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="{StaticResource HallowTextPrimary}"/>
+                <BoxView HeightRequest="3" WidthRequest="60" CornerRadius="1.5"
+                         HorizontalOptions="Center" Margin="0,5,0,5">
+                    <BoxView.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                            <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </BoxView.Background>
+                </BoxView>
+                <Label Text="Resume or review past conversations"
+                       FontSize="14"
+                       TextColor="{StaticResource HallowTextSecondary}"
+                       HorizontalOptions="Center"/>
+            </VerticalStackLayout>
+        </Frame>
 
         <!-- Search Bar -->
-        <Border Grid.Row="1" 
-                Padding="15,0,15,10"
-                BackgroundColor="Transparent">
+        <Frame Grid.Row="1" Margin="15,0,15,10" Padding="0"
+               BackgroundColor="{StaticResource HallowCardBackground}"
+               BorderColor="Transparent"
+               CornerRadius="25">
             <SearchBar Placeholder="Search conversations..."
                       Text="{Binding SearchText}"
-                      BackgroundColor="{DynamicResource InputBackground}"
-                      TextColor="{DynamicResource TextColor}"
-                      PlaceholderColor="{DynamicResource Gray600}"/>
-        </Border>
+                      BackgroundColor="Transparent"
+                      TextColor="{StaticResource HallowTextPrimary}"
+                      PlaceholderColor="{StaticResource HallowTextMuted}"/>
+        </Frame>
 
         <!-- Loading Indicator -->
         <ActivityIndicator Grid.Row="2"
@@ -42,7 +66,7 @@
                           HorizontalOptions="Center"
                           HeightRequest="50"
                           WidthRequest="50"
-                          Color="{DynamicResource Primary}"/>
+                          Color="{StaticResource HallowAccentPurple}"/>
 
         <!-- Empty State -->
         <VerticalStackLayout Grid.Row="2"
@@ -54,22 +78,31 @@
                    FontSize="60"
                    HorizontalOptions="Center"/>
             <Label Text="No conversations yet"
-                   FontSize="18"
+                   FontSize="20"
                    FontAttributes="Bold"
+                   TextColor="{StaticResource HallowTextPrimary}"
                    HorizontalOptions="Center"/>
             <Label Text="Start chatting with a biblical character to see your history here"
                    FontSize="14"
-                   TextColor="{DynamicResource Gray600}"
+                   TextColor="{StaticResource HallowTextSecondary}"
                    HorizontalOptions="Center"
                    HorizontalTextAlignment="Center"
-                   MaximumWidthRequest="250"/>
+                   MaximumWidthRequest="280"/>
             <Button Text="Start a Conversation"
                     Command="{Binding GoToCharactersCommand}"
-                    BackgroundColor="{DynamicResource Primary}"
-                    TextColor="White"
+                    TextColor="{StaticResource HallowTextPrimary}"
+                    FontAttributes="Bold"
                     CornerRadius="25"
                     HeightRequest="50"
-                    Margin="0,10,0,0"/>
+                    WidthRequest="220"
+                    Margin="0,10,0,0">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                        <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
         </VerticalStackLayout>
 
         <!-- Chat Sessions List -->
@@ -86,11 +119,11 @@
                             <SwipeItems>
                                 <SwipeItem Text="Share"
                                           IconImageSource="share"
-                                          BackgroundColor="{DynamicResource Secondary}"
+                                          BackgroundColor="{StaticResource HallowMidPurple}"
                                           Command="{Binding Path=BindingContext.ShareSessionCommand, Source={x:Reference ThisPage}}"
                                           CommandParameter="{Binding}"/>
                                 <SwipeItem Text="Export"
-                                          BackgroundColor="{DynamicResource Primary}"
+                                          BackgroundColor="{StaticResource HallowAccentPurple}"
                                           Command="{Binding Path=BindingContext.ExportSessionCommand, Source={x:Reference ThisPage}}"
                                           CommandParameter="{Binding}"/>
                             </SwipeItems>
@@ -98,72 +131,72 @@
                         <SwipeView.RightItems>
                             <SwipeItems>
                                 <SwipeItem Text="Delete"
-                                          BackgroundColor="{DynamicResource Danger}"
+                                          BackgroundColor="{StaticResource HallowRose}"
                                           Command="{Binding Path=BindingContext.DeleteSessionCommand, Source={x:Reference ThisPage}}"
                                           CommandParameter="{Binding}"/>
                             </SwipeItems>
                         </SwipeView.RightItems>
                         
-                        <Border Padding="15"
-                                Margin="0,0,0,10"
-                                StrokeThickness="1"
-                                Stroke="{DynamicResource Gray300}"
-                                BackgroundColor="{DynamicResource CardBackground}">
-                            <Border.StrokeShape>
-                                <RoundRectangle CornerRadius="12"/>
-                            </Border.StrokeShape>
+                        <Frame Padding="15" Margin="0,0,0,10"
+                               BackgroundColor="{StaticResource HallowCardBackground}"
+                               BorderColor="Transparent"
+                               CornerRadius="15">
                             
-                            <Grid ColumnDefinitions="70,*,Auto" ColumnSpacing="15">
+                            <Grid ColumnDefinitions="65,*,Auto" ColumnSpacing="15">
                                 <!-- Character Avatar -->
-                                <Border Grid.Column="0"
-                                        WidthRequest="70"
-                                        HeightRequest="70"
-                                        BackgroundColor="{DynamicResource Primary}">
-                                    <Border.StrokeShape>
-                                        <RoundRectangle CornerRadius="35"/>
-                                    </Border.StrokeShape>
+                                <Frame Grid.Column="0"
+                                       WidthRequest="65" HeightRequest="65"
+                                       CornerRadius="32" Padding="0"
+                                       BorderColor="Transparent">
+                                    <Frame.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                                            <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                                        </LinearGradientBrush>
+                                    </Frame.Background>
                                     <Label Text="{Binding CharacterName, Converter={StaticResource FirstLetterConverter}}"
-                                           FontSize="30"
+                                           FontSize="28"
                                            FontAttributes="Bold"
-                                           TextColor="White"
+                                           TextColor="{StaticResource HallowTextPrimary}"
                                            HorizontalOptions="Center"
                                            VerticalOptions="Center"/>
-                                </Border>
+                                </Frame>
                                 
                                 <!-- Session Info -->
                                 <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
                                     <Label Text="{Binding CharacterName}"
-                                           FontSize="16"
-                                           FontAttributes="Bold"/>
+                                           FontSize="17"
+                                           FontAttributes="Bold"
+                                           TextColor="{StaticResource HallowTextPrimary}"/>
                                     <Label Text="{Binding CharacterTitle}"
                                            FontSize="12"
-                                           TextColor="{DynamicResource Primary}"/>
+                                           TextColor="{StaticResource HallowAccentPurple}"/>
                                     <Label Text="{Binding LastMessage}"
                                            FontSize="12"
-                                           TextColor="{DynamicResource Gray600}"
+                                           TextColor="{StaticResource HallowTextMuted}"
                                            LineBreakMode="TailTruncation"
                                            MaxLines="2"/>
                                 </VerticalStackLayout>
                                 
                                 <!-- Date & Message Count -->
                                 <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
-                                    <Label Text="{Binding StartedAt, Converter={StaticResource UtcToLocalTimeConverter}, StringFormat='{0:MMM d, h:mm tt}'}"
+                                    <Label Text="{Binding StartedAt, Converter={StaticResource UtcToLocalTimeConverter}, StringFormat='{0:MMM d}'}"
                                            FontSize="12"
-                                           TextColor="{DynamicResource Gray500}"
+                                           TextColor="{StaticResource HallowTextMuted}"
                                            HorizontalOptions="End"/>
-                                    <Border BackgroundColor="{DynamicResource Primary}"
-                                            Padding="8,4"
-                                            HorizontalOptions="End">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="10"/>
-                                        </Border.StrokeShape>
+                                    <Frame BackgroundColor="{StaticResource HallowAccentPurple}"
+                                           Padding="10,4"
+                                           CornerRadius="12"
+                                           BorderColor="Transparent"
+                                           HorizontalOptions="End">
                                         <Label Text="{Binding MessageCount}"
                                                FontSize="11"
-                                               TextColor="White"/>
-                                    </Border>
+                                               FontAttributes="Bold"
+                                               TextColor="{StaticResource HallowTextPrimary}"/>
+                                    </Frame>
                                 </VerticalStackLayout>
                             </Grid>
-                        </Border>
+                        </Frame>
                     </SwipeView>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

@@ -51,10 +51,10 @@ public partial class App : Application
 			var message = $"[{DateTime.Now}] {ex?.GetType().Name}: {ex?.Message}\n{ex?.StackTrace}\n\n";
 			File.AppendAllText(crashLog, message);
 		}
-		catch (Exception ex)
+		catch (Exception logEx)
 		{
-			// Theme application failed - continue with default
-			System.Diagnostics.Debug.WriteLine($"[Theme] Failed to apply theme: {ex.Message}");
+			// Failed to write crash log - continue anyway
+			System.Diagnostics.Debug.WriteLine($"[Crash] Failed to write log: {logEx.Message}");
 		}
 	}
 

@@ -527,7 +527,8 @@ IMPORTANT GUIDELINES:
             var request = new ChatRequest
             {
                 Model = _modelName,
-                Messages = messages
+                Messages = messages,
+                Options = GetOptimizedRequestOptions(256) // Short prayers need fewer tokens
             };
 
             _logger.LogDebug("Generating prayer with topic: {Topic}", topic ?? "general");
@@ -661,7 +662,8 @@ IMPORTANT GUIDELINES:
             var request = new ChatRequest
             {
                 Model = _modelName,
-                Messages = messages
+                Messages = messages,
+                Options = GetOptimizedRequestOptions(256) // Limit tokens for faster prayer generation
             };
 
             _logger.LogDebug("Generating personalized prayer with style: {Style}, mood: {Mood}", options.RequestType, options.Mood);
@@ -722,7 +724,8 @@ IMPORTANT:
             var request = new ChatRequest
             {
                 Model = _modelName,
-                Messages = messages
+                Messages = messages,
+                Options = GetOptimizedRequestOptions(384) // Devotionals need a bit more tokens
             };
 
             _logger.LogDebug("Generating devotional for date: {Date}", date);

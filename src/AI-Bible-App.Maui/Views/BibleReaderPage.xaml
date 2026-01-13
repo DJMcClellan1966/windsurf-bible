@@ -4,51 +4,56 @@
              xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
              x:Class="AI_Bible_App.Maui.Views.BibleReaderPage"
              x:DataType="vm:BibleReaderViewModel"
-             Title="{Binding Title}"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
+             Title="{Binding Title}">
+
+    <!-- Hallow gradient background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{StaticResource HallowDarkPurple}" Offset="0.0" />
+            <GradientStop Color="{StaticResource HallowDeepBlue}" Offset="0.5" />
+            <GradientStop Color="{StaticResource HallowMidPurple}" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
     
     <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" Padding="15">
         
         <!-- Header with Back Button -->
-        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Margin="0,5,0,15">
-            <Button Grid.Column="0"
-                    Text="◀ Back"
-                    Command="{Binding GoBackCommand}"
-                    BackgroundColor="Transparent"
-                    TextColor="{DynamicResource Primary}"
-                    FontSize="14"
-                    HeightRequest="36"
-                    SemanticProperties.Description="Go back"/>
-            <Label Grid.Column="1"
-                   Text="📖 Bible Reader"
-                   FontSize="22"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   VerticalOptions="Center"
-                   TextColor="{DynamicResource Primary}"
-                   AutomationProperties.IsInAccessibleTree="True"
-                   SemanticProperties.HeadingLevel="Level1"
-                   SemanticProperties.Description="Bible Reader"/>
-            <Button Grid.Column="2"
-                    Text="🔖"
-                    Command="{Binding ToggleBookmarksCommand}"
-                    BackgroundColor="Transparent"
-                    TextColor="{DynamicResource Gray600}"
-                    FontSize="20"
-                    HeightRequest="36"
-                    SemanticProperties.Description="View bookmarks"/>
-        </Grid>
+        <Frame Grid.Row="0" Margin="0,5,0,15" Padding="12"
+               BackgroundColor="{StaticResource HallowCardBackground}"
+               BorderColor="Transparent"
+               CornerRadius="20">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Button Grid.Column="0"
+                        Text="◀ Back"
+                        Command="{Binding GoBackCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource HallowAccentPurple}"
+                        FontSize="14"
+                        HeightRequest="36"/>
+                <Label Grid.Column="1"
+                       Text="📖 Bible Reader"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource HallowTextPrimary}"/>
+                <Button Grid.Column="2"
+                        Text="🔖"
+                        Command="{Binding ToggleBookmarksCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource HallowTextSecondary}"
+                        FontSize="20"
+                        HeightRequest="36"/>
+            </Grid>
+        </Frame>
         
         <!-- Search Bar -->
-        <Border Grid.Row="1" 
-                Padding="12,8"
-                Margin="0,0,0,10"
-                BackgroundColor="{DynamicResource CardBackground}"
-                StrokeThickness="1"
-                Stroke="{DynamicResource Gray300}">
-            <Border.StrokeShape>
-                <RoundRectangle CornerRadius="25"/>
-            </Border.StrokeShape>
+        <Frame Grid.Row="1" 
+               Padding="12,8"
+               Margin="0,0,0,10"
+               BackgroundColor="{StaticResource HallowCardBackground}"
+               BorderColor="Transparent"
+               CornerRadius="25">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Label Grid.Column="0"
                        Text="🔍"
@@ -58,88 +63,86 @@
                 <Entry Grid.Column="1"
                        Text="{Binding SearchQuery}"
                        Placeholder="Search verses (e.g., 'love', 'John 3:16')"
+                       PlaceholderColor="{StaticResource HallowTextMuted}"
+                       TextColor="{StaticResource HallowTextPrimary}"
                        ReturnCommand="{Binding SearchCommand}"
-                       PlaceholderColor="{DynamicResource Gray500}"
-                       FontSize="14"
-                       SemanticProperties.Description="Search Bible"/>
+                       FontSize="14"/>
                 <Button Grid.Column="2"
                         Text="Search"
                         Command="{Binding SearchCommand}"
-                        BackgroundColor="{DynamicResource Primary}"
-                        TextColor="White"
+                        BackgroundColor="{StaticResource HallowAccentPurple}"
+                        TextColor="{StaticResource HallowTextPrimary}"
                         FontSize="12"
-                        HeightRequest="32"
-                        CornerRadius="16"
-                        Padding="15,0"
-                        SemanticProperties.Description="Search"/>
+                        HeightRequest="36"
+                        CornerRadius="18"
+                        Padding="15,0"/>
             </Grid>
-        </Border>
+        </Frame>
         
         <!-- Book/Chapter Picker -->
         <Grid Grid.Row="2" ColumnDefinitions="2*,*,Auto" ColumnSpacing="10" Margin="0,0,0,10">
-            <Border Grid.Column="0"
-                    Padding="0"
-                    BackgroundColor="{DynamicResource CardBackground}"
-                    StrokeThickness="1"
-                    Stroke="{DynamicResource Gray300}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8"/>
-                </Border.StrokeShape>
+            <Frame Grid.Column="0"
+                   Padding="5"
+                   BackgroundColor="{StaticResource HallowCardBackground}"
+                   BorderColor="Transparent"
+                   CornerRadius="12">
                 <Picker ItemsSource="{Binding Books}"
                         SelectedItem="{Binding SelectedBook}"
                         Title="Select Book"
-                        FontSize="14"
-                        SemanticProperties.Description="Select Bible book"/>
-            </Border>
+                        TitleColor="{StaticResource HallowTextMuted}"
+                        TextColor="{StaticResource HallowTextPrimary}"
+                        FontSize="14"/>
+            </Frame>
             
-            <Border Grid.Column="1"
-                    Padding="0"
-                    BackgroundColor="{DynamicResource CardBackground}"
-                    StrokeThickness="1"
-                    Stroke="{DynamicResource Gray300}">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="8"/>
-                </Border.StrokeShape>
+            <Frame Grid.Column="1"
+                   Padding="5"
+                   BackgroundColor="{StaticResource HallowCardBackground}"
+                   BorderColor="Transparent"
+                   CornerRadius="12">
                 <Picker ItemsSource="{Binding Chapters}"
                         SelectedItem="{Binding SelectedChapter}"
                         Title="Chapter"
-                        FontSize="14"
-                        SemanticProperties.Description="Select chapter"/>
-            </Border>
+                        TitleColor="{StaticResource HallowTextMuted}"
+                        TextColor="{StaticResource HallowTextPrimary}"
+                        FontSize="14"/>
+            </Frame>
             
             <Button Grid.Column="2"
                     Text="Go"
                     Command="{Binding LoadChapterCommand}"
-                    BackgroundColor="{DynamicResource Primary}"
-                    TextColor="White"
-                    FontSize="14"
-                    HeightRequest="40"
-                    WidthRequest="50"
-                    CornerRadius="8"
-                    SemanticProperties.Description="Go to chapter"/>
+                    HeightRequest="44"
+                    WidthRequest="55"
+                    CornerRadius="12"
+                    TextColor="{StaticResource HallowTextPrimary}">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                        <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                    </LinearGradientBrush>
+                </Button.Background>
+            </Button>
         </Grid>
         
         <!-- Search Results / Verse Display -->
         <Grid Grid.Row="3">
             <!-- Search Results Panel (overlays when searching) -->
             <Border x:Name="SearchResultsPanel"
-                    IsVisible="{Binding IsSearching}"
-                    BackgroundColor="{DynamicResource CardBackground}"
-                    Padding="15"
-                    ZIndex="10">
-                <Border.StrokeShape>
-                    <RoundRectangle CornerRadius="12"/>
-                </Border.StrokeShape>
+                   IsVisible="{Binding IsSearching}"
+                   BackgroundColor="{StaticResource HallowCardBackground}"
+                   Stroke="Transparent"
+                   StrokeShape="RoundRectangle 15"
+                   Padding="15"
+                   ZIndex="10">
                 <Grid RowDefinitions="Auto,*">
                     <HorizontalStackLayout Grid.Row="0" Spacing="10" Margin="0,0,0,10">
                         <Label Text="{Binding SearchResultCount, StringFormat='📜 {0} results found'}"
                                FontSize="14"
                                FontAttributes="Bold"
-                               TextColor="{DynamicResource Primary}"/>
+                               TextColor="{StaticResource HallowAccentPurple}"/>
                         <Button Text="✕ Close"
                                 Command="{Binding ClearSearchCommand}"
                                 BackgroundColor="Transparent"
-                                TextColor="{DynamicResource Gray600}"
+                                TextColor="{StaticResource HallowTextSecondary}"
                                 FontSize="12"
                                 HeightRequest="30"/>
                     </HorizontalStackLayout>
@@ -154,29 +157,27 @@
                                     <SwipeView.RightItems>
                                         <SwipeItems Mode="Execute">
                                             <SwipeItem Text="🔖 Bookmark"
-                                                       BackgroundColor="{DynamicResource Primary}"
+                                                       BackgroundColor="{StaticResource HallowAccentPurple}"
                                                        Invoked="OnBookmarkSwipe"/>
                                         </SwipeItems>
                                     </SwipeView.RightItems>
-                                    <Border Padding="12"
-                                            Margin="0,5"
-                                            BackgroundColor="{DynamicResource Surface}"
-                                            Shadow="{Shadow Brush=Black, Offset='0,1', Radius=3, Opacity=0.2}">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="10"/>
-                                        </Border.StrokeShape>
+                                    <Frame Padding="12"
+                                           Margin="0,5"
+                                           BackgroundColor="{StaticResource HallowCardHover}"
+                                           BorderColor="Transparent"
+                                           CornerRadius="12">
                                         <VerticalStackLayout Spacing="5">
                                             <Label Text="{Binding Reference}"
                                                    FontSize="14"
                                                    FontAttributes="Bold"
-                                                   TextColor="{DynamicResource Primary}"/>
+                                                   TextColor="{StaticResource HallowAccentPurple}"/>
                                             <Label Text="{Binding Text}"
                                                    FontSize="13"
-                                                   TextColor="{DynamicResource TextColor}"
+                                                   TextColor="{StaticResource HallowTextPrimary}"
                                                    LineBreakMode="WordWrap"
                                                    MaxLines="3"/>
                                         </VerticalStackLayout>
-                                    </Border>
+                                    </Frame>
                                 </SwipeView>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -185,64 +186,78 @@
             </Border>
             
             <!-- Main Verse Reader -->
-            <ScrollView x:Name="VerseScrollView"
-                        IsVisible="{Binding IsSearching, Converter={StaticResource InvertedBoolConverter}}">
-                <VerticalStackLayout Padding="10" Spacing="0">
-                    <!-- Chapter Heading -->
-                    <Label Text="{Binding CurrentChapterHeading}"
-                           FontSize="24"
-                           FontAttributes="Bold"
-                           HorizontalOptions="Center"
-                           TextColor="{DynamicResource Primary}"
-                           Margin="0,10,0,20"
-                           AutomationProperties.IsInAccessibleTree="True"/>
-                    
-                    <!-- Decorative Divider -->
-                    <Label Text="✦ ═══════════════ ✦"
-                           FontSize="12"
-                           TextColor="{DynamicResource Gray400}"
-                           HorizontalOptions="Center"
-                           Margin="0,0,0,20"/>
-                    
-                    <!-- Verses -->
-                    <CollectionView ItemsSource="{Binding CurrentVerses}"
-                                    SelectionMode="Single"
-                                    SelectionChanged="OnVerseSelected">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="30,*" Margin="0,8" Padding="5">
-                                    <Label Grid.Column="0"
-                                           Text="{Binding Verse}"
-                                           FontSize="11"
-                                           FontAttributes="Bold"
-                                           TextColor="{DynamicResource Primary}"
-                                           VerticalOptions="Start"
-                                           Margin="0,3,0,0"/>
-                                    <Label Grid.Column="1"
-                                           Text="{Binding Text}"
-                                           FontSize="16"
-                                           LineHeight="1.6"
-                                           TextColor="{DynamicResource TextColor}"
-                                           LineBreakMode="WordWrap"
-                                           AutomationProperties.IsInAccessibleTree="True"/>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                    
-                    <!-- End Decorative -->
-                    <Label Text="❧ ─────── ❧"
-                           FontSize="12"
-                           TextColor="{DynamicResource Gray400}"
-                           HorizontalOptions="Center"
-                           Margin="0,20"/>
-                </VerticalStackLayout>
-            </ScrollView>
+            <Frame IsVisible="{Binding IsSearching, Converter={StaticResource InvertedBoolConverter}}"
+                   BackgroundColor="{StaticResource HallowCardBackground}"
+                   BorderColor="Transparent"
+                   CornerRadius="15"
+                   Padding="0">
+                <ScrollView x:Name="VerseScrollView">
+                    <VerticalStackLayout Padding="15" Spacing="0">
+                        <!-- Chapter Heading -->
+                        <Label Text="{Binding CurrentChapterHeading}"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               HorizontalOptions="Center"
+                               TextColor="{StaticResource HallowTextPrimary}"
+                               Margin="0,10,0,15"/>
+                        
+                        <!-- Decorative Divider -->
+                        <Frame WidthRequest="200" HeightRequest="3"
+                               BackgroundColor="{StaticResource HallowAccentPurple}"
+                               BorderColor="Transparent"
+                               CornerRadius="2"
+                               HorizontalOptions="Center"
+                               Margin="0,0,0,20"
+                               Opacity="0.5"/>
+                        
+                        <!-- Verses -->
+                        <CollectionView ItemsSource="{Binding CurrentVerses}"
+                                        SelectionMode="Single"
+                                        SelectionChanged="OnVerseSelected">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="35,*" Margin="0,8" Padding="5">
+                                        <Frame Grid.Column="0"
+                                               BackgroundColor="{StaticResource HallowAccentPurple}"
+                                               CornerRadius="10"
+                                               Padding="0"
+                                               WidthRequest="28"
+                                               HeightRequest="22"
+                                               VerticalOptions="Start"
+                                               Margin="0,4,0,0">
+                                            <Label Text="{Binding Verse}"
+                                                   FontSize="11"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{StaticResource HallowTextPrimary}"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Frame>
+                                        <Label Grid.Column="1"
+                                               Text="{Binding Text}"
+                                               FontSize="16"
+                                               LineHeight="1.6"
+                                               TextColor="{StaticResource HallowTextPrimary}"
+                                               LineBreakMode="WordWrap"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                        
+                        <!-- End Decorative -->
+                        <Label Text="✦"
+                               FontSize="16"
+                               TextColor="{StaticResource HallowAccentPurple}"
+                               HorizontalOptions="Center"
+                               Margin="0,20"
+                               Opacity="0.6"/>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Frame>
             
             <!-- Loading Indicator -->
             <ActivityIndicator IsRunning="{Binding IsBusy}"
                                IsVisible="{Binding IsBusy}"
-                               Color="{DynamicResource Primary}"
+                               Color="{StaticResource HallowAccentPurple}"
                                WidthRequest="40"
                                HeightRequest="40"
                                HorizontalOptions="Center"
@@ -250,59 +265,65 @@
         </Grid>
         
         <!-- Navigation Footer -->
-        <Grid Grid.Row="4" ColumnDefinitions="*,Auto,*" Margin="0,10,0,0">
-            <Button Grid.Column="0"
-                    Text="◀ Previous"
-                    Command="{Binding PreviousChapterCommand}"
-                    BackgroundColor="{DynamicResource CardBackground}"
-                    TextColor="{DynamicResource Primary}"
-                    FontSize="14"
-                    HeightRequest="44"
-                    CornerRadius="10"
-                    SemanticProperties.Description="Previous chapter"/>
-            
-            <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="5">
-                <Label Text="{Binding SelectedBook}"
-                       FontSize="12"
-                       TextColor="{DynamicResource Gray600}"
-                       HorizontalOptions="Center"/>
-                <HorizontalStackLayout Spacing="10">
-                    <Button Text="🔊"
-                            Command="{Binding ReadAloudCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="{DynamicResource Primary}"
-                            FontSize="20"
-                            HeightRequest="40"
-                            WidthRequest="40"
-                            SemanticProperties.Description="Read chapter aloud"/>
-                    <Button Text="📋"
-                            Command="{Binding CopyChapterCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="{DynamicResource Primary}"
-                            FontSize="20"
-                            HeightRequest="40"
-                            WidthRequest="40"
-                            SemanticProperties.Description="Copy chapter"/>
-                    <Button Text="💬"
-                            Command="{Binding DiscussWithCharacterCommand}"
-                            BackgroundColor="Transparent"
-                            TextColor="{DynamicResource Primary}"
-                            FontSize="20"
-                            HeightRequest="40"
-                            WidthRequest="40"
-                            SemanticProperties.Description="Discuss with biblical character"/>
-                </HorizontalStackLayout>
-            </VerticalStackLayout>
-            
-            <Button Grid.Column="2"
-                    Text="Next ▶"
-                    Command="{Binding NextChapterCommand}"
-                    BackgroundColor="{DynamicResource CardBackground}"
-                    TextColor="{DynamicResource Primary}"
-                    FontSize="14"
-                    HeightRequest="44"
-                    CornerRadius="10"
-                    SemanticProperties.Description="Next chapter"/>
-        </Grid>
+        <Frame Grid.Row="4" Margin="0,10,0,0" Padding="10"
+               BackgroundColor="{StaticResource HallowCardBackground}"
+               BorderColor="Transparent"
+               CornerRadius="20">
+            <Grid ColumnDefinitions="*,Auto,*">
+                <Button Grid.Column="0"
+                        Text="◀ Previous"
+                        Command="{Binding PreviousChapterCommand}"
+                        BackgroundColor="{StaticResource HallowCardHover}"
+                        TextColor="{StaticResource HallowTextPrimary}"
+                        FontSize="13"
+                        HeightRequest="44"
+                        CornerRadius="22"/>
+                
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="3">
+                    <Label Text="{Binding SelectedBook}"
+                           FontSize="11"
+                           TextColor="{StaticResource HallowTextMuted}"
+                           HorizontalOptions="Center"/>
+                    <HorizontalStackLayout Spacing="5">
+                        <Button Text="🔊"
+                                Command="{Binding ReadAloudCommand}"
+                                BackgroundColor="{StaticResource HallowCardHover}"
+                                TextColor="{StaticResource HallowTextPrimary}"
+                                FontSize="18"
+                                HeightRequest="38"
+                                WidthRequest="38"
+                                CornerRadius="19"
+                                Padding="0"/>
+                        <Button Text="📋"
+                                Command="{Binding CopyChapterCommand}"
+                                BackgroundColor="{StaticResource HallowCardHover}"
+                                TextColor="{StaticResource HallowTextPrimary}"
+                                FontSize="18"
+                                HeightRequest="38"
+                                WidthRequest="38"
+                                CornerRadius="19"
+                                Padding="0"/>
+                        <Button Text="💬"
+                                Command="{Binding DiscussWithCharacterCommand}"
+                                BackgroundColor="{StaticResource HallowAccentPurple}"
+                                TextColor="{StaticResource HallowTextPrimary}"
+                                FontSize="18"
+                                HeightRequest="38"
+                                WidthRequest="38"
+                                CornerRadius="19"
+                                Padding="0"/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+                
+                <Button Grid.Column="2"
+                        Text="Next ▶"
+                        Command="{Binding NextChapterCommand}"
+                        BackgroundColor="{StaticResource HallowCardHover}"
+                        TextColor="{StaticResource HallowTextPrimary}"
+                        FontSize="13"
+                        HeightRequest="44"
+                        CornerRadius="22"/>
+            </Grid>
+        </Frame>
     </Grid>
 </ContentPage>

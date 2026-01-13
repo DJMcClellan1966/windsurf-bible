@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
              xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             xmlns:controls="clr-namespace:AI_Bible_App.Maui.Controls"
              x:Class="AI_Bible_App.Maui.Views.RoundtableChatPage"
              x:DataType="vm:RoundtableChatViewModel"
              Title="🎯 Roundtable Discussion"
@@ -186,7 +187,7 @@
                                            IsVisible="{Binding IsUser}"/>
                                     
                                     <!-- Message Content -->
-                                    <Label Text="{Binding Content}"
+                                    <controls:BibleLinkLabel LinkedText="{Binding Content}"
                                            FontSize="14"
                                            TextColor="{DynamicResource TextColor}"
                                            LineBreakMode="WordWrap"/>

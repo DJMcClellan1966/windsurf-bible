@@ -43,8 +43,21 @@ public class WindowsSpeechService : ICharacterVoiceService
             // Configure voice options
             ConfigureVoice(voiceConfig);
 
-            // Synthesize speech to stream
-            var synthesisStream = await _synthesizer.SynthesizeTextToStreamAsync(cleanedText);
+            // Create SSML for more natural speech with prosody control
+            var ssml = CreateSsml(cleanedText, voiceConfig);
+            
+            // Synthesize speech to stream using SSML for better prosody
+            SpeechSynthesisStream synthesisStream;
+            try
+            {
+                synthesisStream = await _synthesizer.SynthesizeSsmlToStreamAsync(ssml);
+            }
+            catch
+            {
+                // Fallback to plain text if SSML fails
+                System.Diagnostics.Debug.WriteLine("[TTS] SSML failed, falling back to plain text");
+                synthesisStream = await _synthesizer.SynthesizeTextToStreamAsync(cleanedText);
+            }
 
             // Create media player for playback
             _mediaPlayer = new MediaPlayer();
@@ -128,42 +141,143 @@ public class WindowsSpeechService : ICharacterVoiceService
         // Try to find a matching voice by locale
         var voices = SpeechSynthesizer.AllVoices;
         
-        // First try exact locale match
-        var matchingVoice = voices.FirstOrDefault(v => 
-            v.Language.Equals(voiceConfig.Locale, StringComparison.OrdinalIgnoreCase));
+        // Log available voices for debugging
+        System.Diagnostics.Debug.WriteLine("[TTS] Available voices:");
+        foreach (var v in voices)
+        {
+            System.Diagnostics.Debug.WriteLine($"[TTS]   - {v.DisplayName} ({v.Language}, {v.Gender})");
+        }
         
-        // Then try language prefix match
-        if (matchingVoice == null)
+        // Get the language prefix (e.g., "en" from "en-US")
+        var langPrefix = voiceConfig.Locale.Split('-')[0];
+        
+        // Filter voices by language
+        var languageVoices = voices.Where(v => 
+            v.Language.StartsWith(langPrefix, StringComparison.OrdinalIgnoreCase)).ToList();
+        
+        if (languageVoices.Count == 0)
         {
-            var langPrefix = voiceConfig.Locale.Split('-')[0];
-            matchingVoice = voices.FirstOrDefault(v => 
-                v.Language.StartsWith(langPrefix, StringComparison.OrdinalIgnoreCase));
+            // Fallback to all voices if no language match
+            languageVoices = voices.ToList();
         }
-
-        // Prefer gender match if specified in description
-        if (matchingVoice == null && !string.IsNullOrEmpty(voiceConfig.Description))
+        
+        // Determine gender from voice description
+        bool isMale = false;
+        bool isFemale = false;
+        
+        if (!string.IsNullOrEmpty(voiceConfig.Description))
         {
-            var isMale = voiceConfig.Description.Contains("male", StringComparison.OrdinalIgnoreCase) ||
-                         voiceConfig.Description.Contains("deep", StringComparison.OrdinalIgnoreCase);
+            isMale = voiceConfig.Description.Contains("male", StringComparison.OrdinalIgnoreCase) ||
+                     voiceConfig.Description.Contains("deep", StringComparison.OrdinalIgnoreCase) ||
+                     voiceConfig.Description.Contains("Kingly", StringComparison.OrdinalIgnoreCase) ||
+                     voiceConfig.Description.Contains("Bold", StringComparison.OrdinalIgnoreCase) ||
+                     voiceConfig.Description.Contains("scholarly", StringComparison.OrdinalIgnoreCase) ||
+                     voiceConfig.Description.Contains("prophet", StringComparison.OrdinalIgnoreCase) ||
+                     voiceConfig.Description.Contains("fisherman", StringComparison.OrdinalIgnoreCase) ||
+                     voiceConfig.Description.Contains("king", StringComparison.OrdinalIgnoreCase);
             
-            var isFemale = voiceConfig.Description.Contains("female", StringComparison.OrdinalIgnoreCase) ||
-                           voiceConfig.Description.Contains("gentle", StringComparison.OrdinalIgnoreCase);
-
-            if (isMale)
-            {
-                matchingVoice = voices.FirstOrDefault(v => v.Gender == VoiceGender.Male);
-            }
-            else if (isFemale)
-            {
-                matchingVoice = voices.FirstOrDefault(v => v.Gender == VoiceGender.Female);
-            }
+            isFemale = voiceConfig.Description.Contains("female", StringComparison.OrdinalIgnoreCase) ||
+                       voiceConfig.Description.Contains("gentle", StringComparison.OrdinalIgnoreCase) ||
+                       voiceConfig.Description.Contains("motherly", StringComparison.OrdinalIgnoreCase) ||
+                       voiceConfig.Description.Contains("warm", StringComparison.OrdinalIgnoreCase) ||
+                       voiceConfig.Description.Contains("Feminine", StringComparison.OrdinalIgnoreCase);
         }
-
-        if (matchingVoice != null)
+        
+        VoiceInformation? selectedVoice = null;
+        
+        // PRIORITY 1: Use specific Natural voices - Ryan for male, Sonia for female
+        if (isMale)
         {
-            _synthesizer.Voice = matchingVoice;
-            System.Diagnostics.Debug.WriteLine($"[TTS] Using voice: {matchingVoice.DisplayName} ({matchingVoice.Language})");
+            // Look for Microsoft Ryan (Natural) - male voice
+            selectedVoice = languageVoices.FirstOrDefault(v => 
+                v.DisplayName.Contains("Ryan", StringComparison.OrdinalIgnoreCase) && 
+                v.DisplayName.Contains("Natural", StringComparison.OrdinalIgnoreCase));
+            
+            // Fallback to any male Natural voice
+            if (selectedVoice == null)
+                selectedVoice = languageVoices.FirstOrDefault(v => 
+                    v.Gender == VoiceGender.Male && v.DisplayName.Contains("Natural", StringComparison.OrdinalIgnoreCase));
+            
+            // Fallback to any male voice
+            if (selectedVoice == null)
+                selectedVoice = languageVoices.FirstOrDefault(v => v.Gender == VoiceGender.Male);
         }
+        else if (isFemale)
+        {
+            // Look for Microsoft Sonia (Natural) - female voice
+            selectedVoice = languageVoices.FirstOrDefault(v => 
+                v.DisplayName.Contains("Sonia", StringComparison.OrdinalIgnoreCase) && 
+                v.DisplayName.Contains("Natural", StringComparison.OrdinalIgnoreCase));
+            
+            // Fallback to any female Natural voice
+            if (selectedVoice == null)
+                selectedVoice = languageVoices.FirstOrDefault(v => 
+                    v.Gender == VoiceGender.Female && v.DisplayName.Contains("Natural", StringComparison.OrdinalIgnoreCase));
+            
+            // Fallback to any female voice
+            if (selectedVoice == null)
+                selectedVoice = languageVoices.FirstOrDefault(v => v.Gender == VoiceGender.Female);
+        }
+        
+        // PRIORITY 2: If no gender specified, prefer any Natural voice
+        if (selectedVoice == null)
+        {
+            selectedVoice = languageVoices.FirstOrDefault(v => 
+                v.DisplayName.Contains("Natural", StringComparison.OrdinalIgnoreCase));
+        }
+        
+        // PRIORITY 3: Fallback to first available voice
+        if (selectedVoice == null)
+        {
+            selectedVoice = languageVoices.FirstOrDefault();
+        }
+
+        if (selectedVoice != null)
+        {
+            _synthesizer.Voice = selectedVoice;
+            System.Diagnostics.Debug.WriteLine($"[TTS] Selected voice: {selectedVoice.DisplayName} ({selectedVoice.Language})");
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine("[TTS] No matching voice found, using system default");
+        }
+    }
+
+    /// <summary>
+    /// Creates SSML markup for more natural-sounding speech with prosody control
+    /// </summary>
+    private string CreateSsml(string text, VoiceConfig voiceConfig)
+    {
+        // Escape special XML characters
+        var escapedText = System.Security.SecurityElement.Escape(text);
+        
+        // Convert pitch from 0.5-2.0 scale to percentage (50% = -50%, 1.0 = 0%, 2.0 = +100%)
+        var pitchPercent = (int)((voiceConfig.Pitch - 1.0f) * 100);
+        var pitchStr = pitchPercent >= 0 ? $"+{pitchPercent}%" : $"{pitchPercent}%";
+        
+        // Convert rate from 0.5-2.0 scale to percentage
+        var ratePercent = (int)((voiceConfig.Rate - 1.0f) * 100);
+        var rateStr = ratePercent >= 0 ? $"+{ratePercent}%" : $"{ratePercent}%";
+        
+        // Add natural pauses at sentence boundaries for more human-like speech
+        // Replace periods with SSML break tags
+        escapedText = System.Text.RegularExpressions.Regex.Replace(escapedText, @"\.\s+", ".<break time=\"400ms\"/> ");
+        escapedText = System.Text.RegularExpressions.Regex.Replace(escapedText, @"\?\s+", "?<break time=\"500ms\"/> ");
+        escapedText = System.Text.RegularExpressions.Regex.Replace(escapedText, @"!\s+", "!<break time=\"400ms\"/> ");
+        escapedText = System.Text.RegularExpressions.Regex.Replace(escapedText, @",\s+", ",<break time=\"200ms\"/> ");
+        escapedText = System.Text.RegularExpressions.Regex.Replace(escapedText, @":\s+", ":<break time=\"300ms\"/> ");
+        escapedText = System.Text.RegularExpressions.Regex.Replace(escapedText, @";\s+", ";<break time=\"250ms\"/> ");
+        
+        // Build SSML with prosody settings
+        var voiceName = _synthesizer.Voice?.DisplayName ?? "default";
+        
+        return $@"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>
+            <voice name='{voiceName}'>
+                <prosody pitch='{pitchStr}' rate='{rateStr}'>
+                    {escapedText}
+                </prosody>
+            </voice>
+        </speak>";
     }
 
     /// <summary>

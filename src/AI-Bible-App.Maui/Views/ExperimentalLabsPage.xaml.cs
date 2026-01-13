@@ -11,7 +11,8 @@ public partial class ExperimentalLabsPage : ContentPage
 
     private async void OnRoundtableClicked(object sender, EventArgs e)
     {
-        await Shell.Current.GoToAsync("roundtable");
+        // Navigate to character selection first, then start roundtable
+        await Shell.Current.GoToAsync("MultiCharacterSelectionPage");
     }
 
     private async void OnWisdomCouncilClicked(object sender, EventArgs e)

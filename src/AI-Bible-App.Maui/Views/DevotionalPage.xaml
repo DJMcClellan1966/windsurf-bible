@@ -5,53 +5,53 @@
              xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
              x:Class="AI_Bible_App.Maui.Views.DevotionalPage"
              x:DataType="vm:DevotionalViewModel"
-             Title="{Binding Title}"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
+             Title="{Binding Title}">
+
+    <!-- Hallow gradient background -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="{StaticResource HallowDarkPurple}" Offset="0.0" />
+            <GradientStop Color="{StaticResource HallowDeepBlue}" Offset="0.5" />
+            <GradientStop Color="{StaticResource HallowMidPurple}" Offset="1.0" />
+        </LinearGradientBrush>
+    </ContentPage.Background>
 
     <Grid RowDefinitions="Auto,*">
         
         <!-- Header -->
-        <Grid Grid.Row="0" 
-              ColumnDefinitions="*,Auto,Auto"
-              Padding="15"
-              BackgroundColor="{DynamicResource CardBackground}">
-            
-            <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
-                <Label Text="📖 Daily Devotional"
-                       FontSize="20"
-                       FontAttributes="Bold"
-                       TextColor="{DynamicResource TextColor}"
-                       SemanticProperties.HeadingLevel="Level1"
-                       SemanticProperties.Description="Daily Devotional"/>
-                <Label Text="{Binding TodaysDevotional.Date, StringFormat='{0:dddd, MMMM d, yyyy}'}"
-                       FontSize="13"
-                       TextColor="{DynamicResource Gray600}"
-                       SemanticProperties.Description="Date"/>
-            </VerticalStackLayout>
-            
-            <Button Grid.Column="1"
-                    Text="📜"
-                    Command="{Binding ToggleHistoryCommand}"
-                    ToolTipProperties.Text="View History"
-                    HeightRequest="44"
-                    WidthRequest="44"
-                    CornerRadius="22"
-                    Padding="0"
-                    BackgroundColor="{DynamicResource Gray200}"
-                    TextColor="{DynamicResource TextColor}"/>
-            
-            <Button Grid.Column="2"
-                    Text="🔄"
-                    Command="{Binding RefreshDevotionalCommand}"
-                    ToolTipProperties.Text="Generate New"
-                    HeightRequest="44"
-                    WidthRequest="44"
-                    CornerRadius="22"
-                    Padding="0"
-                    Margin="8,0,0,0"
-                    BackgroundColor="{DynamicResource Primary}"
-                    TextColor="White"/>
-        </Grid>
+        <Frame Grid.Row="0" Margin="15,15,15,10" Padding="15"
+               BackgroundColor="{StaticResource HallowCardBackground}"
+               BorderColor="Transparent"
+               CornerRadius="20">
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <VerticalStackLayout Grid.Column="0" VerticalOptions="Center">
+                    <Label Text="📖 Daily Devotional"
+                           FontSize="20"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource HallowTextPrimary}"/>
+                    <Label Text="{Binding TodaysDevotional.Date, StringFormat='{0:dddd, MMMM d, yyyy}'}"
+                           FontSize="13"
+                           TextColor="{StaticResource HallowTextSecondary}"/>
+                </VerticalStackLayout>
+                
+                <Button Grid.Column="1"
+                        Text="📜"
+                        Command="{Binding ToggleHistoryCommand}"
+                        HeightRequest="44" WidthRequest="44"
+                        CornerRadius="22" Padding="0"
+                        BackgroundColor="{StaticResource HallowCardHover}"
+                        TextColor="{StaticResource HallowTextPrimary}"/>
+                
+                <Button Grid.Column="2"
+                        Text="🔄"
+                        Command="{Binding RefreshDevotionalCommand}"
+                        HeightRequest="44" WidthRequest="44"
+                        CornerRadius="22" Padding="0"
+                        Margin="8,0,0,0"
+                        BackgroundColor="{StaticResource HallowAccentPurple}"
+                        TextColor="{StaticResource HallowTextPrimary}"/>
+            </Grid>
+        </Frame>
 
         <!-- Main Content -->
         <ScrollView Grid.Row="1">
@@ -64,81 +64,74 @@
                                     Spacing="15"
                                     Padding="30">
                     <ActivityIndicator IsRunning="True" 
-                                      Color="{DynamicResource Primary}"
+                                      Color="{StaticResource HallowAccentPurple}"
                                       HeightRequest="60"
                                       WidthRequest="60"/>
                     <Label Text="{Binding GeneratingMessage}"
                            FontSize="16"
                            HorizontalTextAlignment="Center"
-                           TextColor="{DynamicResource TextColor}"/>
+                           TextColor="{StaticResource HallowTextPrimary}"/>
                 </VerticalStackLayout>
 
-                <!-- History Panel (slides in) -->
-                <Border IsVisible="{Binding ShowHistory}"
-                        Margin="15"
-                        Padding="15"
-                        BackgroundColor="{DynamicResource CardBackground}"
-                        StrokeThickness="1"
-                        Stroke="{DynamicResource Gray300}">
-                    <Border.StrokeShape>
-                        <RoundRectangle CornerRadius="12"/>
-                    </Border.StrokeShape>
+                <!-- History Panel -->
+                <Frame IsVisible="{Binding ShowHistory}"
+                       Margin="15" Padding="15"
+                       BackgroundColor="{StaticResource HallowCardBackground}"
+                       BorderColor="Transparent"
+                       CornerRadius="15">
                     <VerticalStackLayout Spacing="10">
                         <Label Text="📜 Recent Devotionals"
                                FontSize="18"
                                FontAttributes="Bold"
-                               TextColor="{DynamicResource TextColor}"/>
+                               TextColor="{StaticResource HallowTextPrimary}"/>
                         <CollectionView ItemsSource="{Binding RecentDevotionals}"
                                        SelectionMode="Single"
                                        SelectionChangedCommand="{Binding ViewDevotionalCommand}"
                                        SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
                             <CollectionView.ItemTemplate>
                                 <DataTemplate x:DataType="models:Devotional">
-                                    <Border Margin="0,5"
-                                            Padding="12"
-                                            BackgroundColor="{DynamicResource InputBackground}"
-                                            StrokeThickness="0">
-                                        <Border.StrokeShape>
-                                            <RoundRectangle CornerRadius="8"/>
-                                        </Border.StrokeShape>
+                                    <Frame Margin="0,5" Padding="12"
+                                           BackgroundColor="{StaticResource HallowCardHover}"
+                                           BorderColor="Transparent"
+                                           CornerRadius="10">
                                         <Grid ColumnDefinitions="Auto,*,Auto">
                                             <Label Grid.Column="0"
                                                    Text="{Binding Date, StringFormat='{0:MMM d}'}"
                                                    FontSize="12"
                                                    FontAttributes="Bold"
-                                                   TextColor="{DynamicResource Primary}"
+                                                   TextColor="{StaticResource HallowAccentPurple}"
                                                    VerticalOptions="Center"/>
                                             <Label Grid.Column="1"
                                                    Text="{Binding Title}"
                                                    FontSize="14"
                                                    Margin="10,0"
                                                    LineBreakMode="TailTruncation"
-                                                   TextColor="{DynamicResource TextColor}"
+                                                   TextColor="{StaticResource HallowTextPrimary}"
                                                    VerticalOptions="Center"/>
                                             <Label Grid.Column="2"
                                                    Text="{Binding IsRead, Converter={StaticResource BoolToYesNoConverter}, ConverterParameter='✓|'}"
                                                    FontSize="16"
-                                                   TextColor="{DynamicResource Success}"
+                                                   TextColor="{StaticResource HallowAccentPurple}"
                                                    VerticalOptions="Center"/>
                                         </Grid>
-                                    </Border>
+                                    </Frame>
                                 </DataTemplate>
                             </CollectionView.ItemTemplate>
                             <CollectionView.EmptyView>
                                 <Label Text="No previous devotionals yet"
                                        HorizontalOptions="Center"
-                                       TextColor="{DynamicResource Gray500}"
+                                       TextColor="{StaticResource HallowTextMuted}"
                                        Margin="0,20"/>
                             </CollectionView.EmptyView>
                         </CollectionView>
                         <Button Text="Close"
                                 Command="{Binding ToggleHistoryCommand}"
                                 HeightRequest="40"
-                                CornerRadius="8"
-                                BackgroundColor="{DynamicResource Gray200}"
-                                TextColor="{DynamicResource TextColor}"/>
+                                CornerRadius="20"
+                                BackgroundColor="{StaticResource HallowCardHover}"
+                                TextColor="{StaticResource HallowTextPrimary}"/>
                     </VerticalStackLayout>
-                </Border>
+                </Frame>
 
                 <!-- Devotional Content -->
                 <VerticalStackLayout IsVisible="{Binding IsGenerating, Converter={StaticResource InvertedBoolConverter}}"
@@ -146,102 +139,96 @@
                                     Padding="15">
                     
                     <!-- Title Card -->
-                    <Border Padding="20"
-                            BackgroundColor="{DynamicResource Primary}"
-                            StrokeThickness="0">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12"/>
-                        </Border.StrokeShape>
+                    <Frame Padding="20"
+                           BorderColor="Transparent"
+                           CornerRadius="15">
+                        <Frame.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="{StaticResource HallowAccentPurple}" Offset="0.0" />
+                                <GradientStop Color="{StaticResource HallowRose}" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Frame.Background>
                         <VerticalStackLayout Spacing="8">
                             <Label Text="{Binding TodaysDevotional.Category}"
                                    FontSize="12"
-                                   TextColor="White"
+                                   TextColor="{StaticResource HallowTextPrimary}"
                                    Opacity="0.8"/>
                             <Label Text="{Binding TodaysDevotional.Title}"
                                    FontSize="22"
                                    FontAttributes="Bold"
-                                   TextColor="White"/>
+                                   TextColor="{StaticResource HallowTextPrimary}"/>
                         </VerticalStackLayout>
-                    </Border>
+                    </Frame>
 
                     <!-- Scripture Card -->
-                    <Border Padding="20"
-                            BackgroundColor="{DynamicResource CardBackground}"
-                            StrokeThickness="1"
-                            Stroke="{DynamicResource Gray300}">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12"/>
-                        </Border.StrokeShape>
+                    <Frame Padding="20"
+                           BackgroundColor="{StaticResource HallowCardBackground}"
+                           BorderColor="Transparent"
+                           CornerRadius="15">
                         <VerticalStackLayout Spacing="12">
                             <HorizontalStackLayout Spacing="8">
                                 <Label Text="📜" FontSize="18"/>
                                 <Label Text="Scripture"
                                        FontSize="14"
                                        FontAttributes="Bold"
-                                       TextColor="{DynamicResource Gray600}"
+                                       TextColor="{StaticResource HallowTextSecondary}"
                                        VerticalOptions="Center"/>
                             </HorizontalStackLayout>
                             <Label Text="{Binding TodaysDevotional.Scripture}"
                                    FontSize="16"
                                    FontAttributes="Italic"
-                                   TextColor="{DynamicResource TextColor}"
+                                   TextColor="{StaticResource HallowTextPrimary}"
                                    LineHeight="1.4"/>
                             <Label Text="{Binding TodaysDevotional.ScriptureReference}"
                                    FontSize="13"
                                    FontAttributes="Bold"
-                                   TextColor="{DynamicResource Primary}"
+                                   TextColor="{StaticResource HallowAccentPurple}"
                                    HorizontalOptions="End"/>
                         </VerticalStackLayout>
-                    </Border>
+                    </Frame>
 
                     <!-- Reflection Card -->
-                    <Border Padding="20"
-                            BackgroundColor="{DynamicResource CardBackground}"
-                            StrokeThickness="1"
-                            Stroke="{DynamicResource Gray300}">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12"/>
-                        </Border.StrokeShape>
+                    <Frame Padding="20"
+                           BackgroundColor="{StaticResource HallowCardBackground}"
+                           BorderColor="Transparent"
+                           CornerRadius="15">
                         <VerticalStackLayout Spacing="12">
                             <HorizontalStackLayout Spacing="8">
                                 <Label Text="💭" FontSize="18"/>
                                 <Label Text="Reflection"
                                        FontSize="14"
                                        FontAttributes="Bold"
-                                       TextColor="{DynamicResource Gray600}"
+                                       TextColor="{StaticResource HallowTextSecondary}"
                                        VerticalOptions="Center"/>
                             </HorizontalStackLayout>
                             <Label Text="{Binding TodaysDevotional.Content}"
                                    FontSize="15"
-                                   TextColor="{DynamicResource TextColor}"
+                                   TextColor="{StaticResource HallowTextPrimary}"
                                    LineHeight="1.5"/>
                         </VerticalStackLayout>
-                    </Border>
+                    </Frame>
 
                     <!-- Prayer Card -->
-                    <Border Padding="20"
-                            BackgroundColor="{DynamicResource SecondaryBackground}"
-                            StrokeThickness="1"
-                            Stroke="{DynamicResource Gray300}">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="12"/>
-                        </Border.StrokeShape>
+                    <Frame Padding="20"
+                           BackgroundColor="{StaticResource HallowCardHover}"
+                           BorderColor="Transparent"
+                           CornerRadius="15">
                         <VerticalStackLayout Spacing="12">
                             <HorizontalStackLayout Spacing="8">
                                 <Label Text="🙏" FontSize="18"/>
                                 <Label Text="Prayer"
                                        FontSize="14"
                                        FontAttributes="Bold"
-                                       TextColor="{DynamicResource Gray600}"
+                                       TextColor="{StaticResource HallowTextSecondary}"
                                        VerticalOptions="Center"/>
                             </HorizontalStackLayout>
                             <Label Text="{Binding TodaysDevotional.Prayer}"
                                    FontSize="15"
                                    FontAttributes="Italic"
-                                   TextColor="{DynamicResource TextColor}"
+                                   TextColor="{StaticResource HallowTextPrimary}"
                                    LineHeight="1.4"/>
                         </VerticalStackLayout>
-                    </Border>
+                    </Frame>
 
                     <!-- Action Buttons -->
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10">
@@ -250,35 +237,33 @@
                                 Command="{Binding MarkAsReadCommand}"
                                 IsEnabled="{Binding TodaysDevotional.IsRead, Converter={StaticResource InvertedBoolConverter}}"
                                 HeightRequest="50"
-                                CornerRadius="12"
-                                BackgroundColor="{DynamicResource Success}"
-                                TextColor="White"/>
+                                CornerRadius="25"
+                                BackgroundColor="{StaticResource HallowAccentPurple}"
+                                TextColor="{StaticResource HallowTextPrimary}"/>
                         <Button Grid.Column="1"
                                 Text="📤 Share"
                                 Command="{Binding ShareDevotionalCommand}"
                                 HeightRequest="50"
-                                CornerRadius="12"
-                                BackgroundColor="{DynamicResource Primary}"
-                                TextColor="White"/>
+                                CornerRadius="25"
+                                BackgroundColor="{StaticResource HallowMidPurple}"
+                                TextColor="{StaticResource HallowTextPrimary}"/>
                     </Grid>
 
                     <!-- Completion Badge -->
-                    <Border IsVisible="{Binding TodaysDevotional.IsRead}"
-                            Padding="15"
-                            BackgroundColor="{DynamicResource SuccessLight}"
-                            StrokeThickness="0"
-                            HorizontalOptions="Center">
-                        <Border.StrokeShape>
-                            <RoundRectangle CornerRadius="20"/>
-                        </Border.StrokeShape>
+                    <Frame IsVisible="{Binding TodaysDevotional.IsRead}"
+                           Padding="15"
+                           BackgroundColor="{StaticResource HallowCardBackground}"
+                           BorderColor="{StaticResource HallowAccentPurple}"
+                           CornerRadius="20"
+                           HorizontalOptions="Center">
                         <HorizontalStackLayout Spacing="8">
-                            <Label Text="✓" FontSize="16" TextColor="{DynamicResource Success}"/>
+                            <Label Text="✓" FontSize="16" TextColor="{StaticResource HallowAccentPurple}"/>
                             <Label Text="Completed Today"
                                    FontSize="14"
                                    FontAttributes="Bold"
-                                   TextColor="{DynamicResource Success}"/>
+                                   TextColor="{StaticResource HallowAccentPurple}"/>
                         </HorizontalStackLayout>
-                    </Border>
+                    </Frame>
 
                 </VerticalStackLayout>
             </Grid>

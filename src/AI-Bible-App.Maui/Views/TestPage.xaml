@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="AI_Bible_App.Maui.Views.TestPage"
+             Title="Test Page"
+             BackgroundColor="{StaticResource HallowBackground}">
+    
+    <VerticalStackLayout Spacing="20" Padding="30" VerticalOptions="Center">
+        <Label Text="Voices of Scripture"
+               TextColor="{StaticResource HallowTextPrimary}"
+               FontSize="28"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"/>
+        
+        <Label Text="App is working!"
+               TextColor="{StaticResource HallowTextSecondary}"
+               FontSize="18"
+               HorizontalOptions="Center"/>
+        
+        <Button Text="Continue to App"
+                BackgroundColor="{StaticResource HallowAccentPurple}"
+                TextColor="White"
+                CornerRadius="25"
+                HeightRequest="50"
+                Clicked="OnContinueClicked"/>
+    </VerticalStackLayout>
+</ContentPage>

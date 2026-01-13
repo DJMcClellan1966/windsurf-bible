@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
              xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             xmlns:controls="clr-namespace:AI_Bible_App.Maui.Controls"
              x:Class="AI_Bible_App.Maui.Views.PrayerChainPage"
              x:DataType="vm:PrayerChainViewModel"
              Title="🙏 Prayer Chain"
@@ -70,7 +71,7 @@
                                 </Grid>
                                 
                                 <!-- Prayer Content -->
-                                <Label Text="{Binding Content}"
+                                <controls:BibleLinkLabel LinkedText="{Binding Content}"
                                        FontSize="15"
                                        FontAttributes="Italic"
                                        TextColor="{DynamicResource TextColor}"

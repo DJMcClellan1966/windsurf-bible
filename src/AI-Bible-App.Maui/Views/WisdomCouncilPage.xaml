@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
              xmlns:models="clr-namespace:AI_Bible_App.Core.Models;assembly=AI-Bible-App.Core"
+             xmlns:controls="clr-namespace:AI_Bible_App.Maui.Controls"
              x:Class="AI_Bible_App.Maui.Views.WisdomCouncilPage"
              x:DataType="vm:WisdomCouncilViewModel"
              Title="🧠 Wisdom Council"
@@ -114,7 +115,7 @@
                                 </Border>
                                 
                                 <!-- Response Content -->
-                                <Label Text="{Binding Content}"
+                                <controls:BibleLinkLabel LinkedText="{Binding Content}"
                                        FontSize="15"
                                        TextColor="{DynamicResource TextColor}"
                                        LineBreakMode="WordWrap"

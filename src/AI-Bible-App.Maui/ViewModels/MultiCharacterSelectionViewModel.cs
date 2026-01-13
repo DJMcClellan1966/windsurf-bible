@@ -66,8 +66,24 @@ public partial class MultiCharacterSelectionViewModel : BaseViewModel
             IsBusy = true;
             HasNoCharacters = false;
             var allCharacters = await _characterRepository.GetAllCharactersAsync();
+            
+            System.Diagnostics.Debug.WriteLine($"[MultiCharacterSelection] Total characters loaded: {allCharacters.Count}");
+            System.Diagnostics.Debug.WriteLine($"[MultiCharacterSelection] Selected mode: {SelectedMode}");
+            
+            // Filter characters based on selected mode
+            var filteredCharacters = SelectedMode == ChatSessionType.Roundtable
+                ? allCharacters.Where(c => c.RoundtableEnabled).ToList()
+                : allCharacters;
+            
+            System.Diagnostics.Debug.WriteLine($"[MultiCharacterSelection] Characters with RoundtableEnabled: {allCharacters.Count(c => c.RoundtableEnabled)}");
+            System.Diagnostics.Debug.WriteLine($"[MultiCharacterSelection] Filtered characters: {filteredCharacters.Count}");
+            foreach (var c in allCharacters.Where(x => x.RoundtableEnabled))
+            {
+                System.Diagnostics.Debug.WriteLine($"[MultiCharacterSelection]   - {c.Name} (RoundtableEnabled={c.RoundtableEnabled})");
+            }
+            
             Characters = new ObservableCollection<SelectableCharacter>(
-                allCharacters.Select(c => new SelectableCharacter(c)));
+                filteredCharacters.Select(c => new SelectableCharacter(c)));
             HasNoCharacters = Characters.Count == 0;
         }
         catch (Exception ex)
@@ -82,12 +98,20 @@ public partial class MultiCharacterSelectionViewModel : BaseViewModel
     }
 
     [RelayCommand]
-    private void SetMode(string mode)
+    private async Task SetMode(string mode)
     {
         SelectedMode = Enum.Parse<ChatSessionType>(mode);
         
+        // Clear selections when mode changes
+        foreach (var c in Characters)
+            c.IsSelected = false;
+        SelectedCharacters.Clear();
+        
         UpdateModeUI();
         UpdateSelectionState();
+        
+        // Reload characters with appropriate filtering for the mode
+        await InitializeAsync();
     }
 
     [RelayCommand]

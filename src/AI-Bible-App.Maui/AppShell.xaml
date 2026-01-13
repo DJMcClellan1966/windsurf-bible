@@ -9,20 +9,7 @@
     FlyoutBackgroundColor="{StaticResource HallowBackground}"
     Shell.ForegroundColor="{StaticResource HallowTextPrimary}"
     Shell.BackgroundColor="{StaticResource HallowBackground}"
-    Shell.TabBarBackgroundColor="{StaticResource HallowCardBackground}"
-    Shell.TabBarForegroundColor="{StaticResource HallowTextSecondary}"
-    Shell.TabBarTitleColor="{StaticResource HallowTextPrimary}"
-    Shell.TabBarUnselectedColor="{StaticResource HallowTextMuted}">
-
-    <Shell.Resources>
-        <Style x:Key="BaseStyle" TargetType="Element">
-            <Setter Property="Shell.BackgroundColor" Value="{StaticResource HallowBackground}" />
-            <Setter Property="Shell.ForegroundColor" Value="{StaticResource HallowTextPrimary}" />
-            <Setter Property="Shell.TitleColor" Value="{StaticResource HallowTextPrimary}" />
-        </Style>
-        <Style TargetType="TabBar" BasedOn="{StaticResource BaseStyle}" />
-        <Style TargetType="FlyoutItem" BasedOn="{StaticResource BaseStyle}" />
-    </Shell.Resources>
+    Shell.TitleColor="{StaticResource HallowTextPrimary}">
 
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     <!-- PRODUCTION-READY FEATURES                                           -->
