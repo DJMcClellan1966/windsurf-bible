@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<!-- Switched to .NET 9 for stability with WinUI3 -->
+		<!-- .NET 9 with MAUI -->
 		<TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
 
@@ -20,9 +20,15 @@
 		<Nullable>enable</Nullable>
 		
 		<!-- Performance: Enable trimming and AOT for Release builds -->
-		<PublishTrimmed Condition="'$(Configuration)' == 'Release'">true</PublishTrimmed>
+		<!-- Trimming disabled for Windows to prevent WinUI3 component removal -->
+		<PublishTrimmed Condition="'$(Configuration)' == 'Release' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">true</PublishTrimmed>
+		<PublishTrimmed Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">false</PublishTrimmed>
 		<TrimMode Condition="'$(Configuration)' == 'Release'">partial</TrimMode>
 		<RunAOTCompilation Condition="'$(Configuration)' == 'Release' and $([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) != 'windows'">true</RunAOTCompilation>
+		
+		<!-- WinUI3 unpackaged app settings -->
+		<WinUISDKReferences Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</WinUISDKReferences>
+		<EnableMsixTooling Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</EnableMsixTooling>
 		
 		<!-- Enable compiled bindings with Source property to fix XC0025 warnings -->
 		<MauiEnableXamlCBindingWithSourceCompilation>true</MauiEnableXamlCBindingWithSourceCompilation>
@@ -31,7 +37,8 @@
 		<!-- Suppress MVVM Toolkit AOT warnings (not targeting UWP/WinUI3) -->
 		<!-- Suppress XAML compiled binding warnings (incremental improvement) -->
 		<!-- Suppress deprecated SemanticProperties warnings (will migrate in future) -->
-		<NoWarn>$(NoWarn);XC0045;MVVMTK0045;XC0022;XC0023;XC0024;XC0618</NoWarn>
+		<!-- Suppress Universal CRT Debug SDK warning (not needed for Debug builds) -->
+		<NoWarn>$(NoWarn);XC0045;MVVMTK0045;XC0022;XC0023;XC0024;XC0618;MSB3774</NoWarn>
 
 		<!-- Display name -->
 		<ApplicationTitle>Voices of Scripture</ApplicationTitle>
@@ -43,7 +50,7 @@
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
 
-		<!-- Run as unpackaged (no MSIX) for simpler debugging -->
+		<!-- Run as unpackaged (requires Windows App SDK runtime installed globally) -->
 		<WindowsPackageType>None</WindowsPackageType>
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
@@ -94,6 +101,20 @@
 		<MauiAsset Include="Data\Bible\asv.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</MauiAsset>
+	</ItemGroup>
+
+	<!-- For MSIX packaging: exclude duplicate LlamaSharp native DLLs (keep only AVX2) -->
+	<ItemGroup Condition="'$(WindowsPackageType)' == 'MSIX'">
+		<ContentWithTargetPath Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\ggml.dll" />
+		<ContentWithTargetPath Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\llama.dll" />
+		<ContentWithTargetPath Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\llava_shared.dll" />
+		<ContentWithTargetPath Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\avx\*.dll" />
+		<ContentWithTargetPath Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\avx512\*.dll" />
+		<None Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\ggml.dll" />
+		<None Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\llama.dll" />
+		<None Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\llava_shared.dll" />
+		<None Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\avx\*.dll" />
+		<None Remove="$(NuGetPackageRoot)llamasharp.backend.cpu\**\runtimes\win-x64\native\avx512\*.dll" />
 	</ItemGroup>
 
 	<ItemGroup>

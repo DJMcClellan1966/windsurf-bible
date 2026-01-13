@@ -242,7 +242,11 @@ public class ChatEnhancementService : IChatEnhancementService
                 return (true, result.Value, result.SimilarityScore);
             }
         }
-        catch { }
+        catch (Exception ex)
+        {
+            // Silently fail - enhancement is optional
+            System.Diagnostics.Debug.WriteLine($"[Enhancement] Failed: {ex.Message}");
+        }
 
         return (false, null, 0);
     }

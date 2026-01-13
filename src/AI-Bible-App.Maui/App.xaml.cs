@@ -51,7 +51,11 @@ public partial class App : Application
 			var message = $"[{DateTime.Now}] {ex?.GetType().Name}: {ex?.Message}\n{ex?.StackTrace}\n\n";
 			File.AppendAllText(crashLog, message);
 		}
-		catch { }
+		catch (Exception ex)
+		{
+			// Theme application failed - continue with default
+			System.Diagnostics.Debug.WriteLine($"[Theme] Failed to apply theme: {ex.Message}");
+		}
 	}
 
 	protected override Window CreateWindow(IActivationState? activationState)
