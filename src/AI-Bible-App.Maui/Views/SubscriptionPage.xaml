@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             x:Class="AI_Bible_App.Maui.Views.SubscriptionPage"
+             x:DataType="vm:SubscriptionViewModel"
+             Title="Subscription"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+            
+            <!-- Header -->
+            <Label Text="Choose Your Plan"
+                   FontSize="32"
+                   FontAttributes="Bold"
+                   HorizontalTextAlignment="Center"
+                   Margin="0,10,0,20"/>
+
+            <!-- Current Plan Card -->
+            <Frame BorderColor="{DynamicResource Primary}"
+                   CornerRadius="12"
+                   Padding="20"
+                   HasShadow="True">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Current Plan"
+                           FontSize="18"
+                           FontAttributes="Bold"/>
+                    <Label Text="{Binding CurrentTier}"
+                           FontSize="24"
+                           FontAttributes="Bold"
+                           TextColor="{DynamicResource Primary}"/>
+                    <Label Text="{Binding CurrentStatus}"
+                           FontSize="14"
+                           TextColor="{DynamicResource Gray600}"/>
+                    
+                    <BoxView HeightRequest="1" 
+                             Color="{DynamicResource Gray300}"
+                             Margin="0,10"/>
+                    
+                    <Label Text="{Binding QuotaText}"
+                           FontSize="16"
+                           IsVisible="{Binding ShowQuota}"/>
+                    <ProgressBar Progress="{Binding QuotaProgress}"
+                                 ProgressColor="{DynamicResource Primary}"
+                                 IsVisible="{Binding ShowQuota}"
+                                 HeightRequest="8"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Premium Plan Card -->
+            <Frame BorderColor="{DynamicResource Primary}"
+                   CornerRadius="12"
+                   Padding="20"
+                   HasShadow="True"
+                   IsVisible="{Binding CanUpgradeToPremium}">
+                <VerticalStackLayout Spacing="15">
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="⭐"
+                               FontSize="28"/>
+                        <Label Text="Premium"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"/>
+                    </HorizontalStackLayout>
+                    
+                    <Label Text="$4.99/month or $49.99/year (save 17%)"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="{DynamicResource Primary}"/>
+                    
+                    <BoxView HeightRequest="1" Color="{DynamicResource Gray300}"/>
+                    
+                    <Label Text="✓ Unlimited conversations"
+                           FontSize="16"/>
+                    <Label Text="✓ Phi-4 model (9GB)"
+                           FontSize="16"/>
+                    <Label Text="✓ 5 Bible translations"
+                           FontSize="16"/>
+                    <Label Text="✓ Up to 5 users"
+                           FontSize="16"/>
+                    <Label Text="✓ Cloud sync across devices"
+                           FontSize="16"/>
+                    <Label Text="✓ Custom characters"
+                           FontSize="16"/>
+                    <Label Text="✓ Priority cloud fallback (Groq/GPT-4)"
+                           FontSize="16"/>
+                    
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10,0,0">
+                        <Button Text="Monthly $4.99"
+                                Command="{Binding UpgradeCommand}"
+                                CommandParameter="Premium|Monthly"
+                                BackgroundColor="{DynamicResource Primary}"
+                                TextColor="White"
+                                CornerRadius="8"
+                                Grid.Column="0"/>
+                        <Button Text="Yearly $49.99"
+                                Command="{Binding UpgradeCommand}"
+                                CommandParameter="Premium|Yearly"
+                                BackgroundColor="{DynamicResource Primary}"
+                                TextColor="White"
+                                CornerRadius="8"
+                                Grid.Column="1"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Premium Plus Plan Card -->
+            <Frame BorderColor="#FFD700"
+                   CornerRadius="12"
+                   Padding="20"
+                   HasShadow="True"
+                   IsVisible="{Binding CanUpgradeToPremiumPlus}">
+                <VerticalStackLayout Spacing="15">
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="💎"
+                               FontSize="28"/>
+                        <Label Text="Premium Plus"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center"/>
+                        <Label Text="BEST VALUE"
+                               FontSize="12"
+                               BackgroundColor="#FFD700"
+                               TextColor="Black"
+                               Padding="5,2"
+                               VerticalOptions="Center"
+                               HorizontalOptions="End"/>
+                    </HorizontalStackLayout>
+                    
+                    <Label Text="$9.99/month or $99/year (save 17%)"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           TextColor="#FFD700"/>
+                    
+                    <BoxView HeightRequest="1" Color="{DynamicResource Gray300}"/>
+                    
+                    <Label Text="Everything in Premium, plus:"
+                           FontSize="14"
+                           FontAttributes="Bold"
+                           TextColor="{DynamicResource Gray600}"/>
+                    
+                    <Label Text="✓ Premium character packs"
+                           FontSize="16"/>
+                    <Label Text="✓ Multi-character roundtables"
+                           FontSize="16"/>
+                    <Label Text="✓ Fine-tuned models"
+                           FontSize="16"/>
+                    <Label Text="✓ Real-time autonomous research"
+                           FontSize="16"/>
+                    <Label Text="✓ Character marketplace access"
+                           FontSize="16"/>
+                    <Label Text="✓ GPT-4 cloud fallback"
+                           FontSize="16"/>
+                    <Label Text="✓ Priority support"
+                           FontSize="16"/>
+                    
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,10,0,0">
+                        <Button Text="Monthly $9.99"
+                                Command="{Binding UpgradeCommand}"
+                                CommandParameter="PremiumPlus|Monthly"
+                                BackgroundColor="#FFD700"
+                                TextColor="Black"
+                                CornerRadius="8"
+                                Grid.Column="0"/>
+                        <Button Text="Yearly $99"
+                                Command="{Binding UpgradeCommand}"
+                                CommandParameter="PremiumPlus|Yearly"
+                                BackgroundColor="#FFD700"
+                                TextColor="Black"
+                                CornerRadius="8"
+                                Grid.Column="1"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Manage Subscription (for active subscribers) -->
+            <Frame BorderColor="{DynamicResource Gray400}"
+                   CornerRadius="12"
+                   Padding="20"
+                   HasShadow="True"
+                   IsVisible="{Binding HasActiveSubscription}">
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="Manage Subscription"
+                           FontSize="20"
+                           FontAttributes="Bold"/>
+                    
+                    <Label Text="{Binding SubscriptionDetails}"
+                           FontSize="14"
+                           TextColor="{DynamicResource Gray600}"/>
+                    
+                    <Button Text="Cancel Subscription"
+                            Command="{Binding CancelSubscriptionCommand}"
+                            BackgroundColor="{DynamicResource Danger}"
+                            TextColor="White"
+                            CornerRadius="8"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- FAQ Section -->
+            <Label Text="Frequently Asked Questions"
+                   FontSize="20"
+                   FontAttributes="Bold"
+                   Margin="0,20,0,10"/>
+            
+            <Frame BorderColor="{DynamicResource Gray300}"
+                   CornerRadius="8"
+                   Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Can I cancel anytime?"
+                           FontSize="16"
+                           FontAttributes="Bold"/>
+                    <Label Text="Yes! Cancel anytime and keep access until the end of your billing period."
+                           FontSize="14"
+                           TextColor="{DynamicResource Gray600}"/>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <Frame BorderColor="{DynamicResource Gray300}"
+                   CornerRadius="8"
+                   Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="What payment methods do you accept?"
+                           FontSize="16"
+                           FontAttributes="Bold"/>
+                    <Label Text="We accept all major credit cards via Stripe. Your payment information is secure and never stored on our servers."
+                           FontSize="14"
+                           TextColor="{DynamicResource Gray600}"/>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <Frame BorderColor="{DynamicResource Gray300}"
+                   CornerRadius="8"
+                   Padding="15">
+                <VerticalStackLayout Spacing="10">
+                    <Label Text="Is my data synced across devices?"
+                           FontSize="16"
+                           FontAttributes="Bold"/>
+                    <Label Text="Yes! Premium and Premium Plus subscribers get automatic cloud sync. Your conversations, bookmarks, and custom characters are available on all your devices."
+                           FontSize="14"
+                           TextColor="{DynamicResource Gray600}"/>
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                              IsVisible="{Binding IsBusy}"
+                              Color="{DynamicResource Primary}"
+                              HeightRequest="50"
+                              Margin="0,20"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

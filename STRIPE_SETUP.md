@@ -160,10 +160,24 @@ After making test payments:
 
 Once you have your keys in `appsettings.json`:
 
+### ✅ Completed Steps
 1. ✅ Install `Stripe.net` NuGet package
-2. Create `IPaymentService.cs` interface
-3. Implement `StripePaymentService.cs`
-4. Create `SubscriptionPage.xaml` UI
-5. Test checkout flow with card 4242 4242 4242 4242
+2. ✅ Create `IPaymentService.cs` interface
+3. ✅ Implement `StripePaymentService.cs`
+4. ✅ Create `IConversationQuotaService.cs` for free tier limits
+5. ✅ Implement `ConversationQuotaService.cs` with JSON tracking
+6. ✅ Create `SubscriptionPage.xaml` UI
+7. ✅ Modify `ChatViewModel.cs` for quota enforcement
+8. ✅ Register services in DI container
 
-**Ready to code the payment service!** 🚀
+### 🧪 Part 3: Testing (NEXT)
+
+Follow the comprehensive testing guide in **[TESTING_MONETIZATION.md](TESTING_MONETIZATION.md)**:
+
+1. **Test Quota Enforcement**: Send 10 messages as free user → verify 11th message shows upgrade dialog
+2. **Test Stripe Checkout**: Use test card `4242 4242 4242 4242` to upgrade to Premium
+3. **Verify Premium Access**: Confirm unlimited messages after successful payment
+4. **Test Yearly Subscription**: Try Premium Plus yearly plan
+5. **Test Cancellation**: Cancel subscription and verify status updates
+
+**Ready to test!** 🚀 See [TESTING_MONETIZATION.md](TESTING_MONETIZATION.md) for detailed instructions.

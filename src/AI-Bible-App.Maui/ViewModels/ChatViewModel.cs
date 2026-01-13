@@ -29,6 +29,7 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
     private readonly CharacterIntelligenceService? _intelligenceService;
     private readonly PersonalizedPromptService? _personalizedPromptService;
     private readonly IUserQuestionCollector? _questionCollector;
+    private readonly IConversationQuotaService _quotaService;
     private readonly bool _enableContextualReferences;
     private ChatSession? _currentSession;
     private CancellationTokenSource? _speechCancellationTokenSource;
@@ -73,7 +74,7 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
     [ObservableProperty]
     private bool isActionInProgress;
 
-    public ChatViewModel(IAIService aiService, IChatRepository chatRepository, IBibleLookupService bibleLookupService, IReflectionRepository reflectionRepository, IPrayerRepository prayerRepository, IDialogService dialogService, IContentModerationService moderationService, IUserService userService, ICharacterVoiceService voiceService, IConfiguration configuration, CharacterIntelligenceService? intelligenceService = null, PersonalizedPromptService? personalizedPromptService = null, IUserQuestionCollector? questionCollector = null)
+    public ChatViewModel(IAIService aiService, IChatRepository chatRepository, IBibleLookupService bibleLookupService, IReflectionRepository reflectionRepository, IPrayerRepository prayerRepository, IDialogService dialogService, IContentModerationService moderationService, IUserService userService, ICharacterVoiceService voiceService, IConfiguration configuration, IConversationQuotaService quotaService, CharacterIntelligenceService? intelligenceService = null, PersonalizedPromptService? personalizedPromptService = null, IUserQuestionCollector? questionCollector = null)
     {
         _aiService = aiService;
         _chatRepository = chatRepository;
@@ -87,6 +88,7 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
         _intelligenceService = intelligenceService;
         _personalizedPromptService = personalizedPromptService;
         _questionCollector = questionCollector;
+        _quotaService = quotaService;
         _enableContextualReferences = configuration["Features:ContextualReferences"]?.ToLower() == "true";
     }
 
@@ -243,6 +245,30 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
 
         try
         {
+            // Check conversation quota before proceeding
+            var currentUserId = _userService.CurrentUser?.Id ?? "default";
+            if (!await _quotaService.CanSendMessageAsync(currentUserId))
+            {
+                System.Diagnostics.Debug.WriteLine("[DEBUG] Quota exceeded - showing upgrade dialog");
+                var quotaInfo = await _quotaService.GetDailyQuotaAsync(currentUserId);
+                
+                var result = await _dialogService.ShowConfirmAsync(
+                    "Daily Limit Reached",
+                    $"You've reached your daily limit of {quotaInfo.MessagesLimit} conversations.\n\n" +
+                    $"Upgrade to Premium for unlimited conversations, advanced AI models, and more!\n\n" +
+                    $"Quota resets at: {quotaInfo.ResetTime:hh:mm tt}",
+                    "Upgrade to Premium",
+                    "Maybe Later");
+                
+                if (result)
+                {
+                    // Navigate to subscription page
+                    await Shell.Current.GoToAsync("//SubscriptionPage");
+                }
+                
+                return;
+            }
+            
             // Content moderation check (if enabled for user)
             var shouldModerate = _userService.CurrentUser?.Settings.EnableContentModeration ?? true;
             if (shouldModerate)
@@ -275,6 +301,10 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
             Messages.Add(chatMessage);
             _currentSession?.Messages.Add(chatMessage);
             System.Diagnostics.Debug.WriteLine($"[DEBUG] Added user message: {userMsg}");
+            
+            // Record message sent for quota tracking
+            await _quotaService.RecordMessageSentAsync(currentUserId);
+            System.Diagnostics.Debug.WriteLine("[DEBUG] Recorded message for quota tracking");
             
             // Collect user question for training data (with consent check)
             if (_questionCollector != null && _userService.CurrentUser != null)
@@ -414,13 +444,13 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
             // Record this interaction to build user memory (in background)
             if (_personalizedPromptService != null && Character != null && !string.IsNullOrEmpty(aiMessage.Content))
             {
-                var currentUserId = _userService.CurrentUser?.Id ?? "default";
+                var userId = _userService.CurrentUser?.Id ?? "default";
                 _ = Task.Run(async () =>
                 {
                     try
                     {
                         await _personalizedPromptService.RecordInteractionAsync(
-                            currentUserId, 
+                            userId, 
                             Character.Id, 
                             userMsg, 
                             aiMessage.Content);

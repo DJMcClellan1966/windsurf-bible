@@ -24,6 +24,7 @@ public partial class AppShell : Shell
 		Routing.RegisterRoute("bookmarks", typeof(BookmarksPage));
 		Routing.RegisterRoute("customcharacters", typeof(CustomCharacterPage));
 		Routing.RegisterRoute("readingplan", typeof(ReadingPlanPage));
+		Routing.RegisterRoute("SubscriptionPage", typeof(SubscriptionPage));
 		
 		// New UI Enhancement Routes
 		Routing.RegisterRoute("BibleReader", typeof(BibleReaderPage));

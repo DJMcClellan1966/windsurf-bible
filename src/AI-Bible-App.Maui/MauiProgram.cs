@@ -214,6 +214,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<BookmarksViewModel>();
 		builder.Services.AddTransient<CustomCharacterViewModel>();
 		builder.Services.AddTransient<ReadingPlanViewModel>();
+		builder.Services.AddTransient<SubscriptionViewModel>();
 
 		// Register Pages
 		builder.Services.AddTransient<UserSelectionPage>();
@@ -235,6 +236,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<CustomCharacterPage>();
 		builder.Services.AddTransient<ReadingPlanPage>();
 		builder.Services.AddTransient<AdminPage>();
+		builder.Services.AddTransient<SubscriptionPage>();
 		
 		// New UI Enhancement Pages and ViewModels
 		builder.Services.AddSingleton<IAccessibilityService, AccessibilityService>();
