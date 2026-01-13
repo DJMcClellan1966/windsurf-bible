@@ -16,6 +16,13 @@
     <!-- These are stable, tested, and ready for users                       -->
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     
+    <!-- Hidden login/user selection page (not in flyout) -->
+    <ShellContent
+        Title="Welcome"
+        ContentTemplate="{DataTemplate views:UserSelectionPage}"
+        Route="userselection"
+        FlyoutItemIsVisible="False" />
+    
     <FlyoutItem Title="Characters" Icon="{OnPlatform Default='👤'}">
         <ShellContent
             Title="Characters"

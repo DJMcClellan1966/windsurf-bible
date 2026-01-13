@@ -76,6 +76,8 @@ public class StripePaymentService : IPaymentService
             }
 
             // Create checkout session
+            // Use Stripe's hosted success/cancel pages since we're a desktop app
+            // The user will see a success message and can return to the app manually
             var options = new SessionCreateOptions
             {
                 Customer = customerId,
@@ -88,8 +90,9 @@ public class StripePaymentService : IPaymentService
                         Quantity = 1
                     }
                 },
-                SuccessUrl = "aibible://subscription/success?session_id={CHECKOUT_SESSION_ID}",
-                CancelUrl = "aibible://subscription/canceled",
+                // Use simple redirect URLs - Stripe requires https for hosted checkout
+                SuccessUrl = "https://checkout.stripe.com/success",
+                CancelUrl = "https://checkout.stripe.com/cancel",
                 Metadata = new Dictionary<string, string>
                 {
                     ["userId"] = userId,
@@ -304,10 +307,15 @@ public class StripePaymentService : IPaymentService
             return user.Subscription.StripeCustomerId;
         }
 
+        // Use a placeholder email if not provided (Stripe requires valid email format)
+        var customerEmail = string.IsNullOrWhiteSpace(email) 
+            ? $"{userId}@aibible.local" 
+            : email;
+
         // Create new customer
         var options = new CustomerCreateOptions
         {
-            Email = email,
+            Email = customerEmail,
             Name = name,
             Metadata = new Dictionary<string, string>
             {

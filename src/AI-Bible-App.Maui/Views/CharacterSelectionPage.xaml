@@ -177,40 +177,41 @@
         </Grid>
 
         <!-- List View (Alternative, hidden by default) -->
-        <ScrollView Grid.Row="2" x:Name="ListContainer" IsVisible="False">
-            <CollectionView ItemsSource="{Binding Characters}"
-                            SelectionMode="Single"
-                            SelectionChanged="OnCharacterSelected">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:BiblicalCharacter">
-                        <Frame Margin="5,5" Padding="15" 
-                               BackgroundColor="{StaticResource HallowCardBackground}"
-                               BorderColor="Transparent"
-                               CornerRadius="15">
-                            <HorizontalStackLayout Spacing="15">
-                                <Frame WidthRequest="50" HeightRequest="50" 
-                                       CornerRadius="25" Padding="0"
-                                       BackgroundColor="{StaticResource HallowAccentPurple}">
-                                    <Label Text="{Binding Emoji}" 
-                                           FontSize="24" 
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center"/>
-                                </Frame>
-                                <VerticalStackLayout VerticalOptions="Center" Spacing="4">
-                                    <Label Text="{Binding Name}"
-                                           TextColor="{StaticResource HallowTextPrimary}"
-                                           FontSize="18"
-                                           FontAttributes="Bold"/>
-                                    <Label Text="{Binding Title}"
-                                           TextColor="{StaticResource HallowTextSecondary}"
-                                           FontSize="14"/>
-                                </VerticalStackLayout>
-                            </HorizontalStackLayout>
-                        </Frame>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-        </ScrollView>
+        <!-- CollectionView has built-in scrolling, no ScrollView wrapper needed -->
+        <CollectionView Grid.Row="2" x:Name="ListContainer" IsVisible="False"
+                        ItemsSource="{Binding Characters}"
+                        SelectionMode="Single"
+                        SelectionChanged="OnCharacterSelected"
+                        VerticalOptions="Fill">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:BiblicalCharacter">
+                    <Frame Margin="5,5" Padding="15" 
+                           BackgroundColor="{StaticResource HallowCardBackground}"
+                           BorderColor="Transparent"
+                           CornerRadius="15">
+                        <HorizontalStackLayout Spacing="15">
+                            <Frame WidthRequest="50" HeightRequest="50" 
+                                   CornerRadius="25" Padding="0"
+                                   BackgroundColor="{StaticResource HallowAccentPurple}">
+                                <Label Text="{Binding Emoji}" 
+                                       FontSize="24" 
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"/>
+                            </Frame>
+                            <VerticalStackLayout VerticalOptions="Center" Spacing="4">
+                                <Label Text="{Binding Name}"
+                                       TextColor="{StaticResource HallowTextPrimary}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"/>
+                                <Label Text="{Binding Title}"
+                                       TextColor="{StaticResource HallowTextSecondary}"
+                                       FontSize="14"/>
+                            </VerticalStackLayout>
+                        </HorizontalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
         <!-- Bottom Action Buttons -->
         <Grid Grid.Row="3" ColumnDefinitions="*,*,*" ColumnSpacing="12" Margin="0,15,0,10">

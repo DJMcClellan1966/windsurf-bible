@@ -306,14 +306,10 @@ Remember: You are having a CONVERSATION, not giving a prepared speech. Listen to
 
             _logger.LogDebug("Sending chat request to Ollama with {MessageCount} messages", messages.Count);
 
-            var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIBibleApp", "ollama-debug.log");
-            File.AppendAllText(logPath, $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Starting chat request with model: {_modelName}, messages: {messages.Count}\n");
-
             var responseText = string.Empty;
             
             try
             {
-                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Calling GetClient().ChatAsync()...\n");
                 await foreach (var response in GetClient().ChatAsync(request, cancellationToken))
                 {
                     if (response?.Message?.Content != null)
@@ -321,21 +317,14 @@ Remember: You are having a CONVERSATION, not giving a prepared speech. Listen to
                         responseText += response.Message.Content;
                     }
                 }
-                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Chat completed successfully. Response length: {responseText.Length}\n");
             }
             catch (HttpRequestException httpEx)
             {
-                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] HttpRequestException: {httpEx.Message}\n");
                 _logger.LogError(httpEx, "HTTP connection error to Ollama at {Url}", _ollamaUrl);
                 throw new InvalidOperationException($"Cannot connect to Ollama at {_ollamaUrl}. Ensure Ollama is running with: ollama serve", httpEx);
             }
             catch (Exception ex)
             {
-                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Exception: {ex.GetType().Name} - {ex.Message}\n");
-                if (ex.InnerException != null)
-                {
-                    File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Inner: {ex.InnerException.GetType().Name} - {ex.InnerException.Message}\n");
-                }
                 _logger.LogError(ex, "Error during Ollama chat streaming");
                 throw;
             }
@@ -427,24 +416,14 @@ Remember: You are having a CONVERSATION, not giving a prepared speech. Listen to
 
         _logger.LogDebug("Streaming chat response with {MessageCount} messages", messages.Count);
 
-        var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIBibleApp", "ollama-debug.log");
-        File.AppendAllText(logPath, $"\n[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] StreamChatResponseAsync starting. Model: {_modelName}, Messages: {messages.Count}\n");
-
         IAsyncEnumerable<ChatResponseStream?> responseStream;
         string? initError = null;
         try
         {
-            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] About to call GetClient().ChatAsync()...\n");
             responseStream = GetClient().ChatAsync(request, cancellationToken);
-            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] GetClient().ChatAsync() succeeded, got response stream\n");
         }
         catch (Exception ex)
         {
-            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] EXCEPTION in GetClient().ChatAsync(): {ex.GetType().Name} - {ex.Message}\n");
-            if (ex.InnerException != null)
-            {
-                File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Inner Exception: {ex.InnerException.GetType().Name} - {ex.InnerException.Message}\n");
-            }
             _logger.LogError(ex, "Failed to start chat stream");
             initError = ex.Message;
             responseStream = null!;
@@ -452,22 +431,17 @@ Remember: You are having a CONVERSATION, not giving a prepared speech. Listen to
 
         if (initError != null)
         {
-            File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Returning error to caller: {initError}\n");
             yield return $"__ERROR__:{initError}";
             yield break;
         }
 
-        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] About to iterate through response stream...\n");
-        var tokenCount = 0;
         await foreach (var response in responseStream)
         {
-            tokenCount++;
             if (response?.Message?.Content != null)
             {
                 yield return response.Message.Content;
             }
         }
-        File.AppendAllText(logPath, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] Streaming completed successfully. Total tokens: {tokenCount}\n");
     }
 
     public async Task<string> GeneratePrayerAsync(string topic, CancellationToken cancellationToken = default)
