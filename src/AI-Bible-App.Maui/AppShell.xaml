@@ -16,11 +16,32 @@
     <!-- These are stable, tested, and ready for users                       -->
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     
-    <!-- Hallow-style Login Page (first screen users see) -->
+    <!-- Landing Page (first screen users see) -->
     <ShellContent
         Title="Welcome"
         ContentTemplate="{DataTemplate views:HallowLoginPage}"
         Route="login"
+        FlyoutItemIsVisible="False" />
+    
+    <!-- Onboarding Flow (new users) -->
+    <ShellContent
+        Title="Personalize"
+        ContentTemplate="{DataTemplate views:OnboardingPage}"
+        Route="onboarding"
+        FlyoutItemIsVisible="False" />
+    
+    <!-- Account Creation (after onboarding) -->
+    <ShellContent
+        Title="Create Account"
+        ContentTemplate="{DataTemplate views:AccountCreationPage}"
+        Route="accountcreation"
+        FlyoutItemIsVisible="False" />
+    
+    <!-- Existing User Login -->
+    <ShellContent
+        Title="Sign In"
+        ContentTemplate="{DataTemplate views:ExistingLoginPage}"
+        Route="existinglogin"
         FlyoutItemIsVisible="False" />
     
     <!-- Email Sign In Page (hidden from flyout) -->

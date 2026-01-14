@@ -156,6 +156,7 @@ After making test payments:
 
 ---
 
+
 ## Next Steps After Setup
 
 Once you have your keys in `appsettings.json`:
@@ -169,6 +170,79 @@ Once you have your keys in `appsettings.json`:
 6. ✅ Create `SubscriptionPage.xaml` UI
 7. ✅ Modify `ChatViewModel.cs` for quota enforcement
 8. ✅ Register services in DI container
+
+### 🗄️ Database/Backend Setup (Required for Email Signup)
+
+**Note:** If you want users to create accounts with email/password, or support multi-device sync, you must add a backend database and authentication service. Local JSON storage is only suitable for single-device, test accounts.
+
+
+**Steps:**
+1. Design database schema for users, sessions, subscriptions, and chat history
+2. Choose a backend (e.g., ASP.NET Core, Azure, Supabase, Firebase, etc.)
+3. Implement REST API endpoints for signup, login, and user management
+4. Integrate authentication:
+  - Email/password
+  - Google Sign-In (OAuth)
+  - Apple Sign-In (OAuth)
+  - (See below for Google/Apple setup)
+5. Update app to call backend for account creation and login
+6. Store Stripe customer/subscription IDs in the database
+
+---
+
+### Google Authentication Setup
+1. Go to Google Cloud Console: https://console.cloud.google.com/
+2. Create a new project (or select existing)
+3. Enable "OAuth 2.0 Client IDs" in APIs & Services → Credentials
+4. "GoogleAuth": {
+  "ClientId": "[REDACTED_GOOGLE_CLIENT_ID]",
+  "ClientSecret": "[REDACTED_GOOGLE_CLIENT_SECRET]",
+  "RedirectUri": "https://voicesofscripture.com  "Firebase": {
+    "ApiKey": "[REDACTED_FIREBASE_API_KEY]",
+    "AuthDomain": "your-app.firebaseapp.com",
+    "ProjectId": "your-app",
+    "StorageBucket": "your-app.appspot.com",
+    "MessagingSenderId": "1234567890",
+    "AppId": "1:1234567890:web:abcdef"
+  }  "Firebase": {
+    "ApiKey": "[REDACTED_FIREBASE_API_KEY]",
+    "AuthDomain": "voices-of-scripture-71109.firebaseapp.com",
+    "ProjectId": "voices-of-scripture-71109",
+    "StorageBucket": "voices-of-scripture-71109.firebasestorage.app",
+    "MessagingSenderId": "419623769192",
+    "AppId": "1:419623769192:web:cfc0694b89de6ef184d7dd",
+    "MeasurementId": "G-HZP75QWP4J"
+  }  "Firebase": {
+    "ApiKey": "[REDACTED_FIREBASE_API_KEY]",
+    "AuthDomain": "voices-of-scripture-71109.firebaseapp.com",
+    "ProjectId": "voices-of-scripture-71109",
+    "StorageBucket": "voices-of-scripture-71109.firebasestorage.app",
+    "MessagingSenderId": "419623769192",
+    "AppId": "1:419623769192:web:cfc0694b89de6ef184d7dd",
+    "MeasurementId": "G-HZP75QWP4J"
+  }/api/auth/google/callback"
+} (e.g., `https://yourdomain.com/api/auth/google/callback`)
+5. Download client ID and secret
+6. Add to your backend's configuration
+7. Implement Google OAuth flow in your backend and app
+8. Test sign-in and account linking
+
+### Apple Authentication Setup
+1. Go to Apple Developer Portal: https://developer.apple.com/account/resources/identifiers/list
+2. Register your app's Bundle ID
+3. Enable "Sign In with Apple" capability
+4. Create a Services ID and configure redirect URI (e.g., `https://yourdomain.com/api/auth/apple/callback`)
+5. Generate and download the private key
+6. Add Apple client ID, team ID, and key to your backend's configuration
+7. Implement Apple OAuth flow in your backend and app
+8. Test sign-in and account linking
+
+---
+
+**Common Error:**
+> "Signup failed: no user is currently logged in"
+
+This error occurs because the app is trying to create an account without a backend to store user credentials. Add a backend/database to enable real account creation.
 
 ### 🧪 Part 3: Testing (NEXT)
 

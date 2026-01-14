@@ -18,6 +18,9 @@ public partial class AppShell : Shell
 
 		// Core production routes
 		Routing.RegisterRoute("login", typeof(HallowLoginPage));
+		Routing.RegisterRoute("onboarding", typeof(OnboardingPage));
+		Routing.RegisterRoute("accountcreation", typeof(AccountCreationPage));
+		Routing.RegisterRoute("existinglogin", typeof(ExistingLoginPage));
 		Routing.RegisterRoute("emailsignin", typeof(EmailSignInPage));
 		Routing.RegisterRoute("chat", typeof(ChatPage));
 		Routing.RegisterRoute("modernchat", typeof(ModernChatPage));

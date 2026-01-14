@@ -97,7 +97,7 @@ public static class MauiProgram
 		// User management and content moderation
 		builder.Services.AddSingleton<IUserRepository, JsonUserRepository>();
 		builder.Services.AddSingleton<IUserService, UserService>();
-		builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
+		builder.Services.AddSingleton<IAuthenticationService, FirebaseAuthenticationService>();
 		builder.Services.AddSingleton<IContentModerationService, ContentModerationService>();
 		
 		// Training data collection services
@@ -133,6 +133,20 @@ public static class MauiProgram
 		
 		// Character Memory Service - remembers what characters learn about users
 		builder.Services.AddSingleton<ICharacterMemoryService, CharacterMemoryService>();
+		
+		// Onboarding Profile Service - applies user preferences to personalize experience
+		builder.Services.AddSingleton(sp => new OnboardingProfileService(
+			sp.GetRequiredService<ILogger<OnboardingProfileService>>(),
+			key => Preferences.Get(key, string.Empty),
+			(key, value) => Preferences.Set(key, value)
+		));
+		
+		// User Progression Service - tracks spiritual growth and adapts AI complexity
+		builder.Services.AddSingleton(sp => new UserProgressionService(
+			sp.GetRequiredService<ILogger<UserProgressionService>>(),
+			key => Preferences.Get(key, string.Empty),
+			(key, value) => Preferences.Set(key, value)
+		));
 		
 		// Personalized Prompt Service - enhances character prompts with user context
 		builder.Services.AddSingleton<PersonalizedPromptService>();
@@ -198,6 +212,9 @@ public static class MauiProgram
 
 		// Register ViewModels
 		builder.Services.AddTransient<HallowLoginViewModel>();
+		builder.Services.AddTransient<OnboardingViewModel>();
+		builder.Services.AddTransient<AccountCreationViewModel>();
+		builder.Services.AddTransient<ExistingLoginViewModel>();
 		builder.Services.AddTransient<EmailSignInViewModel>();
 		builder.Services.AddTransient<UserSelectionViewModel>();
 		builder.Services.AddTransient<CharacterSelectionViewModel>();
@@ -222,6 +239,9 @@ public static class MauiProgram
 
 		// Register Pages
 		builder.Services.AddTransient<HallowLoginPage>();
+		builder.Services.AddTransient<OnboardingPage>();
+		builder.Services.AddTransient<AccountCreationPage>();
+		builder.Services.AddTransient<ExistingLoginPage>();
 		builder.Services.AddTransient<EmailSignInPage>();
 		builder.Services.AddTransient<UserSelectionPage>();
 		builder.Services.AddTransient<CharacterSelectionPage>();

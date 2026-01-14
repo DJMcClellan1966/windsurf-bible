@@ -144,11 +144,22 @@ public class StringToBoolConverter : IValueConverter
 
 /// <summary>
 /// Converts int to bool (true if > 0, or inverted if parameter is "invert").
+/// Also supports comparing to a specific step number when parameter is a number.
 /// </summary>
 public class IntToBoolConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
+        // Support step-based comparison for onboarding
+        if (parameter != null && int.TryParse(parameter.ToString(), out int stepNumber))
+        {
+            if (value is int currentStep)
+            {
+                return currentStep == stepNumber;
+            }
+            return false;
+        }
+        
         var result = value is int count && count > 0;
         
         if (parameter?.ToString() == "invert")
@@ -286,6 +297,35 @@ public class ShortNameConverter : IValueConverter
             return fullName.Trim();
         }
         return value;
+    }
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+/// <summary>
+/// Converts a progress value (0.0 to 1.0) to a width for progress bars.
+/// Uses the parent container's width as a reference.
+/// </summary>
+public class ProgressToWidthConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (value is double progress)
+        {
+            // Default max width if no parameter specified
+            double maxWidth = 300;
+            
+            if (parameter != null && double.TryParse(parameter.ToString(), out double paramWidth))
+            {
+                maxWidth = paramWidth;
+            }
+            
+            return Math.Max(0, Math.Min(maxWidth, progress * maxWidth));
+        }
+        return 0;
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)

@@ -232,16 +232,11 @@
                     </Border.StrokeShape>
                     <CollectionView ItemsSource="{Binding RecentChats}">
                         <CollectionView.EmptyView>
-                            <VerticalStackLayout Padding="20" Spacing="8">
-                                <Label Text="No conversations yet"
-                                       TextColor="{StaticResource HallowTextMuted}"
-                                       FontSize="14"
-                                       HorizontalOptions="Center"/>
-                                <Label Text="Start a chat with a biblical character!"
-                                       TextColor="{StaticResource HallowTextMuted}"
-                                       FontSize="12"
-                                       HorizontalOptions="Center"/>
-                            </VerticalStackLayout>
+                            <Label Text="No conversations yet"
+                                   TextColor="{StaticResource HallowTextMuted}"
+                                   FontSize="13"
+                                   Padding="12,8"
+                                   HorizontalOptions="Center"/>
                         </CollectionView.EmptyView>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:ChatSession">

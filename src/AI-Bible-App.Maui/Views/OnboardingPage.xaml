@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             x:Class="AI_Bible_App.Maui.Views.OnboardingPage"
+             x:DataType="viewmodels:OnboardingViewModel"
+             x:Name="ThisPage"
+             Title="Personalize"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled">
+    
+    <Grid>
+        <!-- Background gradient -->
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#1A0A2E" Offset="0.0"/>
+                <GradientStop Color="#2D1B4E" Offset="0.5"/>
+                <GradientStop Color="#1A0A2E" Offset="1.0"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        
+        <Grid RowDefinitions="Auto,*,Auto" Padding="24">
+            
+            <!-- Progress Header -->
+            <VerticalStackLayout Grid.Row="0" Spacing="16" Padding="0,40,0,20">
+                <!-- Progress bar -->
+                <ProgressBar Progress="{Binding Progress}" 
+                             ProgressColor="#8B5CF6"
+                             BackgroundColor="#3D2B5E"
+                             HeightRequest="4"/>
+                
+                <!-- Skip button -->
+                <Button Text="Skip"
+                        Command="{Binding SkipCommand}"
+                        BackgroundColor="Transparent"
+                        TextColor="#A78BFA"
+                        FontSize="14"
+                        HorizontalOptions="End"
+                        Padding="0"
+                        HeightRequest="30"/>
+                
+                <!-- Step title -->
+                <Label Text="{Binding StepTitle}"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       TextColor="White"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+                
+                <Label Text="{Binding StepSubtitle}"
+                       FontSize="16"
+                       TextColor="#A78BFA"
+                       HorizontalOptions="Center"
+                       HorizontalTextAlignment="Center"/>
+            </VerticalStackLayout>
+            
+            <!-- Content Area -->
+            <ScrollView Grid.Row="1" VerticalScrollBarVisibility="Never">
+                <VerticalStackLayout Spacing="16" Padding="0,20">
+                    
+                    <!-- Step 0: Name Input -->
+                    <VerticalStackLayout IsVisible="{Binding CurrentStep, Converter={StaticResource IntToBoolConverter}, ConverterParameter=0}"
+                                         Spacing="20" VerticalOptions="Center">
+                        <Border StrokeShape="RoundRectangle 16"
+                                BackgroundColor="#2D1B4E"
+                                Stroke="#4C1D95"
+                                StrokeThickness="1"
+                                Padding="16">
+                            <Entry Placeholder="Your name (optional)"
+                                   Text="{Binding PreferredName}"
+                                   TextColor="White"
+                                   PlaceholderColor="#6B7280"
+                                   FontSize="18"
+                                   BackgroundColor="Transparent"/>
+                        </Border>
+                        <Label Text="💡 This is optional - you can always change it later"
+                               FontSize="13"
+                               TextColor="#6B7280"
+                               HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                    
+                    <!-- Step 1: Faith Background - Using Buttons -->
+                    <VerticalStackLayout IsVisible="{Binding CurrentStep, Converter={StaticResource IntToBoolConverter}, ConverterParameter=1}"
+                                         Spacing="12">
+                        <Button Text="🙏 Lifelong Christian" Command="{Binding SelectFaith1Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="🔙 Returning to Faith" Command="{Binding SelectFaith2Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="🌱 New Believer" Command="{Binding SelectFaith3Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="🔍 Exploring Christianity" Command="{Binding SelectFaith4Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="✨ Other Faith Background" Command="{Binding SelectFaith5Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="❓ Skeptical / Questioning" Command="{Binding SelectFaith6Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                    </VerticalStackLayout>
+                    
+                    <!-- Step 2: Bible Familiarity - Using Buttons -->
+                    <VerticalStackLayout IsVisible="{Binding CurrentStep, Converter={StaticResource IntToBoolConverter}, ConverterParameter=2}"
+                                         Spacing="12">
+                        <Button Text="📕 Never Read the Bible" Command="{Binding SelectBible1Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="🤔 Curious - Heard Some Stories" Command="{Binding SelectBible2Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="📖 Beginner - Read a Few Passages" Command="{Binding SelectBible3Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="📚 Intermediate - Know Major Stories" Command="{Binding SelectBible4Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="🎓 Advanced - Study Regularly" Command="{Binding SelectBible5Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="📜 Scholar - Deep Knowledge" Command="{Binding SelectBible6Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                    </VerticalStackLayout>
+                    
+                    <!-- Step 3: Goals - Using Buttons (multi-select visual) -->
+                    <VerticalStackLayout IsVisible="{Binding CurrentStep, Converter={StaticResource IntToBoolConverter}, ConverterParameter=3}"
+                                         Spacing="10">
+                        <Label Text="Tap all that apply:" FontSize="14" TextColor="#A78BFA" HorizontalOptions="Center" Margin="0,0,0,8"/>
+                        <FlexLayout Wrap="Wrap" JustifyContent="Center">
+                            <Button Text="📖 Bible Study" Command="{Binding ToggleGoal1Command}" Margin="4"
+                                    BackgroundColor="{Binding Goal1Selected, Converter={StaticResource BoolToColorConverter}}" 
+                                    TextColor="White" FontSize="14" HeightRequest="44" CornerRadius="22" Padding="16,0"/>
+                            <Button Text="☀️ Daily Devotional" Command="{Binding ToggleGoal2Command}" Margin="4"
+                                    BackgroundColor="{Binding Goal2Selected, Converter={StaticResource BoolToColorConverter}}" 
+                                    TextColor="White" FontSize="14" HeightRequest="44" CornerRadius="22" Padding="16,0"/>
+                            <Button Text="🙏 Prayer Support" Command="{Binding ToggleGoal3Command}" Margin="4"
+                                    BackgroundColor="{Binding Goal3Selected, Converter={StaticResource BoolToColorConverter}}" 
+                                    TextColor="White" FontSize="14" HeightRequest="44" CornerRadius="22" Padding="16,0"/>
+                            <Button Text="🧭 Life Guidance" Command="{Binding ToggleGoal4Command}" Margin="4"
+                                    BackgroundColor="{Binding Goal4Selected, Converter={StaticResource BoolToColorConverter}}" 
+                                    TextColor="White" FontSize="14" HeightRequest="44" CornerRadius="22" Padding="16,0"/>
+                            <Button Text="📜 Historical Learning" Command="{Binding ToggleGoal5Command}" Margin="4"
+                                    BackgroundColor="{Binding Goal5Selected, Converter={StaticResource BoolToColorConverter}}" 
+                                    TextColor="White" FontSize="14" HeightRequest="44" CornerRadius="22" Padding="16,0"/>
+                            <Button Text="🌱 Spiritual Growth" Command="{Binding ToggleGoal6Command}" Margin="4"
+                                    BackgroundColor="{Binding Goal6Selected, Converter={StaticResource BoolToColorConverter}}" 
+                                    TextColor="White" FontSize="14" HeightRequest="44" CornerRadius="22" Padding="16,0"/>
+                            <Button Text="👨‍🏫 Teaching Others" Command="{Binding ToggleGoal7Command}" Margin="4"
+                                    BackgroundColor="{Binding Goal7Selected, Converter={StaticResource BoolToColorConverter}}" 
+                                    TextColor="White" FontSize="14" HeightRequest="44" CornerRadius="22" Padding="16,0"/>
+                            <Button Text="💭 Personal Reflection" Command="{Binding ToggleGoal8Command}" Margin="4"
+                                    BackgroundColor="{Binding Goal8Selected, Converter={StaticResource BoolToColorConverter}}" 
+                                    TextColor="White" FontSize="14" HeightRequest="44" CornerRadius="22" Padding="16,0"/>
+                            <Button Text="👨‍👩‍👧 Family Devotion" Command="{Binding ToggleGoal9Command}" Margin="4"
+                                    BackgroundColor="{Binding Goal9Selected, Converter={StaticResource BoolToColorConverter}}" 
+                                    TextColor="White" FontSize="14" HeightRequest="44" CornerRadius="22" Padding="16,0"/>
+                        </FlexLayout>
+                    </VerticalStackLayout>
+                    
+                    <!-- Step 4: Engagement Frequency - Using Buttons -->
+                    <VerticalStackLayout IsVisible="{Binding CurrentStep, Converter={StaticResource IntToBoolConverter}, ConverterParameter=4}"
+                                         Spacing="12">
+                        <Button Text="☀️ Daily - Start each day right" Command="{Binding SelectFreq1Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="📅 Few times a week" Command="{Binding SelectFreq2Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="📆 Weekly" Command="{Binding SelectFreq3Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="⏰ Occasionally" Command="{Binding SelectFreq4Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                        <Button Text="💡 When I need guidance" Command="{Binding SelectFreq5Command}"
+                                BackgroundColor="#2D1B4E" TextColor="White" FontSize="16" HeightRequest="60" CornerRadius="16"/>
+                    </VerticalStackLayout>
+                    
+                </VerticalStackLayout>
+            </ScrollView>
+            
+            <!-- Navigation Buttons -->
+            <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="0,20,0,0">
+                
+                <!-- Back button -->
+                <Button Grid.Column="0"
+                        Text="← Back"
+                        Command="{Binding GoBackCommand}"
+                        IsVisible="{Binding CanGoBack}"
+                        BackgroundColor="Transparent"
+                        TextColor="#A78BFA"
+                        FontSize="16"
+                        WidthRequest="100"/>
+                
+                <!-- Next/Continue button -->
+                <Button Grid.Column="1"
+                        Text="{Binding NextButtonText}"
+                        Command="{Binding GoNextCommand}"
+                        IsEnabled="{Binding IsNotBusy}"
+                        TextColor="White"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        HeightRequest="56"
+                        CornerRadius="28">
+                    <Button.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#7C3AED" Offset="0.0"/>
+                            <GradientStop Color="#8B5CF6" Offset="1.0"/>
+                        </LinearGradientBrush>
+                    </Button.Background>
+                </Button>
+            </Grid>
+            
+            <!-- Loading overlay -->
+            <Grid Grid.RowSpan="3" IsVisible="{Binding IsBusy}"
+                  BackgroundColor="#80000000">
+                <ActivityIndicator IsRunning="True" Color="#A78BFA"
+                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Grid>
+            
+            <!-- Error message -->
+            <Border Grid.Row="2" 
+                    IsVisible="{Binding HasError}"
+                    BackgroundColor="#7F1D1D"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="16"
+                    Margin="0,0,0,80">
+                <Label Text="{Binding ErrorMessage}"
+                       TextColor="#FCA5A5"
+                       FontSize="14"
+                       HorizontalTextAlignment="Center"/>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

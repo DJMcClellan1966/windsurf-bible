@@ -6,7 +6,8 @@
              x:DataType="viewmodels:HallowLoginViewModel"
              Title="Welcome"
              Shell.NavBarIsVisible="False"
-             Shell.TabBarIsVisible="False">
+             Shell.TabBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled">
     
     <!-- Hallow-inspired dark gradient background -->
     <Grid>
@@ -22,16 +23,16 @@
         <BoxView Color="#FFFFFF" Opacity="0.02" />
         
         <ScrollView>
-            <Grid RowDefinitions="Auto,*,Auto" Padding="32,60,32,40">
+            <Grid RowDefinitions="*,Auto,Auto" Padding="32,60,32,40" MinimumHeightRequest="600">
                 
                 <!-- ═══════════════════════════════════════════════════════════ -->
                 <!-- HEADER - Logo and Welcome Text                               -->
                 <!-- ═══════════════════════════════════════════════════════════ -->
-                <VerticalStackLayout Grid.Row="0" Spacing="16" Padding="0,0,0,40">
+                <VerticalStackLayout Grid.Row="0" Spacing="20" VerticalOptions="Center">
                     
                     <!-- Animated glow effect behind icon -->
-                    <Border WidthRequest="100" HeightRequest="100"
-                            StrokeShape="RoundRectangle 50"
+                    <Border WidthRequest="120" HeightRequest="120"
+                            StrokeShape="RoundRectangle 60"
                             StrokeThickness="0"
                             HorizontalOptions="Center">
                         <Border.Background>
@@ -41,102 +42,79 @@
                             </RadialGradientBrush>
                         </Border.Background>
                         <Label Text="✝️" 
-                               FontSize="48" 
+                               FontSize="56" 
                                HorizontalOptions="Center"
                                VerticalOptions="Center"/>
                     </Border>
                     
                     <!-- App Name -->
                     <Label Text="Voices of Scripture" 
-                           FontSize="32" 
+                           FontSize="36" 
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
                            TextColor="White"/>
                     
                     <!-- Tagline -->
                     <Label Text="Walk with biblical figures through&#x0a;AI-powered conversations" 
-                           FontSize="16" 
+                           FontSize="18" 
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
                            TextColor="#A78BFA"
                            LineHeight="1.4"/>
+                    
+                    <!-- Features highlight -->
+                    <VerticalStackLayout Spacing="12" Margin="0,30,0,0">
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                            <Label Text="📖" FontSize="20"/>
+                            <Label Text="Chat with Moses, Paul, Mary &amp; more"
+                                   FontSize="14" TextColor="#D8B4FE"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                            <Label Text="🙏" FontSize="20"/>
+                            <Label Text="Generate personalized prayers"
+                                   FontSize="14" TextColor="#D8B4FE"/>
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                            <Label Text="💡" FontSize="20"/>
+                            <Label Text="Daily devotionals &amp; reflections"
+                                   FontSize="14" TextColor="#D8B4FE"/>
+                        </HorizontalStackLayout>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
                 
                 <!-- ═══════════════════════════════════════════════════════════ -->
-                <!-- SIGN IN BUTTONS                                              -->
+                <!-- MAIN ACTION BUTTONS                                          -->
                 <!-- ═══════════════════════════════════════════════════════════ -->
-                <VerticalStackLayout Grid.Row="1" Spacing="16" VerticalOptions="Center">
+                <VerticalStackLayout Grid.Row="1" Spacing="16" Padding="0,40,0,0">
                     
-                    <!-- Continue with Google -->
-                    <Button Text="Continue with Google"
-                            Command="{Binding SignInWithGoogleCommand}"
+                    <!-- Try For Free - Primary CTA -->
+                    <Button Text="Try for Free"
+                            Command="{Binding TryForFreeCommand}"
                             IsEnabled="{Binding IsNotBusy}"
-                            BackgroundColor="White"
-                            TextColor="#1F2937"
-                            FontSize="16"
-                            FontAttributes="Bold"
-                            HeightRequest="56"
-                            CornerRadius="28"
-                            Padding="24,0">
-                        <Button.ImageSource>
-                            <FontImageSource Glyph="G" 
-                                             FontFamily="Arial" 
-                                             Color="#4285F4"
-                                             Size="20"/>
-                        </Button.ImageSource>
-                    </Button>
-                    
-                    <!-- Continue with Apple (iOS/Mac only indicator) -->
-                    <Button Text="Continue with Apple"
-                            Command="{Binding SignInWithAppleCommand}"
-                            IsEnabled="{Binding IsNotBusy}"
-                            BackgroundColor="White"
-                            TextColor="#1F2937"
-                            FontSize="16"
-                            FontAttributes="Bold"
-                            HeightRequest="56"
-                            CornerRadius="28"
-                            Padding="24,0">
-                        <Button.ImageSource>
-                            <FontImageSource Glyph="" 
-                                             FontFamily="Arial" 
-                                             Color="#000000"
-                                             Size="20"/>
-                        </Button.ImageSource>
-                    </Button>
-                    
-                    <!-- Divider -->
-                    <Grid ColumnDefinitions="*,Auto,*" Padding="0,8">
-                        <BoxView Grid.Column="0" HeightRequest="1" 
-                                 Color="#4C1D95" VerticalOptions="Center"/>
-                        <Label Grid.Column="1" Text="or" 
-                               TextColor="#7C3AED" 
-                               FontSize="14"
-                               Margin="16,0"/>
-                        <BoxView Grid.Column="2" HeightRequest="1" 
-                                 Color="#4C1D95" VerticalOptions="Center"/>
-                    </Grid>
-                    
-                    <!-- Continue with Email -->
-                    <Button Text="Continue with Email"
-                            Command="{Binding ShowEmailSignInCommand}"
-                            IsEnabled="{Binding IsNotBusy}"
-                            BackgroundColor="#7C3AED"
                             TextColor="White"
-                            FontSize="16"
+                            FontSize="18"
                             FontAttributes="Bold"
-                            HeightRequest="56"
-                            CornerRadius="28"/>
+                            HeightRequest="60"
+                            CornerRadius="30">
+                        <Button.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#7C3AED" Offset="0.0"/>
+                                <GradientStop Color="#A78BFA" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Button.Background>
+                    </Button>
                     
-                    <!-- Skip / Continue as Guest -->
-                    <Button Text="Continue as Guest"
-                            Command="{Binding ContinueAsGuestCommand}"
+                    <!-- Log In - Secondary CTA -->
+                    <Button Text="I already have an account"
+                            Command="{Binding ShowLoginCommand}"
                             IsEnabled="{Binding IsNotBusy}"
                             BackgroundColor="Transparent"
                             TextColor="#A78BFA"
-                            FontSize="14"
-                            HeightRequest="44"
-                            Margin="0,8,0,0"/>
+                            FontSize="16"
+                            HeightRequest="50"
+                            BorderColor="#4C1D95"
+                            BorderWidth="1"
+                            CornerRadius="25"/>
                     
                     <!-- Loading indicator -->
                     <ActivityIndicator IsRunning="{Binding IsBusy}"
@@ -146,18 +124,22 @@
                                        HorizontalOptions="Center"/>
                     
                     <!-- Error message -->
-                    <Label Text="{Binding ErrorMessage}"
-                           IsVisible="{Binding HasError}"
-                           TextColor="#F87171"
-                           FontSize="14"
-                           HorizontalOptions="Center"
-                           HorizontalTextAlignment="Center"/>
+                    <Border IsVisible="{Binding HasError}"
+                            BackgroundColor="#7F1D1D"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            Padding="16">
+                        <Label Text="{Binding ErrorMessage}"
+                               TextColor="#FCA5A5"
+                               FontSize="14"
+                               HorizontalTextAlignment="Center"/>
+                    </Border>
                 </VerticalStackLayout>
                 
                 <!-- ═══════════════════════════════════════════════════════════ -->
                 <!-- FOOTER - Terms and Privacy                                   -->
                 <!-- ═══════════════════════════════════════════════════════════ -->
-                <VerticalStackLayout Grid.Row="2" Spacing="8" Padding="0,20,0,0">
+                <VerticalStackLayout Grid.Row="2" Spacing="8" Padding="0,30,0,0">
                     <Label HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
                            FontSize="12"

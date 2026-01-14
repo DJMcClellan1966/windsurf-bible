@@ -11,14 +11,20 @@ namespace AI_Bible_App.Core.Services;
 public class PersonalizedPromptService
 {
     private readonly ICharacterMemoryService _memoryService;
+    private readonly OnboardingProfileService? _profileService;
+    private readonly UserProgressionService? _progressionService;
     private readonly ILogger<PersonalizedPromptService> _logger;
 
     public PersonalizedPromptService(
         ICharacterMemoryService memoryService,
-        ILogger<PersonalizedPromptService> logger)
+        ILogger<PersonalizedPromptService> logger,
+        OnboardingProfileService? profileService = null,
+        UserProgressionService? progressionService = null)
     {
         _memoryService = memoryService;
         _logger = logger;
+        _profileService = profileService;
+        _progressionService = progressionService;
     }
 
     /// <summary>
@@ -30,13 +36,33 @@ public class PersonalizedPromptService
     {
         try
         {
-            var contextSummary = await _memoryService.GetContextForPromptAsync(userId, baseCharacter.Id);
+            // Get onboarding profile context (initial faith background, Bible familiarity, goals)
+            var profileContext = _profileService?.GenerateAIContext() ?? string.Empty;
             
-            if (string.IsNullOrEmpty(contextSummary) || contextSummary.Contains("first conversation"))
+            // Get progression context (how the user has grown over time)
+            var progressionContext = _progressionService?.GenerateProgressionContext(userId) ?? string.Empty;
+            
+            // Get conversation memory context (what the character knows about this user)
+            var memoryContext = await _memoryService.GetContextForPromptAsync(userId, baseCharacter.Id);
+            
+            // Combine all contexts
+            var hasProfileContext = !string.IsNullOrEmpty(profileContext);
+            var hasProgressionContext = !string.IsNullOrEmpty(progressionContext);
+            var hasMemoryContext = !string.IsNullOrEmpty(memoryContext) && !memoryContext.Contains("first conversation");
+            
+            if (!hasProfileContext && !hasProgressionContext && !hasMemoryContext)
             {
-                _logger.LogDebug("No user context found for user {UserId}, character {CharacterId}", userId, baseCharacter.Id);
+                _logger.LogDebug("No personalization context for user {UserId}, character {CharacterId}", userId, baseCharacter.Id);
                 return baseCharacter;
             }
+
+            var combinedContext = string.Empty;
+            if (hasProfileContext)
+                combinedContext += profileContext + "\n";
+            if (hasProgressionContext)
+                combinedContext += progressionContext + "\n";
+            if (hasMemoryContext)
+                combinedContext += memoryContext;
 
             // Create a personalized copy of the character
             var personalizedCharacter = new BiblicalCharacter
@@ -53,7 +79,7 @@ public class PersonalizedPromptService
                 Relationships = baseCharacter.Relationships,
                 PrayerStyle = baseCharacter.PrayerStyle,
                 Attributes = baseCharacter.Attributes,
-                SystemPrompt = EnhanceSystemPrompt(baseCharacter.SystemPrompt, contextSummary)
+                SystemPrompt = EnhanceSystemPrompt(baseCharacter.SystemPrompt, combinedContext)
             };
 
             _logger.LogDebug("Created personalized character prompt for user {UserId}, character {CharacterId}", userId, baseCharacter.Id);

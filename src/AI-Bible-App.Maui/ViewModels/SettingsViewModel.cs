@@ -16,6 +16,7 @@ public partial class SettingsViewModel : BaseViewModel
     private readonly ICloudSyncService _cloudSyncService;
     private readonly IFontScaleService? _fontScaleService;
     private readonly AI_Bible_App.Core.Interfaces.INotificationService? _notificationService;
+    private readonly IAuthenticationService _authService;
 
     [ObservableProperty]
     private int totalSessions;
@@ -92,6 +93,7 @@ public partial class SettingsViewModel : BaseViewModel
         IUserService userService, 
         INavigationService navigationService,
         ICloudSyncService cloudSyncService,
+        IAuthenticationService authService,
         IFontScaleService? fontScaleService = null,
         AI_Bible_App.Core.Interfaces.INotificationService? notificationService = null)
     {
@@ -100,6 +102,7 @@ public partial class SettingsViewModel : BaseViewModel
         _userService = userService;
         _navigationService = navigationService;
         _cloudSyncService = cloudSyncService;
+        _authService = authService;
         _fontScaleService = fontScaleService;
         _notificationService = notificationService;
         Title = "Settings";
@@ -449,6 +452,31 @@ public partial class SettingsViewModel : BaseViewModel
     private async Task SwitchUserAsync()
     {
         await Shell.Current.GoToAsync("//userselection");
+    }
+
+    [RelayCommand]
+    private async Task SignOutAsync()
+    {
+        var confirm = await _dialogService.ShowConfirmAsync(
+            "Sign Out",
+            "Are you sure you want to sign out? You'll need to sign in again to access your data.");
+        
+        if (confirm)
+        {
+            try
+            {
+                // Clear all saved preferences related to the session
+                Preferences.Remove("stay_logged_in");
+                Preferences.Remove("onboarding_profile");
+                
+                await _authService.SignOutAsync();
+                await Shell.Current.GoToAsync("//login");
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowAlertAsync("Error", $"Failed to sign out: {ex.Message}");
+            }
+        }
     }
 
     public async Task InitializeAsync()

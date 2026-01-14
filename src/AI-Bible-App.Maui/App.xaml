@@ -88,6 +88,7 @@
             <converters:BoolToStarConverter x:Key="BoolToStarConverter"/>
             <converters:StringToBoolConverter x:Key="StringToBoolConverter"/>
             <converters:IntToBoolConverter x:Key="IntToBoolConverter"/>
+            <converters:ProgressToWidthConverter x:Key="ProgressToWidthConverter"/>
             <converters:BoolToMicIconConverter x:Key="BoolToMicIconConverter"/>
             <converters:BoolToMicColorConverter x:Key="BoolToMicColorConverter"/>
             <converters:BoolToPlaceholderConverter x:Key="BoolToPlaceholderConverter"/>

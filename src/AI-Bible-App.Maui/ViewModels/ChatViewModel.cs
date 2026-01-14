@@ -28,6 +28,7 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
     private readonly ICharacterVoiceService _voiceService;
     private readonly CharacterIntelligenceService? _intelligenceService;
     private readonly PersonalizedPromptService? _personalizedPromptService;
+    private readonly UserProgressionService? _progressionService;
     private readonly IUserQuestionCollector? _questionCollector;
     private readonly IConversationQuotaService _quotaService;
     private readonly bool _enableContextualReferences;
@@ -74,7 +75,7 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
     [ObservableProperty]
     private bool isActionInProgress;
 
-    public ChatViewModel(IAIService aiService, IChatRepository chatRepository, IBibleLookupService bibleLookupService, IReflectionRepository reflectionRepository, IPrayerRepository prayerRepository, IDialogService dialogService, IContentModerationService moderationService, IUserService userService, ICharacterVoiceService voiceService, IConfiguration configuration, IConversationQuotaService quotaService, CharacterIntelligenceService? intelligenceService = null, PersonalizedPromptService? personalizedPromptService = null, IUserQuestionCollector? questionCollector = null)
+    public ChatViewModel(IAIService aiService, IChatRepository chatRepository, IBibleLookupService bibleLookupService, IReflectionRepository reflectionRepository, IPrayerRepository prayerRepository, IDialogService dialogService, IContentModerationService moderationService, IUserService userService, ICharacterVoiceService voiceService, IConfiguration configuration, IConversationQuotaService quotaService, CharacterIntelligenceService? intelligenceService = null, PersonalizedPromptService? personalizedPromptService = null, IUserQuestionCollector? questionCollector = null, UserProgressionService? progressionService = null)
     {
         _aiService = aiService;
         _chatRepository = chatRepository;
@@ -87,6 +88,7 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
         _voiceService = voiceService;
         _intelligenceService = intelligenceService;
         _personalizedPromptService = personalizedPromptService;
+        _progressionService = progressionService;
         _questionCollector = questionCollector;
         _quotaService = quotaService;
         _enableContextualReferences = configuration["Features:ContextualReferences"]?.ToLower() == "true";
@@ -465,6 +467,28 @@ public partial class ChatViewModel : BaseViewModel, IDisposable
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"[DEBUG] Error recording interaction: {ex.Message}");
+                    }
+                });
+            }
+            
+            // Track user progression (analyzes message for growth signals)
+            if (_progressionService != null && !string.IsNullOrEmpty(aiMessage.Content))
+            {
+                var userId = _userService.CurrentUser?.Id ?? "default";
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _progressionService.RecordConversationAsync(
+                            userId, 
+                            userMsg, 
+                            aiMessage.Content,
+                            Character?.Id);
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Recorded conversation for user progression tracking");
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Error tracking progression: {ex.Message}");
                     }
                 });
             }

@@ -20,8 +20,8 @@ public class BoolToColorConverter : IValueConverter
             }
         }
         
-        // Default: purple for active, transparent for inactive (Hallow style)
-        return boolValue ? Color.FromArgb("#7C3AED") : Colors.Transparent;
+        // Default: purple for selected, darker purple for unselected (Hallow style)
+        return boolValue ? Color.FromArgb("#7C3AED") : Color.FromArgb("#2D1B4E");
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
