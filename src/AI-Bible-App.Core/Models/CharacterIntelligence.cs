@@ -45,6 +45,7 @@ public class CharacterIntelligence
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime LastUpdatedAt { get; set; } = DateTime.UtcNow;
     public int Version { get; set; } = 1;
+    public DateTime? LastProfileRebuildAt { get; set; }
 }
 
 /// <summary>

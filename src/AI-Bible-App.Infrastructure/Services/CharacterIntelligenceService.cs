@@ -136,6 +136,23 @@ public class CharacterIntelligenceService
         _logger?.LogDebug(
             "Recorded {Type} interaction for {Character}. Total memories: {Count}",
             type, character.Name, intelligence.Memories.Count);
+
+        if (ShouldRebuildProfile(intelligence))
+        {
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await RebuildProfileAsync(character);
+                    intelligence.LastProfileRebuildAt = DateTime.UtcNow;
+                    await SaveIntelligenceAsync(intelligence);
+                }
+                catch (Exception ex)
+                {
+                    _logger?.LogWarning(ex, "Profile rebuild failed for {Character}", character.Name);
+                }
+            });
+        }
     }
 
     /// <summary>
@@ -281,6 +298,7 @@ public class CharacterIntelligenceService
         ExtractSignaturePhrases(intelligence);
 
         intelligence.LastUpdatedAt = DateTime.UtcNow;
+        intelligence.LastProfileRebuildAt = DateTime.UtcNow;
         await SaveIntelligenceAsync(intelligence);
     }
 
@@ -689,6 +707,20 @@ public class CharacterIntelligenceService
         var storyWords = new[] { "once", "when I", "there was", "I remember", "in those days" };
         style.StorytellingTendency = responses.Count(r => 
             storyWords.Any(sw => r.ToLower().Contains(sw))) / (double)responses.Count;
+    }
+
+    private bool ShouldRebuildProfile(CharacterIntelligence intelligence)
+    {
+        if (intelligence.Memories.Count < 5)
+            return false;
+
+        if (intelligence.Memories.Count % 5 != 0)
+            return false;
+
+        if (intelligence.LastProfileRebuildAt == null)
+            return true;
+
+        return (DateTime.UtcNow - intelligence.LastProfileRebuildAt.Value).TotalHours >= 6;
     }
 
     private double CalculateWordRatio(List<string> texts, string[] positiveWords, string[] negativeWords)
