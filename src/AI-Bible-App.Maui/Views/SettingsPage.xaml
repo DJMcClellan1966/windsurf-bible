@@ -938,6 +938,14 @@
                             CornerRadius="25"
                             HeightRequest="50"
                             IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"/>
+
+                    <Button Text="Export Preference Pairs (DPO)"
+                            Command="{Binding ExportPreferencePairsCommand}"
+                            BackgroundColor="{StaticResource HallowCardHover}"
+                            TextColor="{StaticResource HallowTextPrimary}"
+                            CornerRadius="25"
+                            HeightRequest="50"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"/>
                     
                     <Label Text="Tip: Export positive ratings for training good responses, or all ratings for DPO training."
                            FontSize="11"

@@ -327,6 +327,39 @@ public partial class SettingsViewModel : BaseViewModel
         }
     }
 
+    [RelayCommand]
+    private async Task ExportPreferencePairsAsync()
+    {
+        try
+        {
+            IsBusy = true;
+
+            if (PositiveRatings == 0 || NegativeRatings == 0)
+            {
+                await _dialogService.ShowAlertAsync(
+                    "No Data",
+                    "Need both 👍 and 👎 ratings on similar prompts to export preference pairs.");
+                return;
+            }
+
+            var filePath = await _exporter.ExportPreferencePairsToJsonlAsync();
+
+            await _dialogService.ShowAlertAsync(
+                "Export Complete",
+                $"Exported preference pairs to:\n{filePath}");
+
+            await ShareFileAsync(filePath);
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowAlertAsync("Export Failed", ex.Message);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
     private void UpdateSyncStatus()
     {
         var user = _userService.CurrentUser;

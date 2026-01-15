@@ -13,6 +13,7 @@ public interface IMultiCharacterChatService
     Task<List<ChatMessage>> GetRoundtableResponsesAsync(
         List<BiblicalCharacter> characters,
         List<ChatMessage> conversationHistory,
+        string? userId,
         string userMessage,
         bool enableDevilsAdvocate = false,
         string advocateTone = "soft",
@@ -87,6 +88,12 @@ public class DiscussionSettings
     /// Whether to seek consensus
     /// </summary>
     public bool SeekConsensus { get; set; } = true;
+
+    public bool UseRoundtableDirector { get; set; } = true;
+
+    public bool StudyMode { get; set; } = false;
+
+    public bool RequireCitations { get; set; } = false;
 
     /// <summary>
     /// Whether to prompt user for input during discussion

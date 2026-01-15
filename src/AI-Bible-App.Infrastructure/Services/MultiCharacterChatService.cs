@@ -1,5 +1,7 @@
 using AI_Bible_App.Core.Interfaces;
 using AI_Bible_App.Core.Models;
+using AI_Bible_App.Core.Services;
+using System.Text.Json;
 
 namespace AI_Bible_App.Infrastructure.Services;
 
@@ -13,6 +15,7 @@ public class MultiCharacterChatService : IMultiCharacterChatService
     private readonly IAIService _aiService;
     private readonly ICharacterRepository _characterRepository;
     private readonly CharacterIntelligenceService? _intelligenceService;
+    private readonly PersonalizedPromptService? _personalizedPromptService;
     
     // Track the current question (updated when user asks something new)
     private string _currentQuestion = "";
@@ -44,16 +47,19 @@ public class MultiCharacterChatService : IMultiCharacterChatService
     public MultiCharacterChatService(
         IAIService aiService,
         ICharacterRepository characterRepository,
-        CharacterIntelligenceService? intelligenceService = null)
+        CharacterIntelligenceService? intelligenceService = null,
+        PersonalizedPromptService? personalizedPromptService = null)
     {
         _aiService = aiService;
         _characterRepository = characterRepository;
         _intelligenceService = intelligenceService;
+        _personalizedPromptService = personalizedPromptService;
     }
 
     public async Task<List<ChatMessage>> GetRoundtableResponsesAsync(
         List<BiblicalCharacter> characters,
         List<ChatMessage> conversationHistory,
+        string? userId,
         string userMessage,
         bool enableDevilsAdvocate = false,
         string advocateTone = "soft",
@@ -85,22 +91,28 @@ public class MultiCharacterChatService : IMultiCharacterChatService
         {
             try
             {
+                var characterForAI = character;
+                if (!string.IsNullOrWhiteSpace(userId) && _personalizedPromptService != null)
+                {
+                    characterForAI = await _personalizedPromptService.GetPersonalizedCharacterAsync(character, userId);
+                }
+
                 // Build a prompt; if this character is acting as devil's advocate, add instruction
                 var prompt = userMessage;
                 var isAdvocate = enableDevilsAdvocate && (character.IsContrarian || character.Id == forcedDevilId);
                 if (isAdvocate)
                 {
                     // Use character's system prompt as base and instruct contrarian stance
-                    var briefProfile = !string.IsNullOrEmpty(character.SystemPrompt)
-                        ? character.SystemPrompt
-                        : character.Description;
+                    var briefProfile = !string.IsNullOrEmpty(characterForAI.SystemPrompt)
+                        ? characterForAI.SystemPrompt
+                        : characterForAI.Description;
                     prompt = $"[Devil's Advocate - Tone: {advocateTone}] Using the voice and background: {briefProfile}. " +
                              "Take a reasoned opposing view to the user's point. Raise 2 objections and ask 2 probing questions. Stay in-character and avoid inflammatory language. " +
                              $"Topic: {userMessage}";
                 }
 
                 var response = await _aiService.GetChatResponseAsync(
-                    character,
+                    characterForAI,
                     updatedHistory,
                     prompt,
                     cancellationToken);
@@ -116,6 +128,11 @@ public class MultiCharacterChatService : IMultiCharacterChatService
 
                 responses.Add(assistantMsg);
                 updatedHistory.Add(assistantMsg);
+
+                if (!string.IsNullOrWhiteSpace(userId) && _personalizedPromptService != null)
+                {
+                    await _personalizedPromptService.RecordInteractionAsync(userId, character.Id, userMessage, response);
+                }
             }
             catch (Exception ex)
             {
@@ -321,6 +338,9 @@ public class MultiCharacterChatService : IMultiCharacterChatService
     private int _currentTurnCount;
     private string? _discussionTopic;
 
+    private const string DirectorCharacterId = "director";
+    private const string DirectorCharacterName = "Roundtable Director";
+
     public async IAsyncEnumerable<DiscussionUpdate> StartDynamicDiscussionAsync(
         List<BiblicalCharacter> characters,
         List<ChatMessage> conversationHistory,
@@ -412,7 +432,9 @@ public class MultiCharacterChatService : IMultiCharacterChatService
             }
 
             // Pick next speaker based on conversation flow
-            var (nextSpeaker, responseType) = DetermineNextSpeaker(characters, _discussionHistory);
+            var (nextSpeaker, responseType) = settings.UseRoundtableDirector
+                ? await DetermineNextSpeakerWithDirectorAsync(characters, _discussionHistory, cancellationToken)
+                : DetermineNextSpeaker(characters, _discussionHistory);
             
             if (nextSpeaker == null)
             {
@@ -446,6 +468,30 @@ public class MultiCharacterChatService : IMultiCharacterChatService
                 Type = DiscussionUpdateType.CharacterResponse,
                 Message = discussionResponse
             };
+
+            // Director can periodically summarize (as a normal assistant message)
+            if (settings.UseRoundtableDirector && _currentTurnCount > 0 && _currentTurnCount % 4 == 0)
+            {
+                var summary = await BuildDirectorSummaryAsync(characters, _discussionHistory, cancellationToken);
+                if (!string.IsNullOrWhiteSpace(summary))
+                {
+                    var directorMsg = new ChatMessage
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Role = "assistant",
+                        Content = summary,
+                        Timestamp = DateTime.UtcNow,
+                        CharacterId = DirectorCharacterId,
+                        CharacterName = DirectorCharacterName
+                    };
+                    _discussionHistory.Add(directorMsg);
+                    yield return new DiscussionUpdate
+                    {
+                        Type = DiscussionUpdateType.CharacterResponse,
+                        Message = directorMsg
+                    };
+                }
+            }
 
             // Check for natural conclusion
             if (IsDiscussionConcluding(discussionResponse.Content))
@@ -495,6 +541,8 @@ public class MultiCharacterChatService : IMultiCharacterChatService
         var participantContext = string.Join("\n", otherParticipants.Select(p => 
             $"- {p.Name}: {p.Title} - known for {p.Description?.Split('.').FirstOrDefault() ?? "their faith"}"));
 
+        var studyDirective = BuildStudyModeDirective();
+
         return $@"You are {speaker.Name}, speaking in a roundtable discussion with these biblical figures:
 {participantContext}
 
@@ -510,7 +558,8 @@ IMPORTANT INSTRUCTIONS:
 
 Your response should reveal deep faith AND invite genuine theological debate. End with a thought-provoking question directed at a specific participant.
 
-Keep response to 2-3 focused paragraphs.";
+Keep response to 2-3 focused paragraphs.
+{studyDirective}";
     }
 
     /// <summary>
@@ -754,6 +803,8 @@ CRITICAL: You MUST say something COMPLETELY NEW. Options:
 DO NOT: Summarize, repeat yourself, or restate your previous points.";
         }
 
+        var studyDirective = BuildStudyModeDirective();
+
         // Simple, clear prompt structure
         return $@"You are {speaker.Name}, {speaker.Title}.
 
@@ -773,7 +824,147 @@ RULES:
 3. {(isContinuation ? "MUST say something you haven't said before" : "Share your unique perspective")}
 4. {(otherRecentResponses.Any() ? "ENGAGE with what others said - agree, disagree, or build on it" : "Open with your perspective")}
 
+{studyDirective}
+
 {speaker.Name}'s response:";
+    }
+
+    private string BuildStudyModeDirective()
+    {
+        if (_discussionSettings == null)
+            return string.Empty;
+
+        if (!_discussionSettings.StudyMode && !_discussionSettings.RequireCitations)
+            return string.Empty;
+
+        var requireCitations = _discussionSettings.RequireCitations ? "YES" : "NO";
+        return $@"
+
+STUDY MODE: ENABLED
+REQUIRE CITATIONS: {requireCitations}
+
+OUTPUT FORMAT (STRICT):
+Claim: <one sentence>
+Verses: <list like 'John 3:16; Genesis 1:1' or 'None'>
+Connection: <one sentence connecting claim to verses>
+Confidence: <low|medium|high>
+
+RULES:
+- If REQUIRE CITATIONS is YES, do not assert claims without at least one verse reference.
+- If you're unsure, lower Confidence and say 'Verses: None'.";
+    }
+
+    private async Task<(BiblicalCharacter? Speaker, string ResponseType)> DetermineNextSpeakerWithDirectorAsync(
+        List<BiblicalCharacter> characters,
+        List<ChatMessage> history,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var lastUser = history.LastOrDefault(m => m.Role == "user")?.Content ?? _currentQuestion;
+            var recent = history.Where(m => m.Role == "assistant").TakeLast(8).ToList();
+            var recentText = string.Join("\n\n", recent.Select(m =>
+            {
+                var name = characters.FirstOrDefault(c => c.Id == m.CharacterId)?.Name ?? m.CharacterName ?? "Someone";
+                return $"{name}: {m.Content}";
+            }));
+
+            var director = new BiblicalCharacter
+            {
+                Id = DirectorCharacterId,
+                Name = DirectorCharacterName,
+                Title = "Moderator",
+                Description = "A neutral moderator who keeps the debate structured and productive",
+                Era = "Timeless",
+                SystemPrompt = "You are a strict debate moderator. Output ONLY valid JSON."
+            };
+
+            var prompt = $@"You are moderating a roundtable with these participants: {string.Join(", ", characters.Select(c => c.Name))}.
+
+Current question: \"{lastUser}\"
+
+Recent statements:
+{recentText}
+
+Choose the next speaker and a short directive for how they should respond.
+
+Respond ONLY with JSON like:
+{{\"speaker_id\":\"david\",\"response_type\":\"Challenge Peter's claim about...\"}}
+
+Rules:
+- speaker_id MUST be one of: {string.Join(", ", characters.Select(c => c.Id))}
+- response_type must be <= 200 characters.";
+
+            var response = await _aiService.GetChatResponseAsync(director, new List<ChatMessage>(), prompt, cancellationToken);
+            if (string.IsNullOrWhiteSpace(response))
+                return DetermineNextSpeaker(characters, history);
+
+            var jsonStart = response.IndexOf('{');
+            var jsonEnd = response.LastIndexOf('}');
+            if (jsonStart < 0 || jsonEnd <= jsonStart)
+                return DetermineNextSpeaker(characters, history);
+
+            var json = response.Substring(jsonStart, jsonEnd - jsonStart + 1);
+            using var doc = JsonDocument.Parse(json);
+            var speakerId = doc.RootElement.GetProperty("speaker_id").GetString();
+            var responseType = doc.RootElement.GetProperty("response_type").GetString();
+
+            var speaker = characters.FirstOrDefault(c => c.Id == speakerId) ?? characters.FirstOrDefault();
+            return (speaker, string.IsNullOrWhiteSpace(responseType) ? "Respond thoughtfully." : responseType!);
+        }
+        catch
+        {
+            return DetermineNextSpeaker(characters, history);
+        }
+    }
+
+    private async Task<string> BuildDirectorSummaryAsync(
+        List<BiblicalCharacter> characters,
+        List<ChatMessage> history,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var lastUser = history.LastOrDefault(m => m.Role == "user")?.Content ?? _currentQuestion;
+            var recent = history.Where(m => m.Role == "assistant").TakeLast(10).ToList();
+            var recentText = string.Join("\n\n", recent.Select(m =>
+            {
+                var name = characters.FirstOrDefault(c => c.Id == m.CharacterId)?.Name ?? m.CharacterName ?? "Someone";
+                return $"{name}: {m.Content}";
+            }));
+
+            var director = new BiblicalCharacter
+            {
+                Id = DirectorCharacterId,
+                Name = DirectorCharacterName,
+                Title = "Moderator",
+                Description = "A neutral moderator who summarizes and asks the user what to explore next",
+                Era = "Timeless",
+                SystemPrompt = "You are a neutral moderator. Keep summaries concise and structured."
+            };
+
+            var prompt = $@"Summarize the roundtable so far.
+
+Question: \"{lastUser}\"
+
+Recent statements:
+{recentText}
+
+Output 3 short sections:
+Agreements:
+- ...
+Disagreements:
+- ...
+Next question for the user:
+- ...";
+
+            var response = await _aiService.GetChatResponseAsync(director, new List<ChatMessage>(), prompt, cancellationToken);
+            return string.IsNullOrWhiteSpace(response) ? string.Empty : response.Trim();
+        }
+        catch
+        {
+            return string.Empty;
+        }
     }
     
     private IEnumerable<string> ExtractKeyPhrases(string text)

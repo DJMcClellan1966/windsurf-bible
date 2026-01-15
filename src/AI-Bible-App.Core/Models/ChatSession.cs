@@ -62,6 +62,10 @@ public class ChatSession
     public bool DevilsAdvocateEnabled { get; set; } = false;
     public string AdvocateTone { get; set; } = "soft"; // soft, firm, strong
     public List<string> ContrarianCharacterIds { get; set; } = new();
+
+    public bool UseRoundtableDirector { get; set; } = true;
+    public bool StudyMode { get; set; } = false;
+    public bool RequireCitations { get; set; } = false;
 }
 
 /// <summary>

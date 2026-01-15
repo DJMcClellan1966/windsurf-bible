@@ -198,6 +198,30 @@
                                            FontSize="14"
                                            TextColor="{DynamicResource TextColor}"
                                            LineBreakMode="WordWrap"/>
+
+                                    <!-- Rating Buttons (assistant messages only) -->
+                                    <HorizontalStackLayout Spacing="10"
+                                                           IsVisible="{Binding IsAssistant}"
+                                                           HorizontalOptions="End">
+                                        <Button Text="👍"
+                                                FontSize="14"
+                                                WidthRequest="36"
+                                                HeightRequest="32"
+                                                Padding="0"
+                                                BackgroundColor="Transparent"
+                                                Opacity="{Binding Rating, Converter={StaticResource RatingOpacityConverter}, ConverterParameter='1'}"
+                                                Command="{Binding Path=BindingContext.RateMessageCommand, Source={x:Reference Root}}"
+                                                CommandParameter="{Binding ., Converter={StaticResource MessageToRatingTupleConverter}, ConverterParameter='1'}"/>
+                                        <Button Text="👎"
+                                                FontSize="14"
+                                                WidthRequest="36"
+                                                HeightRequest="32"
+                                                Padding="0"
+                                                BackgroundColor="Transparent"
+                                                Opacity="{Binding Rating, Converter={StaticResource RatingOpacityConverter}, ConverterParameter='-1'}"
+                                                Command="{Binding Path=BindingContext.RateMessageCommand, Source={x:Reference Root}}"
+                                                CommandParameter="{Binding ., Converter={StaticResource MessageToRatingTupleConverter}, ConverterParameter='-1'}"/>
+                                    </HorizontalStackLayout>
                                 </VerticalStackLayout>
                             </Border>
                         </DataTemplate>

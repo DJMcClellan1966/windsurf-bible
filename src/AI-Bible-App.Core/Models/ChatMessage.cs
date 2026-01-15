@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 
 namespace AI_Bible_App.Core.Models;
@@ -10,6 +11,8 @@ public class ChatMessage : INotifyPropertyChanged
     private string _content = string.Empty;
     private List<ContextualReference>? _contextualReferences;
     private bool _isReferencesExpanded;
+    private int _rating;
+    private string? _feedback;
     
     public event PropertyChangedEventHandler? PropertyChanged;
     
@@ -41,12 +44,37 @@ public class ChatMessage : INotifyPropertyChanged
     /// User rating for AI responses: -1 (thumbs down), 0 (no rating), 1 (thumbs up)
     /// Used for future model fine-tuning based on user feedback
     /// </summary>
-    public int Rating { get; set; } = 0;
+    public int Rating
+    {
+        get => _rating;
+        set
+        {
+            if (_rating != value)
+            {
+                _rating = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Rating)));
+            }
+        }
+    }
     
     /// <summary>
     /// Optional feedback text from user explaining the rating
     /// </summary>
-    public string? Feedback { get; set; }
+    public string? Feedback
+    {
+        get => _feedback;
+        set
+        {
+            if (_feedback != value)
+            {
+                _feedback = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Feedback)));
+            }
+        }
+    }
+
+    public bool IsAssistant => Role?.Equals("assistant", StringComparison.OrdinalIgnoreCase) == true;
+    public bool IsUser => Role?.Equals("user", StringComparison.OrdinalIgnoreCase) == true;
 
     /// <summary>
     /// Contextual Bible references showing where the character demonstrated knowledge of the topic

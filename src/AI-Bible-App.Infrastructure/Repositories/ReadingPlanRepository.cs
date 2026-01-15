@@ -266,8 +266,61 @@ public class ReadingPlanRepository : IReadingPlanRepository
             CreatePsalmsIn30DaysPlan(),
             CreateGospelsIn60DaysPlan(),
             CreateNewTestamentIn90DaysPlan(),
-            CreateProverbsIn31DaysPlan()
+            CreateProverbsIn31DaysPlan(),
+            CreateRomansDeepDiveGuidedStudyPlan()
         };
+    }
+
+    private ReadingPlan CreateRomansDeepDiveGuidedStudyPlan()
+    {
+        var plan = new ReadingPlan
+        {
+            Id = "guided-romans-deep-dive",
+            Name = "Romans Deep Dive (Guided)",
+            Description = "A guided, intensive study through Romans with Paul as your guide. Includes background, structure, and reflection prompts.",
+            TotalDays = 16,
+            Type = ReadingPlanType.NewTestament,
+            Difficulty = ReadingPlanDifficulty.Intensive,
+            EstimatedMinutesPerDay = 25,
+            IsGuidedStudy = true,
+            GuideCharacterId = "paul",
+            AdditionalGuideCharacterIds = new List<string> { "moses", "david" },
+            DefaultMultiVoiceEnabled = true,
+            Tags = new List<string> { "Guided", "New Testament", "Romans", "Paul", "Intensive" }
+        };
+
+        var chapterTitles = new[]
+        {
+            "The Gospel and God's Righteousness",
+            "Judgment and Impartiality",
+            "All Have Sinned",
+            "Justification by Faith",
+            "Peace, Suffering, and Hope",
+            "Union with Christ",
+            "Struggle with Sin",
+            "Life in the Spirit",
+            "Israel and God's Sovereignty",
+            "Israel's Responsibility",
+            "The Remnant and Mercy",
+            "Living Sacrifices",
+            "Love Fulfills the Law",
+            "Disputable Matters",
+            "Unity and Mission",
+            "Partners and Final Greetings"
+        };
+
+        for (int i = 0; i < 16; i++)
+        {
+            plan.Days.Add(new ReadingPlanDay
+            {
+                DayNumber = i + 1,
+                Title = chapterTitles[i],
+                Passages = new List<string> { $"Romans {i + 1}" },
+                EstimatedMinutes = 25
+            });
+        }
+
+        return plan;
     }
 
     private ReadingPlan CreateBibleIn90DaysPlan()

@@ -12,6 +12,7 @@ public partial class MultiCharacterSelectionViewModel : BaseViewModel
     private readonly ICharacterRepository _characterRepository;
     private readonly IChatRepository _chatRepository;
     private readonly INavigationService _navigationService;
+    private readonly IUserService _userService;
 
     [ObservableProperty]
     private ObservableCollection<SelectableCharacter> _characters = new();
@@ -46,11 +47,13 @@ public partial class MultiCharacterSelectionViewModel : BaseViewModel
     public MultiCharacterSelectionViewModel(
         ICharacterRepository characterRepository,
         IChatRepository chatRepository,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        IUserService userService)
     {
         _characterRepository = characterRepository;
         _chatRepository = chatRepository;
         _navigationService = navigationService;
+        _userService = userService;
         
         Title = "Multi-Character Chat";
         
@@ -197,9 +200,11 @@ public partial class MultiCharacterSelectionViewModel : BaseViewModel
             System.Diagnostics.Debug.WriteLine($"[MULTI] Selected {selectedCharacterIds.Count} characters");
 
             // Create new multi-character chat session
+            var currentUserId = _userService.CurrentUser?.Id ?? "default";
             var session = new ChatSession
             {
                 Id = Guid.NewGuid().ToString(),
+                UserId = currentUserId,
                 ParticipantCharacterIds = selectedCharacterIds,
                 SessionType = SelectedMode,
                 StartedAt = DateTime.UtcNow,

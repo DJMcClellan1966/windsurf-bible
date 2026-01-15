@@ -11,6 +11,14 @@ public class ReadingPlan
     public int TotalDays { get; set; }
     public ReadingPlanType Type { get; set; } = ReadingPlanType.Canonical;
     public ReadingPlanDifficulty Difficulty { get; set; } = ReadingPlanDifficulty.Medium;
+
+    public bool IsGuidedStudy { get; set; }
+
+    public string? GuideCharacterId { get; set; }
+
+    public List<string> AdditionalGuideCharacterIds { get; set; } = new();
+
+    public bool DefaultMultiVoiceEnabled { get; set; } = true;
     
     /// <summary>
     /// Estimated reading time per day in minutes

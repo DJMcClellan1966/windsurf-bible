@@ -92,6 +92,7 @@ public partial class RoundtableChatViewModel : BaseViewModel
     private readonly IMultiCharacterChatService _multiCharacterChatService;
     private readonly ICharacterRepository _characterRepository;
     private readonly IChatRepository _chatRepository;
+    private readonly IDialogService _dialogService;
     private readonly ICrossCharacterLearningService _learningService;
     private readonly IPromptTemplateService? _promptService;
     private readonly IRetrievalService? _retrievalService;
@@ -165,6 +166,7 @@ public partial class RoundtableChatViewModel : BaseViewModel
             IMultiCharacterChatService multiCharacterChatService,
             ICharacterRepository characterRepository,
             IChatRepository chatRepository,
+            IDialogService dialogService,
             ICrossCharacterLearningService learningService,
             IPromptTemplateService? promptService = null,
             IRetrievalService? retrievalService = null,
@@ -175,6 +177,7 @@ public partial class RoundtableChatViewModel : BaseViewModel
             _multiCharacterChatService = multiCharacterChatService;
             _characterRepository = characterRepository;
             _chatRepository = chatRepository;
+            _dialogService = dialogService;
             _learningService = learningService;
             _promptService = promptService;
             _retrievalService = retrievalService;
@@ -244,6 +247,47 @@ public partial class RoundtableChatViewModel : BaseViewModel
             {
                 IsBusy = false;
             }
+        }
+
+        [RelayCommand]
+        private async Task RateMessage((ChatMessage message, int targetRating) args)
+        {
+            var (message, targetRating) = args;
+            if (message == null || message.Role != "assistant") return;
+
+            var newRating = message.Rating == targetRating ? 0 : targetRating;
+            message.Rating = newRating;
+
+            if (newRating != 0)
+            {
+                var provideFeedback = await _dialogService.ShowConfirmAsync(
+                    "Feedback",
+                    "Would you like to explain why?",
+                    "Yes", "No");
+
+                if (provideFeedback)
+                {
+                    var prompt = newRating == 1
+                        ? "What made this response helpful?"
+                        : "How could this response be improved?";
+
+                    var feedback = await _dialogService.ShowPromptAsync(
+                        "Your Feedback",
+                        prompt,
+                        maxLength: 500);
+
+                    if (!string.IsNullOrWhiteSpace(feedback))
+                    {
+                        message.Feedback = feedback;
+                    }
+                }
+            }
+            else
+            {
+                message.Feedback = null;
+            }
+
+            await _chatRepository.SaveSessionAsync(_session);
         }
 
         [RelayCommand]
@@ -481,6 +525,7 @@ public partial class RoundtableChatViewModel : BaseViewModel
                 var responses = await _multiCharacterChatService.GetRoundtableResponsesAsync(
                     Characters.ToList(),
                     conversationHistory,
+                    _session.UserId,
                     userMessage,
                     enableDevilsAdvocate: IsDevilsAdvocateEnabled,
                     advocateTone: AdvocateTone);
