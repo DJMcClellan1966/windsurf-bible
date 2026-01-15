@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Collections.ObjectModel;
 using AI_Bible_App.Core.Interfaces;
 using AI_Bible_App.Core.Models;
@@ -8,21 +7,37 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace AI_Bible_App.Maui.ViewModels;
 
-public partial class GuidedStudyStepGroup : ObservableObject
+public partial class MicroStudyQuestionItemViewModel : ObservableObject
 {
-    public string Title { get; set; } = string.Empty;
-    public ObservableCollection<GuidedStudyStep> Items { get; set; } = new();
+    public MicroStudyQuestionItemViewModel(string question)
+    {
+        Question = question;
+    }
+
+    public string Question { get; }
 
     [ObservableProperty]
-    private bool isExpanded;
+    private string answer = string.Empty;
+
+    [ObservableProperty]
+    private string critiqueFeedback = string.Empty;
+
+    [ObservableProperty]
+    private string critiqueVerses = string.Empty;
+
+    [ObservableProperty]
+    private bool isCritiquing;
+
+    [ObservableProperty]
+    private bool hasCritique;
 }
 
-public partial class GuidedStudyViewModel : BaseViewModel
+public partial class MicroStudyViewModel : BaseViewModel
 {
-    private readonly IGuidedStudyService _guidedStudyService;
-    private readonly IDialogService _dialogService;
+    private readonly IMicroStudyService _microStudyService;
     private readonly IReadingPlanRepository _readingPlanRepository;
     private readonly IUserService _userService;
+    private readonly IDialogService _dialogService;
 
     private string? _progressId;
 
@@ -39,44 +54,36 @@ public partial class GuidedStudyViewModel : BaseViewModel
     private string passagesText = string.Empty;
 
     [ObservableProperty]
-    private bool multiVoiceEnabled;
+    private string excerptReference = string.Empty;
 
     [ObservableProperty]
-    private ObservableCollection<GuidedStudyStepGroup> stepGroups = new();
+    private string excerptText = string.Empty;
+
+    [ObservableProperty]
+    private string claim = string.Empty;
+
+    [ObservableProperty]
+    private bool multiVoiceEnabled;
 
     [ObservableProperty]
     private bool isDayCompleted;
 
-    partial void OnIsDayCompletedChanged(bool value)
-    {
-        OnPropertyChanged(nameof(CanMarkComplete));
-    }
-
-    [ObservableProperty]
-    private string dayNote = string.Empty;
-
     public bool CanMarkComplete => !IsBusy && !IsDayCompleted && !string.IsNullOrWhiteSpace(_progressId) && DayNumber > 0;
 
-    public GuidedStudyViewModel(
-        IGuidedStudyService guidedStudyService,
-        IDialogService dialogService,
+    [ObservableProperty]
+    private ObservableCollection<MicroStudyQuestionItemViewModel> questions = new();
+
+    public MicroStudyViewModel(
+        IMicroStudyService microStudyService,
         IReadingPlanRepository readingPlanRepository,
-        IUserService userService)
+        IUserService userService,
+        IDialogService dialogService)
     {
-        _guidedStudyService = guidedStudyService;
-        _dialogService = dialogService;
+        _microStudyService = microStudyService;
         _readingPlanRepository = readingPlanRepository;
         _userService = userService;
-        Title = "Guided Study";
-    }
-
-    [RelayCommand]
-    private void ToggleGroup(GuidedStudyStepGroup group)
-    {
-        if (group == null)
-            return;
-
-        group.IsExpanded = !group.IsExpanded;
+        _dialogService = dialogService;
+        Title = "Micro-Study";
     }
 
     public async Task InitializeAsync(string planId, int dayNumber, bool multiVoiceEnabled)
@@ -116,14 +123,12 @@ public partial class GuidedStudyViewModel : BaseViewModel
         {
             _progressId = null;
             IsDayCompleted = false;
-            DayNote = string.Empty;
             OnPropertyChanged(nameof(CanMarkComplete));
             return;
         }
 
         _progressId = progress.Id;
         IsDayCompleted = progress.CompletedDays.Contains(DayNumber);
-        DayNote = progress.DayNotes.TryGetValue(DayNumber, out var note) ? note : string.Empty;
         OnPropertyChanged(nameof(CanMarkComplete));
     }
 
@@ -136,44 +141,62 @@ public partial class GuidedStudyViewModel : BaseViewModel
         try
         {
             IsBusy = true;
-            StepGroups.Clear();
+            Questions.Clear();
 
             await LoadProgressStateAsync();
 
-            var session = await _guidedStudyService.BuildSessionAsync(PlanId, DayNumber, MultiVoiceEnabled);
-
+            var session = await _microStudyService.BuildSessionAsync(PlanId, DayNumber, MultiVoiceEnabled);
             DayTitle = session.DayTitle;
             PassagesText = string.Join(", ", session.Passages);
+            ExcerptReference = session.ExcerptReference;
+            ExcerptText = session.ExcerptText;
+            Claim = session.Claim;
 
-            var groups = session.Steps
-                .GroupBy(s => s.Type == GuidedStudyStepType.Passage ? "Passage" : (s.CharacterName ?? "Guide"))
-                .ToList();
-
-            foreach (var g in groups)
-            {
-                var group = new GuidedStudyStepGroup
-                {
-                    Title = g.Key,
-                    IsExpanded = string.Equals(g.Key, "Passage", StringComparison.OrdinalIgnoreCase)
-                };
-
-                foreach (var step in g)
-                    group.Items.Add(step);
-
-                StepGroups.Add(group);
-            }
+            foreach (var q in session.Questions)
+                Questions.Add(new MicroStudyQuestionItemViewModel(q.Question));
 
             OnPropertyChanged(nameof(CanMarkComplete));
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[GuidedStudy] Load error: {ex.Message}");
-            await _dialogService.ShowAlertAsync("Error", "Failed to load guided study.", "OK");
+            System.Diagnostics.Debug.WriteLine($"[MicroStudy] Load error: {ex.Message}");
+            await _dialogService.ShowAlertAsync("Error", "Failed to load micro-study.", "OK");
         }
         finally
         {
             IsBusy = false;
             OnPropertyChanged(nameof(CanMarkComplete));
+        }
+    }
+
+    [RelayCommand]
+    private async Task CritiqueAnswerAsync(MicroStudyQuestionItemViewModel? item)
+    {
+        if (item == null)
+            return;
+
+        if (string.IsNullOrWhiteSpace(item.Answer))
+        {
+            await _dialogService.ShowAlertAsync("Answer needed", "Write a short answer first, then tap Critique.", "OK");
+            return;
+        }
+
+        try
+        {
+            item.IsCritiquing = true;
+            var critique = await _microStudyService.CritiqueAnswerAsync(PlanId, DayNumber, item.Question, item.Answer, MultiVoiceEnabled);
+            item.CritiqueFeedback = critique.Feedback;
+            item.CritiqueVerses = critique.VerseReferences.Count > 0 ? string.Join("; ", critique.VerseReferences) : "None";
+            item.HasCritique = true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MicroStudy] Critique error: {ex.Message}");
+            await _dialogService.ShowAlertAsync("Error", "Failed to critique answer.", "OK");
+        }
+        finally
+        {
+            item.IsCritiquing = false;
         }
     }
 
@@ -190,35 +213,15 @@ public partial class GuidedStudyViewModel : BaseViewModel
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[GuidedStudy] Mark complete error: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"[MicroStudy] Mark complete error: {ex.Message}");
             await _dialogService.ShowAlertAsync("Error", "Failed to mark day complete.", "OK");
         }
     }
 
     [RelayCommand]
-    private async Task EditNoteAsync()
+    private async Task GoDeeperAsync()
     {
-        if (string.IsNullOrWhiteSpace(_progressId))
-            return;
-
-        var note = await _dialogService.ShowPromptAsync(
-            "Day Note",
-            "Write a note for today:",
-            initialValue: DayNote);
-
-        if (note == null)
-            return;
-
-        try
-        {
-            await _readingPlanRepository.SaveDayNoteAsync(_progressId, DayNumber, note);
-            await LoadProgressStateAsync();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[GuidedStudy] Save note error: {ex.Message}");
-            await _dialogService.ShowAlertAsync("Error", "Failed to save note.", "OK");
-        }
+        await Shell.Current.GoToAsync($"GuidedStudy?planId={Uri.EscapeDataString(PlanId)}&dayNumber={DayNumber}&multiVoice={MultiVoiceEnabled}");
     }
 
     [RelayCommand]

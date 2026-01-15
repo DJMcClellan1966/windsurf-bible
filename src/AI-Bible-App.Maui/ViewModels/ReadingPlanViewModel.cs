@@ -14,6 +14,7 @@ public partial class ReadingPlanViewModel : BaseViewModel
 {
     private readonly IReadingPlanRepository _repository;
     private readonly IDialogService _dialogService;
+    private readonly IUserService _userService;
 
     [ObservableProperty]
     private bool isLoading;
@@ -33,10 +34,11 @@ public partial class ReadingPlanViewModel : BaseViewModel
     [ObservableProperty]
     private ObservableCollection<CompletedPlanViewModel> completedProgress = new();
 
-    public ReadingPlanViewModel(IReadingPlanRepository repository, IDialogService dialogService)
+    public ReadingPlanViewModel(IReadingPlanRepository repository, IDialogService dialogService, IUserService userService)
     {
         _repository = repository;
         _dialogService = dialogService;
+        _userService = userService;
         Title = "Reading Plans";
     }
 
@@ -71,6 +73,10 @@ public partial class ReadingPlanViewModel : BaseViewModel
 
     public bool CanGoPrevious => ActiveProgress != null && ActiveProgress.CurrentDay > 1;
     public bool CanGoNext => ActiveProgress != null && ActiveProgress.CurrentDay < ActiveProgress.TotalDays;
+
+    public string OpenPassageButtonText => ActivePlan != null && ActivePlan.IsGuidedStudy
+        ? "📚 Guided Study"
+        : "📖 Read Passage";
 
     public async Task InitializeAsync()
     {
@@ -213,7 +219,9 @@ public partial class ReadingPlanViewModel : BaseViewModel
 
         if (ActivePlan != null && ActiveProgress != null && ActivePlan.IsGuidedStudy)
         {
-            var multiVoice = ActivePlan.DefaultMultiVoiceEnabled;
+            var userId = _userService.CurrentUser?.Id ?? "default";
+            var prefKey = $"guided_multivoice:{userId}:{ActivePlan.Id}";
+            var multiVoice = Preferences.Get(prefKey, ActivePlan.DefaultMultiVoiceEnabled);
             await Shell.Current.GoToAsync($"GuidedStudy?planId={Uri.EscapeDataString(ActivePlan.Id)}&dayNumber={ActiveProgress.CurrentDay}&multiVoice={multiVoice}");
             return;
         }
@@ -221,6 +229,19 @@ public partial class ReadingPlanViewModel : BaseViewModel
         // Navigate to Bible reader with the first passage
         var passage = TodaysReading.Passages.First();
         await Shell.Current.GoToAsync($"BibleReader?reference={Uri.EscapeDataString(passage)}");
+    }
+
+    [RelayCommand]
+    private async Task OpenMicroStudy()
+    {
+        if (ActivePlan == null || ActiveProgress == null)
+            return;
+
+        var userId = _userService.CurrentUser?.Id ?? "default";
+        var prefKey = $"guided_multivoice:{userId}:{ActivePlan.Id}";
+        var multiVoice = Preferences.Get(prefKey, ActivePlan.DefaultMultiVoiceEnabled);
+
+        await Shell.Current.GoToAsync($"MicroStudy?planId={Uri.EscapeDataString(ActivePlan.Id)}&dayNumber={ActiveProgress.CurrentDay}&multiVoice={multiVoice}");
     }
 
     [RelayCommand]
@@ -292,6 +313,7 @@ public partial class ReadingPlanViewModel : BaseViewModel
         OnPropertyChanged(nameof(ProgressText));
         OnPropertyChanged(nameof(StreakText));
         OnPropertyChanged(nameof(TodaysPassagesText));
+        OnPropertyChanged(nameof(OpenPassageButtonText));
         OnPropertyChanged(nameof(HasKeyVerse));
         OnPropertyChanged(nameof(HasReflectionPrompt));
         OnPropertyChanged(nameof(IsTodayCompleted));

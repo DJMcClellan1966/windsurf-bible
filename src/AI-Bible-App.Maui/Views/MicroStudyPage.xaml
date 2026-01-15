@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             x:Class="AI_Bible_App.Maui.Views.MicroStudyPage"
+             x:DataType="vm:MicroStudyViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="15" RowSpacing="12">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="10" BackgroundColor="{DynamicResource CardBackground}">
+            <Button Grid.Column="0"
+                    Text="◀"
+                    Command="{Binding GoBackCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{DynamicResource Primary}"
+                    HeightRequest="40"
+                    WidthRequest="40" />
+
+            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                <Label Text="⚡ Micro-Study"
+                       FontAttributes="Bold"
+                       FontSize="18"
+                       TextColor="{DynamicResource TextColor}" />
+                <Label Text="{Binding PassagesText}"
+                       FontSize="12"
+                       TextColor="{DynamicResource Gray600}" />
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+                <Label Text="Multi-Voice"
+                       FontSize="12"
+                       TextColor="{DynamicResource Gray600}"
+                       VerticalOptions="Center" />
+                <Switch IsToggled="{Binding MultiVoiceEnabled}" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="12">
+
+                <Border Padding="12" BackgroundColor="{DynamicResource CardBackground}" Stroke="{DynamicResource Gray300}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Read (excerpt)"
+                               FontAttributes="Bold"
+                               FontSize="14"
+                               TextColor="{DynamicResource TextColor}" />
+                        <Label Text="{Binding ExcerptReference}"
+                               FontSize="12"
+                               TextColor="{DynamicResource Gray600}" />
+                        <Label Text="{Binding ExcerptText}"
+                               FontSize="13"
+                               TextColor="{DynamicResource TextColor}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Padding="12" BackgroundColor="{DynamicResource CardBackground}" Stroke="{DynamicResource Gray300}">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="12" />
+                    </Border.StrokeShape>
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Understand (one claim)"
+                               FontAttributes="Bold"
+                               FontSize="14"
+                               TextColor="{DynamicResource TextColor}" />
+                        <Label Text="{Binding Claim}"
+                               FontSize="13"
+                               TextColor="{DynamicResource TextColor}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Socratic Questions"
+                       FontAttributes="Bold"
+                       FontSize="14"
+                       TextColor="{DynamicResource TextColor}" />
+
+                <CollectionView ItemsSource="{Binding Questions}" SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:MicroStudyQuestionItemViewModel">
+                            <Border Padding="12" BackgroundColor="{DynamicResource CardBackground}" Stroke="{DynamicResource Gray300}">
+                                <Border.StrokeShape>
+                                    <RoundRectangle CornerRadius="12" />
+                                </Border.StrokeShape>
+                                <VerticalStackLayout Spacing="8">
+                                    <Label Text="{Binding Question}"
+                                           FontAttributes="Bold"
+                                           FontSize="13"
+                                           TextColor="{DynamicResource TextColor}" />
+
+                                    <Editor Text="{Binding Answer}"
+                                            AutoSize="TextChanges"
+                                            Placeholder="Your answer…"
+                                            TextColor="{DynamicResource TextColor}"
+                                            BackgroundColor="{DynamicResource PageBackgroundColor}" />
+
+                                    <Button Text="Critique"
+                                            Command="{Binding BindingContext.CritiqueAnswerCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                            CommandParameter="{Binding .}"
+                                            IsEnabled="{Binding IsCritiquing, Converter={StaticResource InvertedBoolConverter}}"
+                                            BackgroundColor="{DynamicResource Primary}"
+                                            TextColor="White"
+                                            CornerRadius="10" />
+
+                                    <ActivityIndicator IsRunning="{Binding IsCritiquing}"
+                                                       IsVisible="{Binding IsCritiquing}"
+                                                       Color="{DynamicResource Primary}" />
+
+                                    <VerticalStackLayout IsVisible="{Binding HasCritique}" Spacing="4">
+                                        <Label Text="Critique"
+                                               FontAttributes="Bold"
+                                               FontSize="13"
+                                               TextColor="{DynamicResource TextColor}" />
+                                        <Label Text="{Binding CritiqueFeedback}"
+                                               FontSize="13"
+                                               TextColor="{DynamicResource TextColor}" />
+                                        <Label Text="Verses:"
+                                               FontSize="12"
+                                               TextColor="{DynamicResource Gray600}" />
+                                        <Label Text="{Binding CritiqueVerses}"
+                                               FontSize="12"
+                                               TextColor="{DynamicResource Gray600}" />
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <VerticalStackLayout Grid.Row="2" Spacing="10">
+            <Label Text="✓ Completed Today!"
+                   FontSize="14"
+                   FontAttributes="Bold"
+                   IsVisible="{Binding IsDayCompleted}"
+                   TextColor="{DynamicResource Primary}" />
+
+            <HorizontalStackLayout Spacing="10">
+                <Button Text="✅ Done"
+                        Command="{Binding MarkCompleteCommand}"
+                        IsEnabled="{Binding CanMarkComplete}"
+                        BackgroundColor="{DynamicResource Primary}"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Padding="15,10"
+                        HorizontalOptions="FillAndExpand" />
+
+                <Button Text="Go Deeper"
+                        Command="{Binding GoDeeperCommand}"
+                        BackgroundColor="{DynamicResource Gray300}"
+                        TextColor="{DynamicResource TextColor}"
+                        CornerRadius="10"
+                        Padding="15,10"
+                        HorizontalOptions="FillAndExpand" />
+
+                <Button Text="🔄"
+                        Command="{Binding LoadCommand}"
+                        BackgroundColor="{DynamicResource Gray300}"
+                        TextColor="{DynamicResource TextColor}"
+                        CornerRadius="10"
+                        Padding="15,10"
+                        WidthRequest="60" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentPage>

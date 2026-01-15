@@ -134,8 +134,15 @@
                                             CornerRadius="8"
                                             Padding="15,10"/>
                                     
-                                    <Button Text="📖 Read Passage"
+                                    <Button Text="{Binding OpenPassageButtonText}"
                                             Command="{Binding OpenPassageCommand}"
+                                            BackgroundColor="{DynamicResource Gray300}"
+                                            TextColor="{DynamicResource TextColor}"
+                                            CornerRadius="8"
+                                            Padding="15,10"/>
+
+                                    <Button Text="⚡ Micro-Study"
+                                            Command="{Binding OpenMicroStudyCommand}"
                                             BackgroundColor="{DynamicResource Gray300}"
                                             TextColor="{DynamicResource TextColor}"
                                             CornerRadius="8"

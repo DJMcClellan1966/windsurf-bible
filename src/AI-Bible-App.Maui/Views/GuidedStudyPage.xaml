@@ -130,13 +130,40 @@
                                VerticalOptions="Center" />
         </Grid>
 
-        <Button Grid.Row="3"
-                Text="Refresh"
-                Command="{Binding LoadCommand}"
-                BackgroundColor="{DynamicResource Primary}"
-                TextColor="White"
-                CornerRadius="10"
-                HeightRequest="48" />
+        <VerticalStackLayout Grid.Row="3" Spacing="10">
+            <Label Text="✓ Completed Today!"
+                   FontSize="14"
+                   FontAttributes="Bold"
+                   IsVisible="{Binding IsDayCompleted}"
+                   TextColor="{DynamicResource Primary}" />
+
+            <HorizontalStackLayout Spacing="10">
+                <Button Text="✅ Mark Complete"
+                        Command="{Binding MarkCompleteCommand}"
+                        IsEnabled="{Binding CanMarkComplete}"
+                        BackgroundColor="{DynamicResource Primary}"
+                        TextColor="White"
+                        CornerRadius="10"
+                        Padding="15,10"
+                        HorizontalOptions="FillAndExpand" />
+
+                <Button Text="📝 Note"
+                        Command="{Binding EditNoteCommand}"
+                        BackgroundColor="{DynamicResource Gray300}"
+                        TextColor="{DynamicResource TextColor}"
+                        CornerRadius="10"
+                        Padding="15,10"
+                        HorizontalOptions="FillAndExpand" />
+
+                <Button Text="🔄"
+                        Command="{Binding LoadCommand}"
+                        BackgroundColor="{DynamicResource Gray300}"
+                        TextColor="{DynamicResource TextColor}"
+                        CornerRadius="10"
+                        Padding="15,10"
+                        WidthRequest="60" />
+            </HorizontalStackLayout>
+        </VerticalStackLayout>
 
     </Grid>
 </ContentPage>

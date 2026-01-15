@@ -34,6 +34,7 @@ public partial class AppShell : Shell
 		// New UI Enhancement Routes
 		Routing.RegisterRoute("BibleReader", typeof(BibleReaderPage));
 		Routing.RegisterRoute("GuidedStudy", typeof(GuidedStudyPage));
+		Routing.RegisterRoute("MicroStudy", typeof(MicroStudyPage));
 		Routing.RegisterRoute("HistoryDashboard", typeof(HistoryDashboardPage));
 		Routing.RegisterRoute("CreateCharacter", typeof(CustomCharacterPage));
 		
