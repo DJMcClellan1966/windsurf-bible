@@ -881,7 +881,7 @@ RULES:
 
             var prompt = $@"You are moderating a roundtable with these participants: {string.Join(", ", characters.Select(c => c.Name))}.
 
-Current question: \"{lastUser}\"
+Current question: ""{lastUser}""
 
 Recent statements:
 {recentText}
@@ -889,7 +889,7 @@ Recent statements:
 Choose the next speaker and a short directive for how they should respond.
 
 Respond ONLY with JSON like:
-{{\"speaker_id\":\"david\",\"response_type\":\"Challenge Peter's claim about...\"}}
+{{""speaker_id"":""david"",""response_type"":""Challenge Peter's claim about...""}}
 
 Rules:
 - speaker_id MUST be one of: {string.Join(", ", characters.Select(c => c.Id))}
@@ -945,7 +945,7 @@ Rules:
 
             var prompt = $@"Summarize the roundtable so far.
 
-Question: \"{lastUser}\"
+Question: ""{lastUser}""
 
 Recent statements:
 {recentText}
