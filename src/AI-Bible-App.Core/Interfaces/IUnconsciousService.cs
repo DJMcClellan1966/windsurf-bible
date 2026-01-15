@@ -6,6 +6,8 @@ namespace AI_Bible_App.Core.Interfaces
 {
     public interface IUnconsciousService
     {
+        event Action<string>? ConsolidationCompleted;
+
         /// <summary>
         /// Prepare compact context for the given session and user input.
         /// Best-effort: may return null if nothing available or on error.

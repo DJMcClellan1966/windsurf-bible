@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.Maui.Controls;
 
 namespace AI_Bible_App.Maui.Converters;
 
@@ -20,7 +21,7 @@ public class RoleToBackgroundConverter : IValueConverter
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new NotImplementedException();
+        => Binding.DoNothing;
 }
 
 /// <summary>
@@ -40,7 +41,7 @@ public class RoleToAvatarConverter : IValueConverter
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new NotImplementedException();
+        => Binding.DoNothing;
 }
 
 /// <summary>
@@ -60,7 +61,7 @@ public class RoleToAvatarColorConverter : IValueConverter
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new NotImplementedException();
+        => Binding.DoNothing;
 }
 
 /// <summary>
@@ -80,5 +81,5 @@ public class RoleToNameConverter : IValueConverter
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new NotImplementedException();
+        => Binding.DoNothing;
 }

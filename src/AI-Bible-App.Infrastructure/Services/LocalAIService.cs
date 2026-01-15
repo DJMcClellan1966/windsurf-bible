@@ -227,8 +227,10 @@ Remember: You are having a CONVERSATION, not giving a prepared speech. Listen to
                         Content = $"Relevant Scripture passages for context:\n{retrievedContext}\n\nUse these passages to inform your response when appropriate."
                     });
                     
-             
-            
+                    _logger.LogDebug("Added RAG context to chat request");
+                }
+            }
+
             // Knowledge Base: Add historical/cultural context and language insights
             if (_knowledgeBaseService != null)
             {
@@ -275,8 +277,6 @@ Remember: You are having a CONVERSATION, not giving a prepared speech. Listen to
                         
                         _logger.LogDebug("Added {Count} thematic connections", connections.Count);
                     }
-                }
-            }       _logger.LogDebug("Added RAG context to chat request");
                 }
             }
 

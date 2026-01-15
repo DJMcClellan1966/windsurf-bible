@@ -186,6 +186,47 @@ public class KnowledgeBaseService : IKnowledgeBaseService
         
         return connections;
     }
+
+    public async Task AddResearchFindingAsync(ResearchFinding finding)
+    {
+        if (finding == null)
+            return;
+
+        await InitializeAsync();
+
+        var relatedCharacters = new List<string>(finding.RelatedCharacters);
+        if (!string.IsNullOrWhiteSpace(finding.CharacterId) &&
+            !relatedCharacters.Contains(finding.CharacterId, StringComparer.OrdinalIgnoreCase))
+        {
+            relatedCharacters.Add(finding.CharacterId);
+        }
+
+        var context = new HistoricalContext
+        {
+            Title = finding.Title,
+            Period = string.Empty,
+            Category = finding.Type.ToString(),
+            Content = finding.Content,
+            RelatedCharacters = relatedCharacters,
+            Keywords = new List<string>(finding.Keywords),
+            Source = string.Join("; ", finding.Sources),
+            RelevanceWeight = MapConfidenceToWeight(finding.Confidence)
+        };
+
+        var isDuplicate = _historicalContexts.Any(existing =>
+            existing.Title.Equals(context.Title, StringComparison.OrdinalIgnoreCase) &&
+            existing.Content.Equals(context.Content, StringComparison.OrdinalIgnoreCase));
+
+        if (isDuplicate)
+        {
+            _logger.LogInformation("Skipping duplicate research finding: {Title}", finding.Title);
+            return;
+        }
+
+        _historicalContexts.Add(context);
+        await SaveHistoricalContextsAsync();
+        _logger.LogInformation("Integrated research finding into knowledge base: {Title}", finding.Title);
+    }
     
     private List<HistoricalContext> CreateInitialHistoricalData()
     {
@@ -439,6 +480,18 @@ public class KnowledgeBaseService : IKnowledgeBaseService
         var path = Path.Combine(_dataDirectory, "historical_context.json");
         var json = JsonSerializer.Serialize(_historicalContexts, new JsonSerializerOptions { WriteIndented = true });
         await File.WriteAllTextAsync(path, json);
+    }
+
+    private static int MapConfidenceToWeight(ConfidenceLevel confidence)
+    {
+        return confidence switch
+        {
+            ConfidenceLevel.Low => 3,
+            ConfidenceLevel.Medium => 5,
+            ConfidenceLevel.High => 7,
+            ConfidenceLevel.VeryHigh => 9,
+            _ => 5
+        };
     }
     
     private async Task SaveLanguageInsightsAsync()

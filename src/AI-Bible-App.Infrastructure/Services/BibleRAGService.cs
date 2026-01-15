@@ -33,6 +33,7 @@ public class BibleRAGService : IBibleRAGService
     private bool _isInitialized;
     private bool _embeddingsAvailable = true;
     private SearchStatistics _lastSearchStats = new();
+    private readonly int _embeddingParallelism;
     
     // Embedding persistence
     private readonly string _embeddingCachePath;
@@ -62,6 +63,9 @@ public class BibleRAGService : IBibleRAGService
         _ollamaUrl = configuration["Ollama:Url"] ?? "http://localhost:11434";
         _embeddingModel = configuration["Ollama:EmbeddingModel"] ?? "nomic-embed-text";
         _vectorStore = new Dictionary<string, (BibleChunk, ReadOnlyMemory<float>)>();
+        _embeddingParallelism = int.TryParse(configuration["RAG:EmbeddingParallelism"], out var parallelism)
+            ? Math.Max(1, parallelism)
+            : Math.Max(2, Environment.ProcessorCount);
         
         // Set up embedding cache path
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -126,8 +130,10 @@ public class BibleRAGService : IBibleRAGService
                 try
                 {
                     _logger.LogInformation("Generating embeddings for {Count} chunks (this may take a few minutes on first run)...", chunks.Count);
+                    using var semaphore = new SemaphoreSlim(_embeddingParallelism);
                     var embeddingTasks = chunks.Select(async chunk =>
                     {
+                        await semaphore.WaitAsync(cancellationToken);
                         try
                         {
                             var embedding = await _embeddingService.GenerateEmbeddingAsync(chunk.Text, cancellationToken: cancellationToken);
@@ -137,6 +143,10 @@ public class BibleRAGService : IBibleRAGService
                         {
                             _logger.LogError(ex, "Error generating embedding for chunk {ChunkId}", chunk.Id);
                             return (chunk, ReadOnlyMemory<float>.Empty);
+                        }
+                        finally
+                        {
+                            semaphore.Release();
                         }
                     });
 

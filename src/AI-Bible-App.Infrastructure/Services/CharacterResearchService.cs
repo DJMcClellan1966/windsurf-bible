@@ -465,13 +465,7 @@ public class CharacterResearchService : ICharacterResearchService
     {
         try
         {
-            // TODO: Add entry method to IKnowledgeBaseService
-            // For now, just save to findings file - knowledge base integration coming later
-            _logger.LogInformation("Finding {FindingId} ready for knowledge base integration for {Character}",
-                finding.Id, finding.CharacterId);
-            
-            // In production, this would call knowledge base service to add the finding
-            // await _knowledgeBase.AddHistoricalContextAsync(characterId, finding.Content);
+            await _knowledgeBase.AddResearchFindingAsync(finding);
         }
         catch (Exception ex)
         {

@@ -41,7 +41,8 @@ class Program
             serviceProvider.GetRequiredService<ICharacterRepository>(),
             serviceProvider.GetRequiredService<IChatRepository>(),
             serviceProvider.GetRequiredService<IPrayerRepository>(),
-            serviceProvider.GetRequiredService<ILogger<BibleApp>>()
+            serviceProvider.GetRequiredService<ILogger<BibleApp>>(),
+            serviceProvider.GetService<IBibleRAGService>()
         );
 
         await app.RunAsync();

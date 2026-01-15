@@ -199,13 +199,6 @@ public static class MauiProgram
 		// Image Generation Service - AI-generated character portraits and scenes
 		builder.Services.AddSingleton<IImageGenerationService, ImageGenerationService>();
 		
-		// Device capability detection for tiered AI
-		builder.Services.AddSingleton<IDeviceCapabilityService>(sp =>
-		{
-			var logger = sp.GetRequiredService<ILogger<DeviceCapabilityService>>();
-			return new DeviceCapabilityService(logger);
-		});
-		
 		// AI Services - Tiered system with fallback chain
 		// Tier 1: Local Ollama (desktop) / On-device LLamaSharp (capable mobile)
 		// Tier 2: Cloud API (Groq) - best quality when online  

@@ -34,4 +34,9 @@ public interface IKnowledgeBaseService
     /// Initialize/load the knowledge base data
     /// </summary>
     Task InitializeAsync();
+
+    /// <summary>
+    /// Add a research finding to the knowledge base
+    /// </summary>
+    Task AddResearchFindingAsync(ResearchFinding finding);
 }

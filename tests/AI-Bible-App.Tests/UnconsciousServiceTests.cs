@@ -31,7 +31,8 @@ namespace AI_Bible_App.Tests
 
             var signaled = await Task.WhenAny(tcs.Task, Task.Delay(2000));
             Assert.Equal(tcs.Task, signaled);
-            Assert.Equal("s2", tcs.Task.Result);
+            var result = await tcs.Task;
+            Assert.Equal("s2", result);
 
             var results = await longTerm.QueryAsync("Hello");
             Assert.NotEmpty(results);

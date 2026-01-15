@@ -29,16 +29,23 @@ public class NotificationService : INotificationService
             // Cancel any existing daily reminder first
             await CancelNotificationAsync(DailyReminderId);
 
+            var scheduled = false;
+
 #if WINDOWS
             // Windows implementation using ToastNotificationManager
             await ScheduleWindowsNotificationAsync(hour, minute, title, message);
+            scheduled = true;
 #elif ANDROID
             // Android implementation using local notifications
             await ScheduleAndroidNotificationAsync(hour, minute, title, message);
+            scheduled = true;
 #else
             _logger.LogWarning("Notifications not implemented for this platform");
-            return false;
 #endif
+            if (!scheduled)
+            {
+                return false;
+            }
 
             // Save the settings
             var settings = await GetSettingsAsync();
