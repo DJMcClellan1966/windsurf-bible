@@ -3,9 +3,17 @@ using AI_Bible_App.Maui.ViewModels;
 
 namespace AI_Bible_App.Maui.Views;
 
+[QueryProperty(nameof(Reference), "reference")]
 public partial class BibleReaderPage : ContentPage
 {
     private readonly BibleReaderViewModel _viewModel;
+    private string? _reference;
+
+    public string? Reference
+    {
+        get => _reference;
+        set => _reference = value;
+    }
     
     public BibleReaderPage(BibleReaderViewModel viewModel)
     {
@@ -18,6 +26,11 @@ public partial class BibleReaderPage : ContentPage
     {
         base.OnAppearing();
         await _viewModel.InitializeAsync();
+
+        if (!string.IsNullOrWhiteSpace(_reference) && _viewModel.GoToVerseCommand.CanExecute(_reference))
+        {
+            _viewModel.GoToVerseCommand.Execute(_reference);
+        }
     }
     
     private void OnSearchResultSelected(object sender, SelectionChangedEventArgs e)

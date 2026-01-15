@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:AI_Bible_App.Maui.ViewModels"
+             x:Class="AI_Bible_App.Maui.Views.GuidedStudyPage"
+             x:DataType="vm:GuidedStudyViewModel"
+             Title="{Binding Title}"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="15" RowSpacing="12">
+
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto" Padding="10" BackgroundColor="{DynamicResource CardBackground}">
+            <Button Grid.Column="0"
+                    Text="◀"
+                    Command="{Binding GoBackCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="{DynamicResource Primary}"
+                    HeightRequest="40"
+                    WidthRequest="40" />
+
+            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                <Label Text="Guided Study"
+                       FontAttributes="Bold"
+                       FontSize="18"
+                       TextColor="{DynamicResource TextColor}" />
+                <Label Text="{Binding PassagesText}"
+                       FontSize="12"
+                       TextColor="{DynamicResource Gray600}" />
+            </VerticalStackLayout>
+
+            <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+                <Label Text="Multi-Voice"
+                       FontSize="12"
+                       TextColor="{DynamicResource Gray600}"
+                       VerticalOptions="Center" />
+                <Switch IsToggled="{Binding MultiVoiceEnabled}" />
+            </HorizontalStackLayout>
+        </Grid>
+
+        <Label Grid.Row="1"
+               Text="{Binding DayTitle, StringFormat='Day {0}: {1}'}"
+               FontAttributes="Bold"
+               FontSize="16"
+               TextColor="{DynamicResource TextColor}">
+            <Label.Text>
+                <MultiBinding StringFormat="Day {0}: {1}">
+                    <Binding Path="DayNumber" />
+                    <Binding Path="DayTitle" />
+                </MultiBinding>
+            </Label.Text>
+        </Label>
+
+        <Grid Grid.Row="2">
+            <CollectionView ItemsSource="{Binding StepGroups}"
+                            SelectionMode="None">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                </CollectionView.ItemsLayout>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="vm:GuidedStudyStepGroup">
+                        <Border Padding="0"
+                                BackgroundColor="{DynamicResource CardBackground}"
+                                Stroke="{DynamicResource Gray300}">
+                            <Border.StrokeShape>
+                                <RoundRectangle CornerRadius="12" />
+                            </Border.StrokeShape>
+
+                            <VerticalStackLayout Spacing="0">
+                                <Grid Padding="12" ColumnDefinitions="*,Auto" BackgroundColor="{DynamicResource CardBackground}">
+                                    <Label Grid.Column="0"
+                                           Text="{Binding Title}"
+                                           FontAttributes="Bold"
+                                           FontSize="14"
+                                           TextColor="{DynamicResource TextColor}" />
+                                    <Label Grid.Column="1"
+                                           Text="▶"
+                                           FontSize="14"
+                                           TextColor="{DynamicResource Gray600}"
+                                           VerticalOptions="Center">
+                                        <Label.Triggers>
+                                            <DataTrigger TargetType="Label" Binding="{Binding IsExpanded}" Value="True">
+                                                <Setter Property="Text" Value="▼" />
+                                            </DataTrigger>
+                                        </Label.Triggers>
+                                    </Label>
+                                </Grid>
+
+                                <Border IsVisible="{Binding IsExpanded}"
+                                        Stroke="Transparent"
+                                        BackgroundColor="Transparent"
+                                        Padding="12,0,12,12">
+                                    <CollectionView ItemsSource="{Binding Items}"
+                                                    SelectionMode="None">
+                                        <CollectionView.ItemsLayout>
+                                            <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                                        </CollectionView.ItemsLayout>
+
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:GuidedStudyStep">
+                                                <VerticalStackLayout Spacing="6">
+                                                    <Label Text="{Binding Title}"
+                                                           FontAttributes="Bold"
+                                                           FontSize="13"
+                                                           TextColor="{DynamicResource TextColor}" />
+                                                    <Label Text="{Binding Content}"
+                                                           FontSize="13"
+                                                           TextColor="{DynamicResource TextColor}"
+                                                           LineBreakMode="WordWrap" />
+                                                </VerticalStackLayout>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </Border>
+
+                                <VerticalStackLayout.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BindingContext.ToggleGroupCommand, Source={RelativeSource AncestorType={x:Type ContentPage}}}"
+                                                        CommandParameter="{Binding .}" />
+                                </VerticalStackLayout.GestureRecognizers>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               Color="{DynamicResource Primary}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
+
+        <Button Grid.Row="3"
+                Text="Refresh"
+                Command="{Binding LoadCommand}"
+                BackgroundColor="{DynamicResource Primary}"
+                TextColor="White"
+                CornerRadius="10"
+                HeightRequest="48" />
+
+    </Grid>
+</ContentPage>

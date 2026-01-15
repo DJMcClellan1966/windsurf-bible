@@ -211,14 +211,16 @@ public partial class ReadingPlanViewModel : BaseViewModel
         if (TodaysReading == null || !TodaysReading.Passages.Any())
             return;
 
+        if (ActivePlan != null && ActiveProgress != null && ActivePlan.IsGuidedStudy)
+        {
+            var multiVoice = ActivePlan.DefaultMultiVoiceEnabled;
+            await Shell.Current.GoToAsync($"GuidedStudy?planId={Uri.EscapeDataString(ActivePlan.Id)}&dayNumber={ActiveProgress.CurrentDay}&multiVoice={multiVoice}");
+            return;
+        }
+
         // Navigate to Bible reader with the first passage
         var passage = TodaysReading.Passages.First();
-        // This would navigate to BibleReaderPage with the passage reference
-        // For now, show the passage
-        await _dialogService.ShowAlertAsync(
-            "Today's Reading",
-            $"Open your Bible to: {string.Join(", ", TodaysReading.Passages)}",
-            "OK");
+        await Shell.Current.GoToAsync($"BibleReader?reference={Uri.EscapeDataString(passage)}");
     }
 
     [RelayCommand]

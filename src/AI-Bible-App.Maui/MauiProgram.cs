@@ -52,6 +52,7 @@ public static class MauiProgram
 		builder.Services.AddSingleton<IReflectionRepository, JsonReflectionRepository>();
 		builder.Services.AddSingleton<IHealthCheckService, HealthCheckService>();
 		builder.Services.AddSingleton<IBibleLookupService, BibleLookupService>();
+		builder.Services.AddSingleton<IGuidedStudyService, GuidedStudyService>();
 		builder.Services.AddSingleton<ITrainingDataExporter, TrainingDataExporter>();
 		
 		// New feature services
@@ -238,6 +239,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<BookmarksViewModel>();
 		builder.Services.AddTransient<CustomCharacterViewModel>();
 		builder.Services.AddTransient<ReadingPlanViewModel>();
+		builder.Services.AddTransient<GuidedStudyViewModel>();
 		builder.Services.AddTransient<SubscriptionViewModel>();
 
 		// Register Pages
@@ -264,6 +266,7 @@ public static class MauiProgram
 		builder.Services.AddTransient<BookmarksPage>();
 		builder.Services.AddTransient<CustomCharacterPage>();
 		builder.Services.AddTransient<ReadingPlanPage>();
+		builder.Services.AddTransient<GuidedStudyPage>();
 		builder.Services.AddTransient<AdminPage>();
 		builder.Services.AddTransient<SubscriptionPage>();
 		
